@@ -60,3 +60,26 @@
   font-size: 0.85rem;
   font-weight: bold;
 }
+
+/* Version Web */
+@media (min-width: 768px) {
+  .contenedor-central {
+    min-height: 100vh;
+    justify-content: center;
+    max-width: 480px;
+    padding: 24px;
+  }
+
+  .titulo {
+    font-size: 2.6rem;
+  }
+
+  .campo {
+    --padding-start: 16px;
+    --padding-end: 16px;
+  }
+
+  .boton-principal {
+    width: 70%;
+  }
+}
