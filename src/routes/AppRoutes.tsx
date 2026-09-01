@@ -8,6 +8,7 @@ import ConsultaPublicaPage from "../pages/public/ConsultaPublicaPage";
 import VecinoHomePage from "../pages/vecino/VecinoHomePage";
 import AdminHomePage from "../pages/admin/AdminHomePage";
 import NotFoundPage from "../pages/NotFoundPage";
+import Dashboard from "../pages/admin/Dashboard";
 
 function AppRoutes() {
   return (
@@ -32,6 +33,7 @@ function AppRoutes() {
         component={AdminHomePage}
         roles={["admin"]}
       />
+      <Route exact path="/admin/dashboard" component={Dashboard} />
 
       {/* Redireccion de la ruta raiz al login */}
       <Route exact path="/">
