@@ -1,6 +1,72 @@
 # MiSantoDomingo
 
-## Descripción general del sistema
+## Identificacion de los integrantes del equipo
+Sebastian Garay
+Vicente Olguin
+Ignacio Maureira
+## Distribucion de responsabilidades
+Sebastian Garay 
+
+Responsabilidad: Arquitectura, componentes estructurales, lógica de enrutamiento y control de calidad.
+
+### Tareas EP1:
+Configurar la estructura de carpetas (pages/, components/, routes/, services/, types/).
+
+Implementar React Router con separación de rutas públicas y protegidas por rol, incluyendo redirecciones automáticas obligatorias (ej. usuario no autenticado redirigido a Login).
+
+Programar contratos de datos (interfaces TypeScript) y servicios simulados (mocks) basados en promesas.
+
+Implementar las 4 vistas mínimas en código (IonPage, IonHeader, IonContent, IonTabs, IonMenu) asegurando funcionamiento responsivo en móvil y escritorio.
+
+Validar y mezclar los Pull Requests en la rama fronten
+
+Benjamin Lazcano
+
+Responsabilidad: Requerimientos (EP 1.1), investigación de usuarios (EP 1.2), arquitectura de información (EP 1.4) y README.md (3.1).
+
+### Tareas EP1:
+Requerimientos (EP 1.1): Matriz de 7 Requerimientos Funcionales (RF) y 5 No Funcionales (RNF) con ID, Nombre y Descripción. Restricción: Ningún RF puede ser Login ni Registro.
+
+Investigación (EP 1.2): Justificación del problema con fuentes secundarias citadas y 2 proto-personas, diferenciando explícitamente la evidencia de los supuestos hipotéticos.
+
+Arquitectura UX (EP 1.4): Definición de task flows, jerarquía de vistas, puntos críticos y la justificación técnica (usabilidad, eficiencia, claridad y escalabilidad).
+
+README.md (3.1): Redactar la documentación completa en Markdown con los 11 puntos obligatorios (instalación, ejecución, tecnologías, tablas, enlaces y multimedia)
+
+Vicente Olguin
+
+Responsabilidad: Prototipado manual en Figma del flujo de gestión del funcionario, versión web (EP 1.3).
+
+### Tareas EP1:
+Diseñar las pantallas de Login y Registro (versión web) con estados de validación, mensajes de error (correo incorrecto, cuenta inexistente, contraseñas no coincidentes) y campos de seguridad de contraseña.
+
+Diseñar el Dashboard (RF-10): panel de indicadores en tiempo real — reclamos ingresados, tiempo promedio de respuesta y reclamos vencidos, con filtro por rango de fechas.
+
+Diseñar la pantalla de Gestión de reclamos (RF-06): listado tabular con filtros combinables por categoría, unidad responsable y días restantes de plazo.
+
+Diseñar el Detalle del reclamo, incluyendo las acciones de Derivar (RF-07, con selección de unidad destino y observación) y Cerrar reclamo (RF-08, con respuesta formal), más las pantallas de resultado (éxito y error de conexión).
+
+Diseñar la pantalla de Reportes (RF-11): selector de rango de fechas, métricas del período (tiempo promedio, % resuelto, total) y descarga en formato PDF/CSV.
+
+Ignacio Maureira
+
+Responsabilidad: Prototipado manual en Figma del flujo completo del vecino, versión móvil (EP 1.3).
+
+### Tareas EP1:
+Diseñar las pantallas de Login, Registro y recuperación de contraseña (olvidé mi contraseña → código de verificación → cambio de contraseña), con sus estados de error.
+
+Diseñar el menú de reclamos (elegir entre "Ingresar un reclamo" o "Consultar un reclamo") como punto de entrada tras iniciar sesión.
+
+Diseñar el flujo de Ingresar un reclamo (RF-01): selección de categoría, descripción, dirección y adjuntar fotografía (cámara, archivos, galería o Google Drive), terminando en una pantalla de confirmación con el folio generado automáticamente (RF-02).
+
+Diseñar el flujo de Consultar un reclamo (RF-03): búsqueda por folio, manejo del caso "folio no encontrado", y detalle con estado, plazo de respuesta restante (RF-04) e historial cronológico de avances.
+
+Diseñar la pantalla de Mis reclamos: listado personal con estado y días restantes de cada reclamo.
+
+Diseñar la pantalla de Calificación de respuesta (RF-09): visible solo cuando el reclamo está resuelto, con escala de estrellas y la respuesta formal visible.
+
+Diseñar el menú de Perfil (datos personales, idioma, apariencia, seguridad, centro de ayuda, términos y condiciones, cerrar sesión) y el menú de Notificaciones (RF-05), con historial de actualizaciones por reclamo y opción de borrarlas.
+
 
 ## Problema o necesidad que aborda
 Tiempos de respuesta prolongados o falta de soluciones efectivas a los reclamos y
