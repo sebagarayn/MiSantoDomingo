@@ -92,6 +92,55 @@ Dispositivo/contexto: Computador de escritorio, oficina municipal
 -Se asume que ambos roles priorizan la claridad del estado del reclamo por sobre funciones avanzadas o de personalización.
 
 ### Fuente de datos demográficos: Censo de Población y Vivienda 2017 y 2024, INE — Reporte comunal de Santo Domingo, punto 1.4 "Población por grupos de edad".
+## Requerimientos del proyecto
+El ítem 1.1 explícitamente dice:”Estas funcionalidades están fuera de inicio se sesión o registrarse ya que deben estar inmersas en la propuesta.” Por lo que se asume todo tipo de requerimiento de agregar usuario, ingresar usuario, ingreso de datos etc.
+
+Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza en la principal problemática.
+
+## Requerimientos funcionales
+RF-01: El sistema deberá permitir que el vecino ingrese un reclamo indicando categoría (selección de lista predefinida), descripción (texto libre, máximo 500 caracteres), ubicación (dirección) y, opcionalmente, una fotografía (formato jpg o png, máximo 5 MB).
+
+RF-02: El sistema deberá generar automáticamente un número de folio único y alfanumérico (ej. SD-2026-000123) para cada reclamo ingresado, sin duplicados, mostrado al usuario inmediatamente después del envío
+
+RF-03: El sistema deberá permitir que el vecino consulte el estado y el historial de su reclamo mediante una búsqueda por número de folio, sin requerir inicio de sesión, mostrando el estado actual y la fecha de cada cambio
+
+RF-04: El sistema deberá calcular automáticamente, desde la fecha de ingreso, los días restantes del plazo legal de 20 días corridos (prorrogable a 30)
+
+RF-05: El sistema deberá notificar al usuario dentro de la aplicación cada vez que el estado de su reclamo cambie, indicando el nuevo estado y la fecha del cambio, y manteniendo un historial de notificaciones disponible en su perfil.
+
+Nota de diseño: El sistema contempla dos vías de consulta para el vecino: (a) consulta rápida por folio sin necesidad de cuenta (RF-03), pensada para minimizar la barrera de entrada; y (b) una cuenta opcional que permite ver el historial completo de reclamos propios y recibir notificaciones (RF-05). Esto responde al perfil de baja experiencia tecnológica de María, evitando forzar un registro obligatorio para una consulta simple.
+
+RF-06: El sistema deberá permitir que el funcionario liste y filtre los reclamos por categoría, unidad responsable y rango de días restantes, pudiendo combinar estos filtros entre sí.
+
+RF-07: El sistema deberá permitir que el funcionario derive un reclamo a otra unidad municipal, seleccionando la unidad destino y registrando una observación obligatoria en el historial.
+
+RF-08: El sistema deberá permitir que el funcionario cierre un reclamo ingresando obligatoriamente una respuesta formal en texto libre, cambiando automáticamente el estado a "Resuelto" y dejando la respuesta visible para el vecino.
+
+RF-09: El sistema deberá permitir que el vecino califique, en una escala de 1 a 5, la respuesta recibida, una única vez por reclamo, y solo cuando este se encuentre en estado "Resuelto".
+
+RF-10: El sistema deberá mostrar al funcionario un panel con el tiempo promedio de respuesta en días, la cantidad de reclamos vencidos, y la posibilidad de filtrar estos indicadores por rango de fechas.
+
+RF-11: El sistema deberá permitir que el funcionario genere un informe periódico (mensual o por rango de fechas) con la cantidad de reclamos ingresados, el tiempo promedio de respuesta por categoría y el porcentaje de reclamos resueltos dentro del plazo legal, descargable en formato PDF o CSV. 
+
+## Requerimientos no funcionales
+
+RNF-01 (Usabilidad): La interfaz deberá cumplir un estándar de lenguaje simple y tipografía legible (tamaño mínimo 16px, sin tecnicismos), permitiendo que el ingreso de un reclamo se complete en 3 minutos o menos sin ayuda externa.
+
+RNF-02 (Rendimiento): El formulario de ingreso de reclamo, incluida la carga de 
+fotografía, deberá funcionar de forma aceptable en conexión 3G/intermitente, 
+mostrando retroalimentación visual de progreso durante la subida.
+
+RNF-03 (Seguridad): El sistema deberá restringir el acceso a las funciones según el rol del usuario, permitiendo que cada tipo de usuario acceda únicamente a las funcionalidades que le correspondan.
+
+RNF-04 (Usabilidad): Las acciones principales del vecino (ingresar reclamo, 
+consultar por folio) deberán estar accesibles en máximo 2 toques desde la 
+pantalla de inicio, con elementos interactivos de mínimo 44x44 px.
+
+RNF-05 (Trazabilidad): Todo cambio de estado o derivación entre unidades 
+municipales deberá quedar registrado con fecha, hora y responsable, visible 
+en el historial del reclamo.
+
+RNF-06 (Compatibilidad): La aplicación deberá funcionar correctamente en las últimas dos versiones de Chrome y Safari, y como app móvil en Android 10 o superior e iOS 15.
 
 ## Instrucciones de instalación y configuración
 
