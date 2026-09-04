@@ -5,7 +5,7 @@ Sebastian Garay
 Vicente Olguin
 Ignacio Maureira
 ## Distribucion de responsabilidades
-Sebastian Garay 
+### Sebastian Garay 
 
 Responsabilidad: Arquitectura, componentes estructurales, lógica de enrutamiento y control de calidad.
 
@@ -20,7 +20,7 @@ Implementar las 4 vistas mínimas en código (IonPage, IonHeader, IonContent, Io
 
 Validar y mezclar los Pull Requests en la rama fronten
 
-Benjamin Lazcano
+### Benjamin Lazcano
 
 Responsabilidad: Requerimientos (EP 1.1), investigación de usuarios (EP 1.2), arquitectura de información (EP 1.4) y README.md (3.1).
 
@@ -33,7 +33,7 @@ Arquitectura UX (EP 1.4): Definición de task flows, jerarquía de vistas, punto
 
 README.md (3.1): Redactar la documentación completa en Markdown con los 11 puntos obligatorios (instalación, ejecución, tecnologías, tablas, enlaces y multimedia)
 
-Vicente Olguin
+### Vicente Olguin
 
 Responsabilidad: Prototipado manual en Figma del flujo de gestión del funcionario, versión web (EP 1.3).
 
@@ -48,7 +48,7 @@ Diseñar el Detalle del reclamo, incluyendo las acciones de Derivar (RF-07, con 
 
 Diseñar la pantalla de Reportes (RF-11): selector de rango de fechas, métricas del período (tiempo promedio, % resuelto, total) y descarga en formato PDF/CSV.
 
-Ignacio Maureira
+### Ignacio Maureira
 
 Responsabilidad: Prototipado manual en Figma del flujo completo del vecino, versión móvil (EP 1.3).
 
