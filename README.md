@@ -232,3 +232,12 @@ npm run dev
 (o ionic serve si se prefiere usar la CLI de Ionic)
 
 Una vez iniciado, abrir el navegador en la URL que indique la terminal (por defecto http://localhost:5173 o similar).
+
+# Mockups
+### Link para mockups app web
+
+Vicente Olguin :
+
+### Link para mockups app movil
+
+Ignacio Maureira:
