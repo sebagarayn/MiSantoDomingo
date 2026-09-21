@@ -234,9 +234,10 @@ npm run dev
 Una vez iniciado, abrir el navegador en la URL que indique la terminal (por defecto http://localhost:5173 o similar).
 
 # Mockups
-### Link para mockups app web
 
-Vicente Olguin :
+Vicente Olguin: https://www.figma.com/design/g226BWBCK7VZ2fzl9aj8at/Sin-título?node-id=0-1&t=OWk7vIgmDlFjNYgl-1
+
+
 
 ### Link para mockups app movil
 
