@@ -138,6 +138,7 @@ class ReportService {
   }
 
   // Para elRF-01 y RF-02: Creación de reclamo con generación de Folio único SD-2026-XXXXXX
+  // RF-01 y RF-02: Creación de reclamo con generación de Folio único SD-2026-XXXXXX
   public async crearReclamo(
     input: ICreateReportInput,
     creadorId?: string,
@@ -149,6 +150,11 @@ class ReportService {
         const nuevoFolio = `SD-2026-${correlativo}`;
         const fechaActual = new Date().toISOString();
 
+        // Asegura que tome el ID del creador y origen correcto
+        const creadorIdFinal = input.creadorId || creadorId || "usr-vecino-1";
+        const origenFinal =
+          input.origen || (creadorIdFinal ? "usuario" : "publico");
+
         const nuevo: IReport = {
           folio: nuevoFolio,
           categoria: input.categoria,
@@ -158,8 +164,8 @@ class ReportService {
           estado: "Pendiente",
           fechaIngreso: fechaActual,
           unidadAsignada: "OIRS Central",
-          origen: creadorId ? "usuario" : "publico",
-          creadorId: creadorId,
+          origen: origenFinal,
+          creadorId: creadorIdFinal,
           historial: [
             {
               estado: "Pendiente",
@@ -173,7 +179,7 @@ class ReportService {
         const actualizados = [nuevo, ...reclamos];
         this.setStorage(actualizados);
         resolve(nuevo);
-      }, 200);
+      }, 150);
     });
   }
 
