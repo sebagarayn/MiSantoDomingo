@@ -21,6 +21,9 @@ import {
   IonSelectOption,
   IonText,
   IonToast,
+  IonTabBar,
+  IonTabButton,
+  IonFooter,
 } from "@ionic/react";
 import {
   addCircleOutline,
@@ -32,13 +35,16 @@ import {
   cameraOutline,
   arrowBackOutline,
   imageOutline,
+  homeOutline,
+  documentTextOutline,
+  logOutOutline,
 } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
 
-// Categorías Figma móvil
+// Categorías exactas del Figma móvil
 const CATEGORIAS_FIGMA = [
   "Alumbrado público",
   "Aseo y ornato",
@@ -49,7 +55,7 @@ const CATEGORIAS_FIGMA = [
 ];
 
 const VecinoHomePage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const history = useHistory();
 
   const [reclamos, setReclamos] = useState<IReport[]>([]);
@@ -67,7 +73,6 @@ const VecinoHomePage: React.FC = () => {
 
   const cargarReclamos = async () => {
     const data = await reportService.obtenerReclamos();
-    // Reclamos creados por el vecino
     setReclamos(
       data.filter((r) => r.creadorId === user?.id || r.origen === "usuario"),
     );
@@ -100,7 +105,7 @@ const VecinoHomePage: React.FC = () => {
       idUsuario,
     );
 
-    // Agrega el reclamo de inmediato arriba en la lista reactiva
+    // Agrega el reclamo de inmediato arriba en la lista
     setReclamos((prev) => [nuevo, ...prev]);
     setReclamoCreadoExito(nuevo);
 
@@ -114,7 +119,7 @@ const VecinoHomePage: React.FC = () => {
   const cerrarFlujoExito = () => {
     setReclamoCreadoExito(null);
     setModalCrearAbierto(false);
-    cargarReclamos(); // Vuelve a sincronizar con storage
+    cargarReclamos();
   };
 
   return (
@@ -129,7 +134,9 @@ const VecinoHomePage: React.FC = () => {
       </IonHeader>
 
       <IonContent className="ion-padding">
-        <div style={{ maxWidth: "520px", margin: "0 auto" }}>
+        <div
+          style={{ maxWidth: "520px", margin: "0 auto", paddingBottom: "20px" }}
+        >
           {/* Bienvenida */}
           <div style={{ margin: "10px 0 20px 0" }}>
             <h2 style={{ fontWeight: 700, margin: "0 0 4px 0" }}>
@@ -142,7 +149,7 @@ const VecinoHomePage: React.FC = () => {
             </IonText>
           </div>
 
-          {/* Menú "¿Qué desea hacer?" */}
+          {/* Menú "¿Qué desea hacer?" (Figma móvil - Fila 1) */}
           <IonCard
             style={{
               borderRadius: "16px",
@@ -187,7 +194,7 @@ const VecinoHomePage: React.FC = () => {
             </IonCardContent>
           </IonCard>
 
-          {/* Sección "Mis reclamos" */}
+          {/* Sección "Mis reclamos" (Figma móvil - Fila 1) */}
           <div
             style={{
               display: "flex",
@@ -325,7 +332,7 @@ const VecinoHomePage: React.FC = () => {
           )}
         </div>
 
-        {/* MODAL: Ingresar un reclamo */}
+        {/* MODAL: Ingresar un reclamo (Figma móvil - Fila 3) */}
         <IonModal
           isOpen={modalCrearAbierto}
           onDidDismiss={() => setModalCrearAbierto(false)}
@@ -345,7 +352,6 @@ const VecinoHomePage: React.FC = () => {
 
           <IonContent className="ion-padding">
             <div style={{ maxWidth: "520px", margin: "0 auto" }}>
-              {/* FORMULARIO DE INGRESO */}
               {!reclamoCreadoExito ? (
                 <form onSubmit={handleEnviarReclamo}>
                   {/* Selector Categoría */}
@@ -484,7 +490,7 @@ const VecinoHomePage: React.FC = () => {
                   </IonButton>
                 </form>
               ) : (
-                /* Figma móvil - Fila 3 */
+                /* Pantalla de Confirmación de Folio (Figma) */
                 <div
                   className="ion-text-center"
                   style={{ padding: "20px 10px" }}
@@ -577,6 +583,43 @@ const VecinoHomePage: React.FC = () => {
           onDidDismiss={() => setToastMsg("")}
         />
       </IonContent>
+
+      {/* BARRA INFERIOR FIGMA MÓVIL (IonTabBar y IonTabButton) */}
+      <IonFooter>
+        <IonTabBar
+          slot="bottom"
+          style={{ borderTop: "1px solid #e0e0e0", height: "60px" }}
+        >
+          <IonTabButton
+            tab="inicio"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            <IonIcon icon={homeOutline} />
+            <IonLabel>Inicio</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton
+            tab="reclamos"
+            onClick={() => setModalCrearAbierto(true)}
+          >
+            <IonIcon icon={addCircleOutline} />
+            <IonLabel>Ingresar</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton
+            tab="consulta"
+            onClick={() => history.push("/consulta")}
+          >
+            <IonIcon icon={searchOutline} />
+            <IonLabel>Consultar</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton tab="salir" onClick={logout}>
+            <IonIcon icon={logOutOutline} />
+            <IonLabel>Salir</IonLabel>
+          </IonTabButton>
+        </IonTabBar>
+      </IonFooter>
     </IonPage>
   );
 };
