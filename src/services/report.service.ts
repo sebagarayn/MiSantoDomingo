@@ -8,16 +8,18 @@ import {
 const STORAGE_KEY = "msd_mock_reports";
 
 // Semilla inicial de datos para Santo Domingo (coherente con las proto-personas)
+// Semilla inicial con las unidades oficiales del Figma
+// Semilla con categorias y unidades oficiales unificadas
 const RECLAMOS_SEMILLA: IReport[] = [
   {
     folio: "SD-2026-000101",
-    categoria: "Luminarias y Alumbrado",
+    categoria: "Alumbrado público",
     descripcion:
       "Poste con luz intermitente en Calle Los Aromos #450. Genera sensación de inseguridad de noche.",
     ubicacion: "Calle Los Aromos 450, Santo Domingo",
     estado: "Pendiente",
-    fechaIngreso: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // Hace 3 días
-    unidadAsignada: "Operaciones y Servicios Públicos",
+    fechaIngreso: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    unidadAsignada: "OIRS Central", // Recien llegado a mesa de entrada
     origen: "usuario",
     creadorId: "usr-vecino-1",
     historial: [
@@ -30,13 +32,13 @@ const RECLAMOS_SEMILLA: IReport[] = [
   },
   {
     folio: "SD-2026-000088",
-    categoria: "Aseo y Ornato",
+    categoria: "Aseo y ornato",
     descripcion:
       "Microbasural clandestino formado en quebrada cercana a Av. Santa María.",
     ubicacion: "Av. Santa María con Las Lilas",
     estado: "Derivado",
-    fechaIngreso: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // Hace 14 días
-    unidadAsignada: "Medio Ambiente",
+    fechaIngreso: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+    unidadAsignada: "Desarrollo comunitario", // Ya derivado a unidad ejecutora
     origen: "usuario",
     creadorId: "usr-vecino-1",
     historial: [
@@ -48,24 +50,23 @@ const RECLAMOS_SEMILLA: IReport[] = [
       {
         estado: "Derivado",
         fecha: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-        observacion:
-          "Se deriva a cuadrilla de Medio Ambiente para retiro de escombros.",
+        observacion: "Se deriva para coordinar retiro de escombros.",
         responsableId: "OIRS Central",
       },
     ],
   },
   {
     folio: "SD-2026-000042",
-    categoria: "Vialidad y Calles",
+    categoria: "Calles y veredas",
     descripcion:
       "Bache pronunciado en calzada frente a consultorio que daña neumáticos.",
     ubicacion: "Av. El Golf frente al consultorio",
     estado: "Resuelto",
     fechaIngreso: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
-    unidadAsignada: "Dirección de Obras (DOM)",
+    unidadAsignada: "Obras municipales",
     origen: "publico",
     respuestaFormal:
-      "Se ejecutaron obras de bacheo asfáltico en frío el día 12 del presente mes por equipo de emergencia DOM.",
+      "Se ejecutaron obras de bacheo asfáltico en frío el día 12 del presente mes por equipo de emergencia.",
     calificacion: 5,
     historial: [
       {
@@ -90,7 +91,50 @@ class ReportService {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(RECLAMOS_SEMILLA));
         return RECLAMOS_SEMILLA;
       }
-      return JSON.parse(raw);
+      const data: IReport[] = JSON.parse(raw);
+
+      // Normaliza categorias y unidades viejas que hayan quedado en el cache
+      const dataLimpia = data.map((r) => {
+        // Normaliza categorias
+        if (
+          r.categoria.includes("Luminarias") ||
+          r.categoria.includes("Alumbrado")
+        ) {
+          r.categoria = "Alumbrado público";
+        } else if (
+          r.categoria.includes("Aseo") ||
+          r.categoria.includes("Basura")
+        ) {
+          r.categoria = "Aseo y ornato";
+        } else if (
+          r.categoria.includes("Vialidad") ||
+          r.categoria.includes("Calles") ||
+          r.categoria.includes("Bache")
+        ) {
+          r.categoria = "Calles y veredas";
+        }
+
+        // Normaliza unidades
+        if (!r.unidadAsignada || r.unidadAsignada === "OIRS Central") {
+          r.unidadAsignada = "OIRS Central";
+        } else if (
+          r.unidadAsignada.includes("Operaciones") ||
+          r.unidadAsignada.includes("DOM") ||
+          r.unidadAsignada.includes("Obras")
+        ) {
+          r.unidadAsignada = "Obras municipales";
+        } else if (
+          r.unidadAsignada.includes("Ambiente") ||
+          r.unidadAsignada.includes("Comunitario") ||
+          r.unidadAsignada.includes("Desarrollo")
+        ) {
+          r.unidadAsignada = "Desarrollo comunitario";
+        }
+
+        return r;
+      });
+
+      return dataLimpia;
     } catch {
       return RECLAMOS_SEMILLA;
     }

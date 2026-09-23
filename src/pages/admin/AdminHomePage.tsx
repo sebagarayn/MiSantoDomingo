@@ -6,7 +6,6 @@ import {
   IonTitle,
   IonContent,
   IonButtons,
-  IonMenuButton,
   IonButton,
   IonIcon,
   IonCard,
@@ -17,26 +16,63 @@ import {
   IonTextarea,
   IonSearchbar,
   IonToast,
+  IonFooter,
+  IonTabBar,
+  IonTabButton,
+  IonLabel,
+  IonAlert,
 } from "@ionic/react";
-import { checkmarkCircleOutline, arrowBackOutline } from "ionicons/icons";
+import {
+  checkmarkCircleOutline,
+  arrowBackOutline,
+  clipboardOutline,
+  statsChartOutline,
+  logOutOutline,
+} from "ionicons/icons";
+import { useHistory } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
+import AdminSidebar from "../../components/AdminSidebar";
 
-// Unidades municipales del Figma de escritorio
-const UNIDADES_FIGMA = [
+// Unidades para el filtro de la tabla (incluye OIRS Central de entrada)
+const UNIDADES_FILTRO = [
+  "OIRS Central",
+  "Obras municipales",
   "Salud",
   "Educación",
-  "Obras municipales",
   "Desarrollo comunitario",
 ];
 
+// Unidades de destino para derivar un reclamo
+const UNIDADES_DERIVACION = [
+  "Obras municipales",
+  "Salud",
+  "Educación",
+  "Desarrollo comunitario",
+];
+
+// Categorias oficiales definidas en el Figma
+const CATEGORIAS_OFICIALES = [
+  "Alumbrado público",
+  "Aseo y ornato",
+  "Calles y veredas",
+  "Seguridad",
+  "Transporte",
+  "Otros",
+];
+
 const AdminHomePage: React.FC = () => {
+  const history = useHistory();
+  const { logout } = useAuth();
+
+  // Estados para datos y filtros
   const [reclamos, setReclamos] = useState<IReport[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("todos");
   const [filtroUnidad, setFiltroUnidad] = useState("todos");
 
-  // Detalle del reclamo seleccionado
+  // Reclamo seleccionado para ver detalle
   const [reclamoSeleccionado, setReclamoSeleccionado] =
     useState<IReport | null>(null);
   const [modalDetalleAbierto, setModalDetalleAbierto] = useState(false);
@@ -53,9 +89,11 @@ const AdminHomePage: React.FC = () => {
   >("none");
   const [descripcionCierre, setDescripcionCierre] = useState("");
 
+  // Alertas y mensajes
+  const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
 
-  // Carga inicial de datos desde el servicio mock
+  // Carga los reclamos del mock al montar la vista
   const cargarDatos = async () => {
     const data = await reportService.obtenerReclamos();
     setReclamos(data);
@@ -65,15 +103,12 @@ const AdminHomePage: React.FC = () => {
     cargarDatos();
   }, []);
 
-  // Filtros combinados de busqueda, categoria y unidad (RF-06)
+  // Filtra por categoria, unidad o busqueda de texto
   const reclamosFiltrados = reclamos.filter((r) => {
     const matchCat =
-      filtroCategoria === "todos" ||
-      r.categoria.toLowerCase().includes(filtroCategoria.toLowerCase());
+      filtroCategoria === "todos" || r.categoria === filtroCategoria;
     const matchUni =
-      filtroUnidad === "todos" ||
-      (r.unidadAsignada &&
-        r.unidadAsignada.toLowerCase().includes(filtroUnidad.toLowerCase()));
+      filtroUnidad === "todos" || r.unidadAsignada === filtroUnidad;
     const matchTxt =
       busqueda.trim() === "" ||
       r.folio.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -82,6 +117,7 @@ const AdminHomePage: React.FC = () => {
     return matchCat && matchUni && matchTxt;
   });
 
+  // Abre el modal con la ficha del reclamo
   const abrirDetalle = (r: IReport) => {
     setReclamoSeleccionado(r);
     setPasoDerivacion("none");
@@ -89,7 +125,7 @@ const AdminHomePage: React.FC = () => {
     setModalDetalleAbierto(true);
   };
 
-  // Ejecuta la derivacion a otra unidad (RF-07)
+  // Guarda la derivacion en el servicio
   const handleConfirmarDerivacion = async () => {
     if (!reclamoSeleccionado || !unidadElegida || !motivoDerivacion.trim()) {
       setToastMsg("Debe ingresar el motivo de la derivación.");
@@ -111,7 +147,7 @@ const AdminHomePage: React.FC = () => {
     cargarDatos();
   };
 
-  // Cierra formalmente el reclamo con respuesta oficial (RF-08)
+  // Guarda la respuesta formal y cierra el reclamo
   const handleConfirmarCierre = async () => {
     if (!reclamoSeleccionado || !descripcionCierre.trim()) {
       setToastMsg("Debe ingresar la descripción formal del cierre.");
@@ -133,7 +169,7 @@ const AdminHomePage: React.FC = () => {
     cargarDatos();
   };
 
-  // Colores semanticos de badges
+  // Colores limpios para los estados
   const getBadgeStyle = (estado: string) => {
     switch (estado) {
       case "Resuelto":
@@ -150,60 +186,38 @@ const AdminHomePage: React.FC = () => {
 
   return (
     <IonPage>
-      {/* Barra superior institucional azul Santo Domingo */}
-      <IonHeader className="ion-no-border">
-        <IonToolbar
-          style={{
-            "--background": "#0D3B66",
-            padding: "4px 0",
-          }}
-        >
-          <IonButtons slot="start">
-            <IonMenuButton style={{ color: "#FFFFFF" }} />
-          </IonButtons>
-
+      {/* Cabecera solo para celulares, en PC se oculta */}
+      <IonHeader className="ion-no-border ion-hide-md-up">
+        <IonToolbar style={{ "--background": "#0D3B66", padding: "4px 0" }}>
           <IonTitle
             style={{
               fontSize: "14px",
               fontWeight: 800,
               color: "#FFFFFF",
-              letterSpacing: "0.8px",
               textTransform: "uppercase",
             }}
           >
-            Panel OIRS — Gestion de Reclamos
+            Panel OIRS
           </IonTitle>
-
-          {/* Logo municipal arriba a la derecha */}
           <IonButtons slot="end" style={{ paddingRight: "12px" }}>
             <div
               style={{
                 background: "#FFFFFF",
                 borderRadius: "8px",
                 padding: "4px 8px",
-                display: "flex",
-                alignItems: "center",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
               }}
             >
               <img
                 src="/logo-santodomingo.png"
-                alt="Logo Santo Domingo"
-                style={{
-                  maxHeight: "30px",
-                  maxWidth: "100px",
-                  objectFit: "contain",
-                  display: "block",
-                }}
+                alt="Logo"
+                style={{ maxHeight: "26px" }}
               />
             </div>
           </IonButtons>
         </IonToolbar>
-
-        {/* Franja tricolor Santo Domingo */}
         <div
           style={{
-            height: "4px",
+            height: "3px",
             width: "100%",
             background:
               "linear-gradient(90deg, #0D3B66 0%, #2E7D32 50%, #F59E0B 100%)",
@@ -211,272 +225,279 @@ const AdminHomePage: React.FC = () => {
         />
       </IonHeader>
 
-      <IonContent className="ion-padding" style={{ "--background": "#F8FAFC" }}>
-        <div
-          style={{
-            maxWidth: "1100px",
-            margin: "0 auto",
-            paddingBottom: "30px",
-          }}
-        >
-          {/* Titulo y filtros superiores */}
-          <div
+      <IonContent style={{ "--background": "#F8FAFC" }}>
+        {/* Contenedor Flex: barra lateral en PC y tabla a la derecha */}
+        <div style={{ display: "flex", minHeight: "100%" }}>
+          <AdminSidebar />
+
+          <main
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "16px",
-              flexWrap: "wrap",
-              gap: "12px",
+              flex: 1,
+              padding: "24px 28px",
+              maxWidth: "1200px",
+              width: "100%",
+              boxSizing: "border-box",
             }}
           >
-            <div>
-              <h2
-                style={{
-                  fontWeight: 800,
-                  color: "#0D3B66",
-                  margin: "0 0 2px 0",
-                  fontSize: "1.4rem",
-                }}
-              >
-                Reclamos Ingresados
-              </h2>
-              <p style={{ margin: 0, fontSize: "13px", color: "#64748B" }}>
-                Bandeja de gestion y derivacion municipal
-              </p>
-            </div>
-
+            {/* Titulo y barra de filtros */}
             <div
               style={{
                 display: "flex",
-                gap: "10px",
+                justifyContent: "space-between",
                 alignItems: "center",
+                marginBottom: "20px",
                 flexWrap: "wrap",
+                gap: "12px",
               }}
             >
-              <div
-                style={{
-                  width: "220px",
-                  border: "1px solid #CBD5E1",
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                  background: "#FFFFFF",
-                }}
-              >
-                <IonSearchbar
-                  value={busqueda}
-                  placeholder="Buscar folio o texto..."
-                  onIonInput={(e) => setBusqueda(e.detail.value!)}
-                  style={{ "--background": "#FFFFFF", padding: "0" }}
-                />
-              </div>
-
-              {/* Filtro por categoria */}
-              <div
-                style={{
-                  background: "#FFFFFF",
-                  border: "1px solid #CBD5E1",
-                  borderRadius: "8px",
-                  padding: "2px 8px",
-                }}
-              >
-                <IonSelect
-                  value={filtroCategoria}
-                  interface="popover"
-                  onIonChange={(e) => setFiltroCategoria(e.detail.value)}
+              <div>
+                <h1
                   style={{
-                    fontSize: "13px",
+                    fontWeight: 800,
                     color: "#0D3B66",
-                    fontWeight: 600,
+                    margin: "0 0 2px 0",
+                    fontSize: "1.5rem",
                   }}
                 >
-                  <IonSelectOption value="todos">
-                    Categoria: Todas
-                  </IonSelectOption>
-                  <IonSelectOption value="Alumbrado">
-                    Alumbrado publico
-                  </IonSelectOption>
-                  <IonSelectOption value="Aseo">Aseo y ornato</IonSelectOption>
-                  <IonSelectOption value="Vialidad">
-                    Vialidad y calles
-                  </IonSelectOption>
-                  <IonSelectOption value="Seguridad">Seguridad</IonSelectOption>
-                </IonSelect>
+                  Reclamos Ingresados
+                </h1>
+                <p style={{ margin: 0, fontSize: "13px", color: "#64748B" }}>
+                  Bandeja de gestion y derivacion municipal
+                </p>
               </div>
 
-              {/* Filtro por unidad municipal */}
               <div
                 style={{
-                  background: "#FFFFFF",
-                  border: "1px solid #CBD5E1",
-                  borderRadius: "8px",
-                  padding: "2px 8px",
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  flexWrap: "wrap",
                 }}
               >
-                <IonSelect
-                  value={filtroUnidad}
-                  interface="popover"
-                  onIonChange={(e) => setFiltroUnidad(e.detail.value)}
+                {/* Buscador de texto */}
+                <div
                   style={{
-                    fontSize: "13px",
-                    color: "#0D3B66",
-                    fontWeight: 600,
+                    width: "200px",
+                    border: "1px solid #CBD5E1",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    background: "#FFFFFF",
                   }}
                 >
-                  <IonSelectOption value="todos">Unidad: Todas</IonSelectOption>
-                  {UNIDADES_FIGMA.map((u) => (
-                    <IonSelectOption key={u} value={u}>
-                      {u}
-                    </IonSelectOption>
-                  ))}
-                </IonSelect>
-              </div>
-            </div>
-          </div>
+                  <IonSearchbar
+                    value={busqueda}
+                    placeholder="Buscar folio o texto..."
+                    onIonInput={(e) => setBusqueda(e.detail.value!)}
+                    style={{ "--background": "#FFFFFF", padding: "0" }}
+                  />
+                </div>
 
-          {/* Tabla de reclamos */}
-          <IonCard
-            style={{
-              borderRadius: "16px",
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E2E8F0",
-              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.04)",
-              overflow: "hidden",
-              margin: "0",
-            }}
-          >
-            <div style={{ overflowX: "auto" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  textAlign: "left",
-                  fontSize: "13px",
-                }}
-              >
-                <thead>
-                  <tr
+                {/* Filtro de categorias oficiales */}
+                <div
+                  style={{
+                    background: "#FFFFFF",
+                    border: "1px solid #CBD5E1",
+                    borderRadius: "8px",
+                    padding: "2px 8px",
+                  }}
+                >
+                  <IonSelect
+                    value={filtroCategoria}
+                    interface="popover"
+                    onIonChange={(e) => setFiltroCategoria(e.detail.value)}
                     style={{
-                      background: "#F1F5F9",
-                      borderBottom: "2px solid #E2E8F0",
-                      color: "#334155",
+                      fontSize: "13px",
+                      color: "#0D3B66",
+                      fontWeight: 600,
                     }}
                   >
-                    <th style={{ padding: "14px 16px", fontWeight: 700 }}>
-                      FOLIO
-                    </th>
-                    <th style={{ padding: "14px 16px", fontWeight: 700 }}>
-                      CATEGORIA
-                    </th>
-                    <th style={{ padding: "14px 16px", fontWeight: 700 }}>
-                      UNIDAD RESPONSABLE
-                    </th>
-                    <th style={{ padding: "14px 16px", fontWeight: 700 }}>
-                      ESTADO
-                    </th>
-                    <th style={{ padding: "14px 16px", fontWeight: 700 }}>
-                      DIAS RESTANTES
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reclamosFiltrados.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={5}
-                        style={{
-                          padding: "24px",
-                          textAlign: "center",
-                          color: "#64748B",
-                        }}
-                      >
-                        No se encontraron reclamos con los filtros aplicados.
-                      </td>
-                    </tr>
-                  ) : (
-                    reclamosFiltrados.map((r) => {
-                      const { diasRestantes, vencido } =
-                        reportService.calcularDiasRestantes(r.fechaIngreso);
-                      const esResuelto = r.estado === "Resuelto";
+                    <IonSelectOption value="todos">
+                      Categoría: Todas
+                    </IonSelectOption>
+                    {CATEGORIAS_OFICIALES.map((cat) => (
+                      <IonSelectOption key={cat} value={cat}>
+                        {cat}
+                      </IonSelectOption>
+                    ))}
+                  </IonSelect>
+                </div>
 
-                      return (
-                        <tr
-                          key={r.folio}
-                          onClick={() => abrirDetalle(r)}
+                {/* Filtro de unidades sincronizadas */}
+                <div
+                  style={{
+                    background: "#FFFFFF",
+                    border: "1px solid #CBD5E1",
+                    borderRadius: "8px",
+                    padding: "2px 8px",
+                  }}
+                >
+                  <IonSelect
+                    value={filtroUnidad}
+                    interface="popover"
+                    onIonChange={(e) => setFiltroUnidad(e.detail.value)}
+                    style={{
+                      fontSize: "13px",
+                      color: "#0D3B66",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <IonSelectOption value="todos">
+                      Unidad: Todas
+                    </IonSelectOption>
+                    {UNIDADES_FILTRO.map((u) => (
+                      <IonSelectOption key={u} value={u}>
+                        {u}
+                      </IonSelectOption>
+                    ))}
+                  </IonSelect>
+                </div>
+              </div>
+            </div>
+
+            {/* Tabla de reclamos */}
+            <IonCard
+              style={{
+                borderRadius: "16px",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.04)",
+                overflow: "hidden",
+                margin: "0",
+              }}
+            >
+              <div style={{ overflowX: "auto" }}>
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    textAlign: "left",
+                    fontSize: "13px",
+                  }}
+                >
+                  <thead>
+                    <tr
+                      style={{
+                        background: "#F1F5F9",
+                        borderBottom: "2px solid #E2E8F0",
+                        color: "#334155",
+                      }}
+                    >
+                      <th style={{ padding: "14px 16px", fontWeight: 700 }}>
+                        FOLIO
+                      </th>
+                      <th style={{ padding: "14px 16px", fontWeight: 700 }}>
+                        CATEGORIA
+                      </th>
+                      <th style={{ padding: "14px 16px", fontWeight: 700 }}>
+                        UNIDAD RESPONSABLE
+                      </th>
+                      <th style={{ padding: "14px 16px", fontWeight: 700 }}>
+                        ESTADO
+                      </th>
+                      <th style={{ padding: "14px 16px", fontWeight: 700 }}>
+                        DIAS RESTANTES
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reclamosFiltrados.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={5}
                           style={{
-                            borderBottom: "1px solid #E2E8F0",
-                            cursor: "pointer",
-                            transition: "background 0.15s",
+                            padding: "24px",
+                            textAlign: "center",
+                            color: "#64748B",
                           }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.background = "#F8FAFC")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.background = "transparent")
-                          }
                         >
-                          <td
+                          No se encontraron reclamos con los filtros aplicados.
+                        </td>
+                      </tr>
+                    ) : (
+                      reclamosFiltrados.map((r) => {
+                        const { diasRestantes, vencido } =
+                          reportService.calcularDiasRestantes(r.fechaIngreso);
+                        const esResuelto = r.estado === "Resuelto";
+
+                        return (
+                          <tr
+                            key={r.folio}
+                            onClick={() => abrirDetalle(r)}
                             style={{
-                              padding: "14px 16px",
-                              fontWeight: 800,
-                              color: "#0D3B66",
+                              borderBottom: "1px solid #E2E8F0",
+                              cursor: "pointer",
+                              transition: "background 0.15s",
                             }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.background = "#F8FAFC")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.background = "transparent")
+                            }
                           >
-                            {r.folio}
-                          </td>
-                          <td
-                            style={{
-                              padding: "14px 16px",
-                              color: "#1E293B",
-                              fontWeight: 600,
-                            }}
-                          >
-                            {r.categoria}
-                          </td>
-                          <td
-                            style={{ padding: "14px 16px", color: "#475569" }}
-                          >
-                            {r.unidadAsignada || "OIRS Central"}
-                          </td>
-                          <td style={{ padding: "14px 16px" }}>
-                            <span
+                            <td
                               style={{
-                                ...getBadgeStyle(r.estado),
-                                fontSize: "11px",
-                                fontWeight: 700,
-                                padding: "3px 8px",
-                                borderRadius: "6px",
-                                textTransform: "uppercase",
+                                padding: "14px 16px",
+                                fontWeight: 800,
+                                color: "#0D3B66",
                               }}
                             >
-                              {r.estado}
-                            </span>
-                          </td>
-                          <td
-                            style={{
-                              padding: "14px 16px",
-                              fontWeight: 700,
-                              color: esResuelto
-                                ? "#15803D"
+                              {r.folio}
+                            </td>
+                            <td
+                              style={{
+                                padding: "14px 16px",
+                                color: "#1E293B",
+                                fontWeight: 600,
+                              }}
+                            >
+                              {r.categoria}
+                            </td>
+                            <td
+                              style={{ padding: "14px 16px", color: "#475569" }}
+                            >
+                              {r.unidadAsignada || "OIRS Central"}
+                            </td>
+                            <td style={{ padding: "14px 16px" }}>
+                              <span
+                                style={{
+                                  ...getBadgeStyle(r.estado),
+                                  fontSize: "11px",
+                                  fontWeight: 700,
+                                  padding: "3px 8px",
+                                  borderRadius: "6px",
+                                  textTransform: "uppercase",
+                                }}
+                              >
+                                {r.estado}
+                              </span>
+                            </td>
+                            <td
+                              style={{
+                                padding: "14px 16px",
+                                fontWeight: 700,
+                                color: esResuelto
+                                  ? "#15803D"
+                                  : vencido
+                                    ? "#DC2626"
+                                    : "#D97706",
+                              }}
+                            >
+                              {esResuelto
+                                ? "0 (Resuelto)"
                                 : vencido
-                                  ? "#DC2626"
-                                  : "#D97706",
-                            }}
-                          >
-                            {esResuelto
-                              ? "0 (Resuelto)"
-                              : vencido
-                                ? `Vencido (${diasRestantes}d)`
-                                : `${diasRestantes} dias`}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </IonCard>
+                                  ? `Vencido (${diasRestantes}d)`
+                                  : `${diasRestantes} dias`}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </IonCard>
+          </main>
         </div>
 
         {/* Modal: Detalle del reclamo */}
@@ -520,7 +541,6 @@ const AdminHomePage: React.FC = () => {
             style={{ "--background": "#F8FAFC" }}
           >
             <div style={{ maxWidth: "640px", margin: "0 auto" }}>
-              {/* Ficha de datos del reclamo */}
               {pasoDerivacion === "none" &&
                 pasoCierre === "none" &&
                 reclamoSeleccionado && (
@@ -735,7 +755,7 @@ const AdminHomePage: React.FC = () => {
                       </IonCardContent>
                     </IonCard>
 
-                    {/* Acciones principales: Derivar y Cerrar */}
+                    {/* Acciones principales de gestion */}
                     {reclamoSeleccionado.estado !== "Resuelto" ? (
                       <div style={{ display: "flex", gap: "12px" }}>
                         <IonButton
@@ -789,7 +809,7 @@ const AdminHomePage: React.FC = () => {
                   </div>
                 )}
 
-              {/* Subflujo derivacion: Elegir unidad */}
+              {/* Subflujo derivacion: Seleccionar unidad de destino */}
               {pasoDerivacion === "elegir_unidad" && (
                 <div style={{ textAlign: "center" }}>
                   <h3
@@ -809,7 +829,7 @@ const AdminHomePage: React.FC = () => {
                       marginBottom: "20px",
                     }}
                   >
-                    {UNIDADES_FIGMA.map((u) => (
+                    {UNIDADES_DERIVACION.map((u) => (
                       <IonButton
                         key={u}
                         expand="block"
@@ -859,7 +879,7 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* Subflujo derivacion: Motivo */}
+              {/* Subflujo derivacion: Redactar motivo */}
               {pasoDerivacion === "motivo" && (
                 <div>
                   <h3
@@ -930,7 +950,7 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* Subflujo derivacion: SUCCESS (Verde Parque) */}
+              {/* Success de derivacion */}
               {pasoDerivacion === "exito" && (
                 <div style={{ textAlign: "center", padding: "24px 10px" }}>
                   <IonIcon
@@ -974,7 +994,7 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* Subflujo cierre: Descripcion formal */}
+              {/* Subflujo cierre: Respuesta formal */}
               {pasoCierre === "descripcion" && (
                 <div>
                   <h3
@@ -1043,7 +1063,7 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* Subflujo cierre: SUCCESS (Verde Parque) */}
+              {/* Success de cierre */}
               {pasoCierre === "exito" && (
                 <div style={{ textAlign: "center", padding: "24px 10px" }}>
                   <IonIcon
@@ -1088,6 +1108,25 @@ const AdminHomePage: React.FC = () => {
           </IonContent>
         </IonModal>
 
+        {/* Alerta de confirmacion de salida */}
+        <IonAlert
+          isOpen={alertaSalirAbierta}
+          onDidDismiss={() => setAlertaSalirAbierta(false)}
+          header="¿Cerrar sesión?"
+          message="¿Está seguro de que desea salir del portal funcionario?"
+          buttons={[
+            { text: "Cancelar", role: "cancel" },
+            {
+              text: "Cerrar sesión",
+              role: "destructive",
+              handler: () => {
+                logout();
+                history.push("/login");
+              },
+            },
+          ]}
+        />
+
         <IonToast
           isOpen={!!toastMsg}
           message={toastMsg}
@@ -1095,6 +1134,48 @@ const AdminHomePage: React.FC = () => {
           onDidDismiss={() => setToastMsg("")}
         />
       </IonContent>
+
+      {/* Barra inferior visible solo en celular (Admin movil) */}
+      <IonFooter className="ion-hide-md-up">
+        <IonTabBar
+          slot="bottom"
+          style={{
+            borderTop: "1px solid #E2E8F0",
+            height: "60px",
+            "--background": "#FFFFFF",
+          }}
+        >
+          {/* Pestana 1: Reclamos (ACTIVA) */}
+          <IonTabButton
+            tab="reclamos"
+            style={{ "--color-selected": "#0D3B66" }}
+          >
+            <IonIcon icon={clipboardOutline} style={{ color: "#0D3B66" }} />
+            <IonLabel style={{ color: "#0D3B66", fontWeight: 800 }}>
+              Reclamos
+            </IonLabel>
+          </IonTabButton>
+
+          {/* Pestana 2: Metricas */}
+          <IonTabButton
+            tab="metricas"
+            onClick={() => history.push("/admin/dashboard")}
+          >
+            <IonIcon icon={statsChartOutline} style={{ color: "#64748B" }} />
+            <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
+              Métricas
+            </IonLabel>
+          </IonTabButton>
+
+          {/* Pestana 3: Salir con alerta */}
+          <IonTabButton tab="salir" onClick={() => setAlertaSalirAbierta(true)}>
+            <IonIcon icon={logOutOutline} style={{ color: "#64748B" }} />
+            <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
+              Salir
+            </IonLabel>
+          </IonTabButton>
+        </IonTabBar>
+      </IonFooter>
     </IonPage>
   );
 };

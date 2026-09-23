@@ -12,7 +12,6 @@ import {
   IonCardSubtitle,
   IonCardContent,
   IonButtons,
-  IonMenuButton,
   IonBackButton,
   IonButton,
   IonIcon,
@@ -22,6 +21,10 @@ import {
   IonList,
   IonSpinner,
   IonToast,
+  IonFooter,
+  IonTabBar,
+  IonTabButton,
+  IonAlert,
 } from "@ionic/react";
 import {
   searchOutline,
@@ -33,20 +36,38 @@ import {
   businessOutline,
   locationOutline,
   calendarOutline,
+  homeOutline,
+  addCircleOutline,
+  logOutOutline,
+  logInOutline,
+  clipboardOutline,
+  statsChartOutline,
 } from "ionicons/icons";
 import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
+import { useHistory } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 const ConsultaPublicaPage: React.FC = () => {
-  // Estados para capturar folio y resultado
+  const history = useHistory();
+  const { isAuthenticated, user, logout } = useAuth();
+
   const [folioInput, setFolioInput] = useState("");
   const [report, setReport] = useState<IReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [calificacionTemp, setCalificacionTemp] = useState<number>(0);
+  const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
 
-  // Busca el reclamo en el mock
+  // Retorno para PC
+  const rutaRegreso = isAuthenticated
+    ? user?.rol === "admin"
+      ? "/admin/inicio"
+      : "/app/inicio"
+    : "/login";
+
+  // Busca el reclamo por folio unico en el mock
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!folioInput.trim()) return;
@@ -64,7 +85,7 @@ const ConsultaPublicaPage: React.FC = () => {
     setLoading(false);
   };
 
-  // Envia calificacion de 1 a 5 estrellas (RF-09)
+  // Califica la atencion si esta resuelto (RF-09)
   const handleCalificar = async (puntuacion: number) => {
     if (!report) return;
     setCalificacionTemp(puntuacion);
@@ -79,7 +100,7 @@ const ConsultaPublicaPage: React.FC = () => {
     setReport(actualizado);
   };
 
-  // Badges con colores semanticos limpios
+  // Colores semanticos limpios
   const getBadgeStyle = (estado: string) => {
     switch (estado) {
       case "Resuelto":
@@ -96,8 +117,19 @@ const ConsultaPublicaPage: React.FC = () => {
 
   return (
     <IonPage>
-      {/* Barra superior minimalista con logo a la derecha */}
-      {/* Barra superior institucional azul Santo Domingo */}
+      {/* Reglas CSS para alternar entre PC y Celular sin fallas */}
+      <style>{`
+        @media (max-width: 767px) {
+          .solo-desktop { display: none !important; }
+          .solo-movil { display: block !important; }
+        }
+        @media (min-width: 768px) {
+          .solo-desktop { display: flex !important; }
+          .solo-movil { display: none !important; }
+        }
+      `}</style>
+
+      {/* Barra superior */}
       <IonHeader className="ion-no-border">
         <IonToolbar
           style={{
@@ -105,9 +137,13 @@ const ConsultaPublicaPage: React.FC = () => {
             padding: "4px 0",
           }}
         >
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/login" style={{ color: "#FFFFFF" }} />
-            <IonMenuButton style={{ color: "#FFFFFF" }} />
+          {/* El boton volver SOLO se muestra en PC */}
+          <IonButtons slot="start" className="solo-desktop">
+            <IonBackButton
+              defaultHref={rutaRegreso}
+              text="Volver"
+              style={{ color: "#FFFFFF" }}
+            />
           </IonButtons>
 
           <IonTitle
@@ -122,7 +158,6 @@ const ConsultaPublicaPage: React.FC = () => {
             Consulta Ciudadana
           </IonTitle>
 
-          {/* Logo municipal arriba a la derecha sobre pastilla blanca limpia */}
           <IonButtons slot="end" style={{ paddingRight: "12px" }}>
             <div
               style={{
@@ -148,7 +183,6 @@ const ConsultaPublicaPage: React.FC = () => {
           </IonButtons>
         </IonToolbar>
 
-        {/* Franja tricolor Santo Domingo como puente hacia el contenido */}
         <div
           style={{
             height: "4px",
@@ -161,7 +195,7 @@ const ConsultaPublicaPage: React.FC = () => {
 
       <IonContent className="ion-padding" style={{ "--background": "#F8FAFC" }}>
         <div
-          style={{ maxWidth: "640px", margin: "0 auto", paddingBottom: "30px" }}
+          style={{ maxWidth: "640px", margin: "0 auto", paddingBottom: "50px" }}
         >
           {/* Tarjeta del buscador */}
           <IonCard
@@ -328,7 +362,6 @@ const ConsultaPublicaPage: React.FC = () => {
               </IonCardHeader>
 
               <IonCardContent style={{ padding: "10px 20px 20px 20px" }}>
-                {/* Datos generales */}
                 <div
                   style={{
                     display: "flex",
@@ -379,7 +412,6 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Descripcion */}
                 <div
                   style={{
                     background: "#F8FAFC",
@@ -408,7 +440,6 @@ const ConsultaPublicaPage: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Plazo legal de 20 dias (RF-04) */}
                 {report.estado !== "Resuelto" && (
                   <div
                     style={{
@@ -417,7 +448,12 @@ const ConsultaPublicaPage: React.FC = () => {
                       ).vencido
                         ? "#FEF2F2"
                         : "#F0F9FF",
-                      borderLeft: `4px solid ${reportService.calcularDiasRestantes(report.fechaIngreso).vencido ? "#EF4444" : "#0284C7"}`,
+                      borderLeft: `4px solid ${
+                        reportService.calcularDiasRestantes(report.fechaIngreso)
+                          .vencido
+                          ? "#EF4444"
+                          : "#0284C7"
+                      }`,
                       padding: "12px",
                       borderRadius: "0 8px 8px 0",
                       display: "flex",
@@ -462,7 +498,6 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Respuesta formal municipal */}
                 {report.respuestaFormal && (
                   <div
                     style={{
@@ -488,7 +523,6 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Calificacion con estrellas doradas (RF-09) */}
                 {report.estado === "Resuelto" && (
                   <div
                     style={{
@@ -552,7 +586,6 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Historial / Trazabilidad (RNF-05) */}
                 <div
                   style={{
                     borderTop: "1px solid #F1F5F9",
@@ -614,6 +647,25 @@ const ConsultaPublicaPage: React.FC = () => {
           )}
         </div>
 
+        {/* ALERTA DE CIERRE DE SESION */}
+        <IonAlert
+          isOpen={alertaSalirAbierta}
+          onDidDismiss={() => setAlertaSalirAbierta(false)}
+          header="¿Cerrar sesión?"
+          message="¿Está seguro de que desea salir del sistema?"
+          buttons={[
+            { text: "Cancelar", role: "cancel" },
+            {
+              text: "Cerrar sesión",
+              role: "destructive",
+              handler: () => {
+                logout();
+                history.push("/login");
+              },
+            },
+          ]}
+        />
+
         <IonToast
           isOpen={!!toastMsg}
           message={toastMsg}
@@ -621,6 +673,141 @@ const ConsultaPublicaPage: React.FC = () => {
           onDidDismiss={() => setToastMsg("")}
         />
       </IonContent>
+
+      {/* BARRA INFERIOR SIEMPRE VISIBLE EN CELULAR */}
+      <IonFooter className="solo-movil">
+        {isAuthenticated && user?.rol === "vecino" ? (
+          <IonTabBar
+            slot="bottom"
+            style={{
+              borderTop: "1px solid #E2E8F0",
+              height: "60px",
+              "--background": "#FFFFFF",
+            }}
+          >
+            {/* Pestaña 1: Volver a Mis Reclamos */}
+            <IonTabButton
+              tab="inicio"
+              onClick={() => history.push("/app/inicio")}
+            >
+              <IonIcon icon={homeOutline} style={{ color: "#64748B" }} />
+              <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
+                Mis Reclamos
+              </IonLabel>
+            </IonTabButton>
+
+            {/* Pestaña 2: Ir a crear nuevo reclamo con ?tab=nuevo */}
+            <IonTabButton
+              tab="nuevo"
+              onClick={() => history.push("/app/inicio?tab=nuevo")}
+            >
+              <IonIcon icon={addCircleOutline} style={{ color: "#64748B" }} />
+              <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
+                Nuevo
+              </IonLabel>
+            </IonTabButton>
+
+            {/* Pestaña 3: Consultar (ACTIVA) */}
+            <IonTabButton
+              tab="consulta"
+              style={{ "--color-selected": "#0D3B66" }}
+            >
+              <IonIcon icon={searchOutline} style={{ color: "#0D3B66" }} />
+              <IonLabel style={{ color: "#0D3B66", fontWeight: 800 }}>
+                Consultar
+              </IonLabel>
+            </IonTabButton>
+
+            {/* Pestaña 4: Cerrar Sesión con confirmación */}
+            <IonTabButton
+              tab="salir"
+              onClick={() => setAlertaSalirAbierta(true)}
+            >
+              <IonIcon icon={logOutOutline} style={{ color: "#64748B" }} />
+              <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
+                Salir
+              </IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        ) : isAuthenticated && user?.rol === "admin" ? (
+          <IonTabBar
+            slot="bottom"
+            style={{
+              borderTop: "1px solid #E2E8F0",
+              height: "60px",
+              "--background": "#FFFFFF",
+            }}
+          >
+            {/* Si es funcionario */}
+            <IonTabButton
+              tab="admin_reclamos"
+              onClick={() => history.push("/admin/inicio")}
+            >
+              <IonIcon icon={clipboardOutline} style={{ color: "#64748B" }} />
+              <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
+                Reclamos
+              </IonLabel>
+            </IonTabButton>
+
+            <IonTabButton
+              tab="admin_kpis"
+              onClick={() => history.push("/admin/dashboard")}
+            >
+              <IonIcon icon={statsChartOutline} style={{ color: "#64748B" }} />
+              <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
+                Métricas
+              </IonLabel>
+            </IonTabButton>
+
+            <IonTabButton
+              tab="consulta"
+              style={{ "--color-selected": "#0D3B66" }}
+            >
+              <IonIcon icon={searchOutline} style={{ color: "#0D3B66" }} />
+              <IonLabel style={{ color: "#0D3B66", fontWeight: 800 }}>
+                Consultar
+              </IonLabel>
+            </IonTabButton>
+
+            <IonTabButton
+              tab="salir"
+              onClick={() => setAlertaSalirAbierta(true)}
+            >
+              <IonIcon icon={logOutOutline} style={{ color: "#64748B" }} />
+              <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
+                Salir
+              </IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        ) : (
+          <IonTabBar
+            slot="bottom"
+            style={{
+              borderTop: "1px solid #E2E8F0",
+              height: "60px",
+              "--background": "#FFFFFF",
+            }}
+          >
+            {/* Si es usuario anónimo sin cuenta */}
+            <IonTabButton tab="login" onClick={() => history.push("/login")}>
+              <IonIcon icon={logInOutline} style={{ color: "#64748B" }} />
+              <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
+                Iniciar Sesión
+              </IonLabel>
+            </IonTabButton>
+
+            <IonTabButton
+              tab="consulta"
+              style={{ "--color-selected": "#0D3B66" }}
+            >
+              <IonIcon icon={searchOutline} style={{ color: "#0D3B66" }} />
+              <IonLabel style={{ color: "#0D3B66", fontWeight: 800 }}>
+                Consultar
+              </IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        )}
+      </IonFooter>
     </IonPage>
   );
 };
