@@ -48,7 +48,7 @@ import {
   checkmarkCircleOutline,
   alertCircleOutline,
 } from "ionicons/icons";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
@@ -67,8 +67,8 @@ const CATEGORIAS_FIGMA = [
 const VecinoHomePage: React.FC = () => {
   const { user, logout } = useAuth();
   const history = useHistory();
+  const location = useLocation();
 
-  // Controla las 3 vistas sin perder la barra lateral: mis_reclamos, nuevo o consulta
   const [vistaActiva, setVistaActiva] = useState<
     "mis_reclamos" | "nuevo" | "consulta"
   >("mis_reclamos");
@@ -82,13 +82,13 @@ const VecinoHomePage: React.FC = () => {
   const [reclamoDetalle, setReclamoDetalle] = useState<IReport | null>(null);
   const [calificacionTemp, setCalificacionTemp] = useState<number>(0);
 
-  // Estados para la consulta por folio integrada
+  // Consulta por folio integrada
   const [folioConsulta, setFolioConsulta] = useState("");
   const [reporteConsulta, setReporteConsulta] = useState<IReport | null>(null);
   const [busquedaRealizada, setBusquedaRealizada] = useState(false);
   const [cargandoConsulta, setCargandoConsulta] = useState(false);
 
-  // Estados para alertas
+  // Alertas
   const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
   const [alertaDescarteAbierta, setAlertaDescarteAbierta] = useState(false);
   const [destinoPendiente, setDestinoPendiente] = useState<
@@ -118,7 +118,15 @@ const VecinoHomePage: React.FC = () => {
     cargarReclamos();
   }, []);
 
-  // Guardia de navegacion: intercepta si hay datos a medio llenar
+  // Lee el parametro ?tab=nuevo si viene desde otra pantalla
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("tab") === "nuevo") {
+      setVistaActiva("nuevo");
+    }
+  }, [location.search]);
+
+  // Guardia de navegacion inteligente
   const navegarConGuardia = (
     destino: "mis_reclamos" | "nuevo" | "consulta" | "salir",
   ) => {
@@ -206,13 +214,14 @@ const VecinoHomePage: React.FC = () => {
     setCalificacionTemp(r.calificacion || 0);
   };
 
+  // Califica desde el modal de detalle
   const handleCalificarDesdeDetalle = async (puntuacion: number) => {
     if (!reclamoDetalle) return;
     setCalificacionTemp(puntuacion);
     await reportService.calificarRespuesta(reclamoDetalle.folio, {
       calificacion: puntuacion,
     });
-    setToastMsg(`Calificacion registrada: ${puntuacion} de 5 estrellas.`);
+    setToastMsg(`Calificación registrada: ${puntuacion} de 5 estrellas.`);
 
     const actualizado = await reportService.obtenerReclamoPorFolio(
       reclamoDetalle.folio,
@@ -223,7 +232,22 @@ const VecinoHomePage: React.FC = () => {
     cargarReclamos();
   };
 
-  // Buscador de folio integrado en el portal
+  // Califica desde la seccion de consulta de folio
+  const handleCalificarDesdeConsulta = async (puntuacion: number) => {
+    if (!reporteConsulta) return;
+    await reportService.calificarRespuesta(reporteConsulta.folio, {
+      calificacion: puntuacion,
+    });
+    setToastMsg(`Calificación registrada: ${puntuacion} de 5 estrellas.`);
+
+    const actualizado = await reportService.obtenerReclamoPorFolio(
+      reporteConsulta.folio,
+    );
+    setReporteConsulta(actualizado);
+    cargarReclamos();
+  };
+
+  // Buscador de folio integrado
   const handleBuscarFolioIntegrado = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!folioConsulta.trim()) return;
@@ -251,7 +275,7 @@ const VecinoHomePage: React.FC = () => {
 
   return (
     <IonPage>
-      {/* Barra superior solo en celular */}
+      {/* Barra superior en celular */}
       <IonHeader className="ion-no-border ion-hide-md-up">
         <IonToolbar style={{ "--background": "#0D3B66", padding: "4px 0" }}>
           <IonTitle
@@ -281,7 +305,6 @@ const VecinoHomePage: React.FC = () => {
       </IonHeader>
 
       <IonContent style={{ "--background": "#F8FAFC" }}>
-        {/* Contenedor Flex: Barra lateral izquierda fija en PC y Contenido a la derecha */}
         <div style={{ display: "flex", minHeight: "100%" }}>
           <VecinoSidebar
             vistaActiva={vistaActiva}
@@ -490,7 +513,7 @@ const VecinoHomePage: React.FC = () => {
                               <span
                                 style={{ color: "#15803D", fontWeight: 700 }}
                               >
-                                Resuelto (Ver solucion)
+                                Resuelto (Ver solución)
                               </span>
                             )}
                           </div>
@@ -809,7 +832,7 @@ const VecinoHomePage: React.FC = () => {
             )}
 
             {/* ========================================================= */}
-            {/* VISTA 3: CONSULTAR FOLIO (INTEGRADO EN PC Y MOVIL)         */}
+            {/* VISTA 3: CONSULTAR FOLIO (CON ESTRELLAS INTERACTIVAS RF-09)*/}
             {/* ========================================================= */}
             {vistaActiva === "consulta" && (
               <div>
@@ -842,8 +865,8 @@ const VecinoHomePage: React.FC = () => {
                           color: "#64748B",
                         }}
                       >
-                        Ingresa el código alfanumérico entregado al momento de
-                        ingresar una solicitud
+                        Ingresa el código alfanumérico para revisar avances y
+                        calificar respuestas
                       </p>
                     </div>
 
@@ -859,7 +882,7 @@ const VecinoHomePage: React.FC = () => {
                         <IonSearchbar
                           value={folioConsulta}
                           onIonInput={(e) => setFolioConsulta(e.detail.value!)}
-                          placeholder="Ej: SD-2026-000101"
+                          placeholder="Ej: SD-2026-000042"
                           showClearButton="focus"
                           style={{ "--background": "#FFFFFF", padding: "0" }}
                         />
@@ -1114,6 +1137,7 @@ const VecinoHomePage: React.FC = () => {
                         </div>
                       )}
 
+                      {/* Respuesta formal */}
                       {reporteConsulta.respuestaFormal && (
                         <div
                           style={{
@@ -1138,6 +1162,84 @@ const VecinoHomePage: React.FC = () => {
                           >
                             {reporteConsulta.respuestaFormal}
                           </p>
+                        </div>
+                      )}
+
+                      {/* Calificacion en la consulta integrada (RF-09: una unica vez) */}
+                      {reporteConsulta.estado === "Resuelto" && (
+                        <div
+                          style={{
+                            textAlign: "center",
+                            borderTop: "1px solid #F1F5F9",
+                            paddingTop: "16px",
+                            marginTop: "16px",
+                          }}
+                        >
+                          <h4
+                            style={{
+                              fontSize: "15px",
+                              fontWeight: 700,
+                              color: "#0D3B66",
+                              margin: "0 0 4px 0",
+                            }}
+                          >
+                            Califica nuestra respuesta
+                          </h4>
+                          <p
+                            style={{
+                              fontSize: "12px",
+                              color: reporteConsulta.calificacion
+                                ? "#15803D"
+                                : "#64748B",
+                              fontWeight: reporteConsulta.calificacion
+                                ? 700
+                                : 400,
+                              margin: "0 0 8px 0",
+                            }}
+                          >
+                            {reporteConsulta.calificacion
+                              ? `Calificación registrada: ${reporteConsulta.calificacion} de 5 estrellas (completado)`
+                              : "Selecciona las estrellas para evaluar la atención municipal"}
+                          </p>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "center",
+                              gap: "6px",
+                              margin: "6px 0",
+                            }}
+                          >
+                            {[1, 2, 3, 4, 5].map((estrella) => (
+                              <IonButton
+                                key={estrella}
+                                fill="clear"
+                                size="large"
+                                disabled={Boolean(reporteConsulta.calificacion)}
+                                onClick={() =>
+                                  handleCalificarDesdeConsulta(estrella)
+                                }
+                              >
+                                <IonIcon
+                                  slot="icon-only"
+                                  icon={
+                                    (reporteConsulta.calificacion || 0) >=
+                                    estrella
+                                      ? star
+                                      : starOutline
+                                  }
+                                  style={{
+                                    color:
+                                      (reporteConsulta.calificacion || 0) >=
+                                      estrella
+                                        ? "#F59E0B"
+                                        : "#CBD5E1",
+                                    fontSize: "28px",
+                                  }}
+                                />
+                              </IonButton>
+                            ))}
+                          </div>
                         </div>
                       )}
 
@@ -1208,7 +1310,7 @@ const VecinoHomePage: React.FC = () => {
           </main>
         </div>
 
-        {/* MODAL: DETALLE COMPLETO AL TOCAR UNA TARJETA */}
+        {/* MODAL: DETALLE COMPLETO AL TOCAR UNA TARJETA EN MIS RECLAMOS */}
         <IonModal
           isOpen={!!reclamoDetalle}
           onDidDismiss={() => setReclamoDetalle(null)}
@@ -1461,6 +1563,7 @@ const VecinoHomePage: React.FC = () => {
                       </div>
                     )}
 
+                    {/* Calificacion si esta resuelto (RF-09: una unica vez) */}
                     {reclamoDetalle.estado === "Resuelto" && (
                       <div
                         style={{
@@ -1474,12 +1577,27 @@ const VecinoHomePage: React.FC = () => {
                           style={{
                             fontSize: "14px",
                             fontWeight: 700,
-                            color: "#0F172A",
+                            color: "#0D3B66",
                             margin: "0 0 4px 0",
                           }}
                         >
-                          Califica nuestra solucion
+                          Califica nuestra solución
                         </h4>
+                        <p
+                          style={{
+                            fontSize: "12px",
+                            color: reclamoDetalle.calificacion
+                              ? "#15803D"
+                              : "#64748B",
+                            fontWeight: reclamoDetalle.calificacion ? 700 : 400,
+                            margin: "2px 0 6px 0",
+                          }}
+                        >
+                          {reclamoDetalle.calificacion
+                            ? `Calificación registrada: ${reclamoDetalle.calificacion} de 5 estrellas (completado)`
+                            : "Selecciona una puntuación para evaluar la atención"}
+                        </p>
+
                         <div
                           style={{
                             display: "flex",
@@ -1493,6 +1611,7 @@ const VecinoHomePage: React.FC = () => {
                               key={estrella}
                               fill="clear"
                               size="large"
+                              disabled={Boolean(reclamoDetalle.calificacion)}
                               onClick={() =>
                                 handleCalificarDesdeDetalle(estrella)
                               }
@@ -1500,16 +1619,18 @@ const VecinoHomePage: React.FC = () => {
                               <IonIcon
                                 slot="icon-only"
                                 icon={
-                                  calificacionTemp >= estrella
+                                  (reclamoDetalle.calificacion ||
+                                    calificacionTemp) >= estrella
                                     ? star
                                     : starOutline
                                 }
                                 style={{
                                   color:
-                                    calificacionTemp >= estrella
+                                    (reclamoDetalle.calificacion ||
+                                      calificacionTemp) >= estrella
                                       ? "#F59E0B"
                                       : "#CBD5E1",
-                                  fontSize: "26px",
+                                  fontSize: "28px",
                                 }}
                               />
                             </IonButton>
@@ -1690,7 +1811,7 @@ const VecinoHomePage: React.FC = () => {
           </IonTabButton>
 
           {/* Pestaña 2: Nuevo Reclamo */}
-          <IonTabButton tab="nuevo" onClick={() => navegarConGuardia("nuevo")}>
+          <IonTabButton tab="nuevo" onClick={() => setVistaActiva("nuevo")}>
             <IonIcon
               icon={addCircleOutline}
               style={{ color: vistaActiva === "nuevo" ? "#0D3B66" : "#64748B" }}

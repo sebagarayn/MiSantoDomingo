@@ -14,7 +14,7 @@ import { useHistory } from "react-router-dom";
 import { alertCircleOutline } from "ionicons/icons";
 
 const RegistroPage: React.FC = () => {
-  // Datos del formulario de registro
+  // Variables locales del formulario
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -24,21 +24,42 @@ const RegistroPage: React.FC = () => {
 
   const history = useHistory();
 
-  // Valida los campos antes de registrar
+  // Valida cada campo por separado antes de simular el registro
   const handleRegistro = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!nombre.trim() || !email.trim() || !password.trim()) {
-      setErrorModal("Por favor complete todos los campos obligatorios.");
+    // 1. Validar nombre completo
+    if (!nombre.trim()) {
+      setErrorModal("Por favor ingrese su nombre completo.");
       return;
     }
 
+    // 2. Validar correo y su formato
+    if (!email.trim()) {
+      setErrorModal("Por favor ingrese su correo electrónico.");
+      return;
+    }
+    if (!email.includes("@") || !email.includes(".")) {
+      setErrorModal(
+        "Por favor ingrese un correo electrónico válido (ejemplo: usuario@correo.cl).",
+      );
+      return;
+    }
+
+    // 3. Validar contrasena y largo minimo
+    if (!password.trim()) {
+      setErrorModal("Por favor ingrese una contraseña.");
+      return;
+    }
     if (password.length < 6) {
-      setErrorModal("La contraseña debe tener al menos 6 caracteres.");
+      setErrorModal(
+        "La contraseña debe tener al menos 6 caracteres por seguridad.",
+      );
       return;
     }
 
-    setToastMsg("Cuenta creada con exito. Redirigiendo al inicio de sesion...");
+    // Si pasa todas las validaciones simulamos el alta
+    setToastMsg("Cuenta creada con éxito. Redirigiendo al inicio de sesión...");
     setTimeout(() => {
       history.push("/login");
     }, 1500);
@@ -70,7 +91,7 @@ const RegistroPage: React.FC = () => {
               padding: "0",
             }}
           >
-            {/* Franja superior tricolor Santo Domingo */}
+            {/* Franja tricolor Santo Domingo */}
             <div
               style={{
                 height: "5px",
@@ -81,7 +102,7 @@ const RegistroPage: React.FC = () => {
             />
 
             <IonCardContent style={{ padding: "24px 20px" }}>
-              {/* Logo y encabezado */}
+              {/* Logo institucional */}
               <div style={{ textAlign: "center", marginBottom: "22px" }}>
                 <img
                   src="/logo-santodomingo.png"
@@ -121,7 +142,7 @@ const RegistroPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* Formulario de registro */}
+              {/* Formulario */}
               <form onSubmit={handleRegistro}>
                 <div style={{ marginBottom: "12px" }}>
                   <label
@@ -133,7 +154,7 @@ const RegistroPage: React.FC = () => {
                       marginBottom: "4px",
                     }}
                   >
-                    Nombre Completo
+                    Nombre Completo (*)
                   </label>
                   <div
                     style={{
@@ -146,7 +167,6 @@ const RegistroPage: React.FC = () => {
                     <IonInput
                       value={nombre}
                       placeholder="Ej: Maria Gonzalez"
-                      required
                       onIonInput={(e) => setNombre(e.detail.value!)}
                       style={{ "--padding-start": "0", fontSize: "14px" }}
                     />
@@ -163,7 +183,7 @@ const RegistroPage: React.FC = () => {
                       marginBottom: "4px",
                     }}
                   >
-                    Correo Electronico
+                    Correo Electrónico (*)
                   </label>
                   <div
                     style={{
@@ -177,7 +197,6 @@ const RegistroPage: React.FC = () => {
                       type="email"
                       value={email}
                       placeholder="ejemplo@correo.cl"
-                      required
                       onIonInput={(e) => setEmail(e.detail.value!)}
                       style={{ "--padding-start": "0", fontSize: "14px" }}
                     />
@@ -194,7 +213,7 @@ const RegistroPage: React.FC = () => {
                       marginBottom: "4px",
                     }}
                   >
-                    Telefono de Contacto (Opcional)
+                    Teléfono de Contacto (Opcional)
                   </label>
                   <div
                     style={{
@@ -224,7 +243,7 @@ const RegistroPage: React.FC = () => {
                       marginBottom: "4px",
                     }}
                   >
-                    Contraseña
+                    Contraseña (*)
                   </label>
                   <div
                     style={{
@@ -237,16 +256,14 @@ const RegistroPage: React.FC = () => {
                     <IonInput
                       type="password"
                       value={password}
-                      placeholder="Minimo 6 caracteres"
-                      required
+                      placeholder="Mínimo 6 caracteres"
                       onIonInput={(e) => setPassword(e.detail.value!)}
                       style={{ "--padding-start": "0", fontSize: "14px" }}
                     />
                   </div>
                 </div>
 
-                {/* Boton para crear cuenta */}
-                {/* Boton con el azul municipal unificado */}
+                {/* Boton crear cuenta */}
                 <IonButton
                   expand="block"
                   type="submit"
@@ -262,6 +279,7 @@ const RegistroPage: React.FC = () => {
                   Crear Cuenta
                 </IonButton>
 
+                {/* Enlace para volver */}
                 <IonButton
                   expand="block"
                   fill="clear"
@@ -273,13 +291,13 @@ const RegistroPage: React.FC = () => {
                     fontWeight: 600,
                   }}
                 >
-                  ¿Ya tienes cuenta? Iniciar Sesion
+                  ¿Ya tienes cuenta? Iniciar Sesión
                 </IonButton>
               </form>
             </IonCardContent>
           </IonCard>
 
-          {/* Modal de error con icono amarillo */}
+          {/* Modal con mensaje de error */}
           <IonModal
             isOpen={!!errorModal}
             onDidDismiss={() => setErrorModal(null)}
@@ -312,7 +330,7 @@ const RegistroPage: React.FC = () => {
                   fontSize: "16px",
                 }}
               >
-                Atencion
+                Atención
               </h3>
               <p
                 style={{
@@ -327,7 +345,7 @@ const RegistroPage: React.FC = () => {
                 expand="block"
                 onClick={() => setErrorModal(null)}
                 style={{
-                  "--background": "#1E293B",
+                  "--background": "#0D3B66",
                   "--border-radius": "8px",
                   height: "40px",
                   fontWeight: 600,

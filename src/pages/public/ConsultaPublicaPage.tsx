@@ -15,7 +15,6 @@ import {
   IonBackButton,
   IonButton,
   IonIcon,
-  IonText,
   IonItem,
   IonLabel,
   IonList,
@@ -25,6 +24,7 @@ import {
   IonTabBar,
   IonTabButton,
   IonAlert,
+  IonText,
 } from "@ionic/react";
 import {
   searchOutline,
@@ -60,7 +60,7 @@ const ConsultaPublicaPage: React.FC = () => {
   const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
 
-  // Retorno para PC
+  // Retorno para cuando se visualiza en PC
   const rutaRegreso = isAuthenticated
     ? user?.rol === "admin"
       ? "/admin/inicio"
@@ -85,22 +85,23 @@ const ConsultaPublicaPage: React.FC = () => {
     setLoading(false);
   };
 
-  // Califica la atencion si esta resuelto (RF-09)
+  // Envia calificacion de 1 a 5 estrellas al mock (RF-09)
   const handleCalificar = async (puntuacion: number) => {
     if (!report) return;
     setCalificacionTemp(puntuacion);
     await reportService.calificarRespuesta(report.folio, {
       calificacion: puntuacion,
     });
-    setToastMsg(`Calificacion registrada: ${puntuacion} de 5 estrellas.`);
+    setToastMsg(`Calificación registrada: ${puntuacion} de 5 estrellas.`);
 
+    // Refresca los datos del reclamo
     const actualizado = await reportService.obtenerReclamoPorFolio(
       report.folio,
     );
     setReport(actualizado);
   };
 
-  // Colores semanticos limpios
+  // Colores limpios para los estados
   const getBadgeStyle = (estado: string) => {
     switch (estado) {
       case "Resuelto":
@@ -117,7 +118,7 @@ const ConsultaPublicaPage: React.FC = () => {
 
   return (
     <IonPage>
-      {/* Reglas CSS para alternar entre PC y Celular sin fallas */}
+      {/* Regla CSS para ocultar la flecha en celular y mostrarla solo en PC */}
       <style>{`
         @media (max-width: 767px) {
           .solo-desktop { display: none !important; }
@@ -129,7 +130,7 @@ const ConsultaPublicaPage: React.FC = () => {
         }
       `}</style>
 
-      {/* Barra superior */}
+      {/* Barra superior institucional */}
       <IonHeader className="ion-no-border">
         <IonToolbar
           style={{
@@ -137,7 +138,7 @@ const ConsultaPublicaPage: React.FC = () => {
             padding: "4px 0",
           }}
         >
-          {/* El boton volver SOLO se muestra en PC */}
+          {/* El boton volver solo se muestra en PC */}
           <IonButtons slot="start" className="solo-desktop">
             <IonBackButton
               defaultHref={rutaRegreso}
@@ -221,7 +222,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   Seguimiento de Reclamo
                 </h2>
                 <p style={{ fontSize: "13px", color: "#64748B", margin: "0" }}>
-                  Ingresa tu numero de folio alfanumerico (ej: SD-2026-000101)
+                  Ingresa tu número de folio alfanumérico (ej: SD-2026-000101)
                 </p>
               </div>
 
@@ -269,7 +270,7 @@ const ConsultaPublicaPage: React.FC = () => {
             </IonCardContent>
           </IonCard>
 
-          {/* Tarjeta de error si el folio no existe */}
+          {/* Tarjeta de error si no existe el folio */}
           {searched && !loading && !report && (
             <IonCard
               style={{
@@ -299,12 +300,12 @@ const ConsultaPublicaPage: React.FC = () => {
                 Folio No Encontrado
               </h3>
               <p style={{ fontSize: "13px", color: "#64748B", margin: "0" }}>
-                Verifica que el codigo este bien escrito e intentalo nuevamente.
+                Verifica que el código esté bien escrito e inténtalo nuevamente.
               </p>
             </IonCard>
           )}
 
-          {/* Detalle completo del reclamo cuando se encuentra */}
+          {/* Detalle completo del reclamo */}
           {report && (
             <IonCard
               style={{
@@ -362,6 +363,7 @@ const ConsultaPublicaPage: React.FC = () => {
               </IonCardHeader>
 
               <IonCardContent style={{ padding: "10px 20px 20px 20px" }}>
+                {/* Datos generales */}
                 <div
                   style={{
                     display: "flex",
@@ -381,7 +383,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   >
                     <IonIcon icon={locationOutline} color="medium" />
                     <span>
-                      <strong>Ubicacion:</strong> {report.ubicacion}
+                      <strong>Ubicación:</strong> {report.ubicacion}
                     </span>
                   </div>
                   <div
@@ -412,6 +414,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Descripcion */}
                 <div
                   style={{
                     background: "#F8FAFC",
@@ -431,7 +434,7 @@ const ConsultaPublicaPage: React.FC = () => {
                       marginBottom: "4px",
                     }}
                   >
-                    Descripcion del vecino
+                    Descripción del vecino
                   </span>
                   <p
                     style={{ margin: "0", fontSize: "14px", color: "#1E293B" }}
@@ -440,6 +443,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   </p>
                 </div>
 
+                {/* Plazo legal de 20 dias */}
                 {report.estado !== "Resuelto" && (
                   <div
                     style={{
@@ -489,7 +493,7 @@ const ConsultaPublicaPage: React.FC = () => {
                             report.fechaIngreso,
                           ).diasRestantes
                         }{" "}
-                        dias restantes (de 20 dias corridos)
+                        días restantes (de 20 días corridos)
                         {reportService.calcularDiasRestantes(
                           report.fechaIngreso,
                         ).vencido && " — Plazo legal vencido"}
@@ -498,6 +502,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 )}
 
+                {/* Respuesta formal emitida */}
                 {report.respuestaFormal && (
                   <div
                     style={{
@@ -523,6 +528,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 )}
 
+                {/* Calificacion con bloqueo de una unica vez (RF-09) */}
                 {report.estado === "Resuelto" && (
                   <div
                     style={{
@@ -536,7 +542,7 @@ const ConsultaPublicaPage: React.FC = () => {
                       style={{
                         fontSize: "15px",
                         fontWeight: 700,
-                        color: "#0F172A",
+                        color: "#0D3B66",
                         margin: "0 0 4px 0",
                       }}
                     >
@@ -545,11 +551,14 @@ const ConsultaPublicaPage: React.FC = () => {
                     <p
                       style={{
                         fontSize: "12px",
-                        color: "#64748B",
-                        margin: "0",
+                        color: report.calificacion ? "#15803D" : "#64748B",
+                        fontWeight: report.calificacion ? 700 : 400,
+                        margin: "0 0 8px 0",
                       }}
                     >
-                      ¿Como evalua la solucion entregada por el municipio?
+                      {report.calificacion
+                        ? `Calificación registrada: ${report.calificacion} de 5 estrellas (completado)`
+                        : "¿Cómo evalúa la solución entregada por el municipio?"}
                     </p>
 
                     <div
@@ -557,7 +566,7 @@ const ConsultaPublicaPage: React.FC = () => {
                         display: "flex",
                         justifyContent: "center",
                         gap: "6px",
-                        margin: "10px 0",
+                        margin: "6px 0",
                       }}
                     >
                       {[1, 2, 3, 4, 5].map((estrella) => (
@@ -565,16 +574,21 @@ const ConsultaPublicaPage: React.FC = () => {
                           key={estrella}
                           fill="clear"
                           size="large"
+                          disabled={Boolean(report.calificacion)}
                           onClick={() => handleCalificar(estrella)}
                         >
                           <IonIcon
                             slot="icon-only"
                             icon={
-                              calificacionTemp >= estrella ? star : starOutline
+                              (report.calificacion || calificacionTemp) >=
+                              estrella
+                                ? star
+                                : starOutline
                             }
                             style={{
                               color:
-                                calificacionTemp >= estrella
+                                (report.calificacion || calificacionTemp) >=
+                                estrella
                                   ? "#F59E0B"
                                   : "#CBD5E1",
                               fontSize: "28px",
@@ -586,6 +600,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 )}
 
+                {/* Historial de avances */}
                 <div
                   style={{
                     borderTop: "1px solid #F1F5F9",
@@ -647,7 +662,7 @@ const ConsultaPublicaPage: React.FC = () => {
           )}
         </div>
 
-        {/* ALERTA DE CIERRE DE SESION */}
+        {/* Alerta para confirmar cierre de sesion */}
         <IonAlert
           isOpen={alertaSalirAbierta}
           onDidDismiss={() => setAlertaSalirAbierta(false)}
@@ -674,7 +689,7 @@ const ConsultaPublicaPage: React.FC = () => {
         />
       </IonContent>
 
-      {/* BARRA INFERIOR SIEMPRE VISIBLE EN CELULAR */}
+      {/* Barra inferior visible solo en celulares */}
       <IonFooter className="solo-movil">
         {isAuthenticated && user?.rol === "vecino" ? (
           <IonTabBar
@@ -685,7 +700,6 @@ const ConsultaPublicaPage: React.FC = () => {
               "--background": "#FFFFFF",
             }}
           >
-            {/* Pestaña 1: Volver a Mis Reclamos */}
             <IonTabButton
               tab="inicio"
               onClick={() => history.push("/app/inicio")}
@@ -696,7 +710,6 @@ const ConsultaPublicaPage: React.FC = () => {
               </IonLabel>
             </IonTabButton>
 
-            {/* Pestaña 2: Ir a crear nuevo reclamo con ?tab=nuevo */}
             <IonTabButton
               tab="nuevo"
               onClick={() => history.push("/app/inicio?tab=nuevo")}
@@ -707,7 +720,6 @@ const ConsultaPublicaPage: React.FC = () => {
               </IonLabel>
             </IonTabButton>
 
-            {/* Pestaña 3: Consultar (ACTIVA) */}
             <IonTabButton
               tab="consulta"
               style={{ "--color-selected": "#0D3B66" }}
@@ -718,7 +730,6 @@ const ConsultaPublicaPage: React.FC = () => {
               </IonLabel>
             </IonTabButton>
 
-            {/* Pestaña 4: Cerrar Sesión con confirmación */}
             <IonTabButton
               tab="salir"
               onClick={() => setAlertaSalirAbierta(true)}
@@ -738,7 +749,6 @@ const ConsultaPublicaPage: React.FC = () => {
               "--background": "#FFFFFF",
             }}
           >
-            {/* Si es funcionario */}
             <IonTabButton
               tab="admin_reclamos"
               onClick={() => history.push("/admin/inicio")}
@@ -788,7 +798,6 @@ const ConsultaPublicaPage: React.FC = () => {
               "--background": "#FFFFFF",
             }}
           >
-            {/* Si es usuario anónimo sin cuenta */}
             <IonTabButton tab="login" onClick={() => history.push("/login")}>
               <IonIcon icon={logInOutline} style={{ color: "#64748B" }} />
               <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>

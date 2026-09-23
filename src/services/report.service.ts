@@ -5,11 +5,10 @@ import {
   IRatingInput,
 } from "../types";
 
-const STORAGE_KEY = "msd_mock_reports";
+// Clave para guardar los reclamos en el almacenamiento del navegador
+const STORAGE_KEY = "msd_mock_reports_v2";
 
-// Semilla inicial de datos para Santo Domingo (coherente con las proto-personas)
-// Semilla inicial con las unidades oficiales del Figma
-// Semilla con categorias y unidades oficiales unificadas
+// Semilla con los reclamos de prueba iniciales para la comuna de Santo Domingo
 const RECLAMOS_SEMILLA: IReport[] = [
   {
     folio: "SD-2026-000101",
@@ -19,7 +18,7 @@ const RECLAMOS_SEMILLA: IReport[] = [
     ubicacion: "Calle Los Aromos 450, Santo Domingo",
     estado: "Pendiente",
     fechaIngreso: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    unidadAsignada: "OIRS Central", // Recien llegado a mesa de entrada
+    unidadAsignada: "OIRS Central", // Todo reclamo nuevo llega primero a OIRS Central
     origen: "usuario",
     creadorId: "usr-vecino-1",
     historial: [
@@ -38,7 +37,7 @@ const RECLAMOS_SEMILLA: IReport[] = [
     ubicacion: "Av. Santa María con Las Lilas",
     estado: "Derivado",
     fechaIngreso: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-    unidadAsignada: "Desarrollo comunitario", // Ya derivado a unidad ejecutora
+    unidadAsignada: "Desarrollo comunitario", // Derivado a unidad ejecutora
     origen: "usuario",
     creadorId: "usr-vecino-1",
     historial: [
@@ -50,7 +49,7 @@ const RECLAMOS_SEMILLA: IReport[] = [
       {
         estado: "Derivado",
         fecha: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-        observacion: "Se deriva para coordinar retiro de escombros.",
+        observacion: "Se deriva para coordinar retiro de escombros en terreno.",
         responsableId: "OIRS Central",
       },
     ],
@@ -64,15 +63,16 @@ const RECLAMOS_SEMILLA: IReport[] = [
     estado: "Resuelto",
     fechaIngreso: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
     unidadAsignada: "Obras municipales",
-    origen: "publico",
+    origen: "usuario",
+    creadorId: "usr-vecino-1", // Asignado a la vecina Maria para que aparezca en su lista
+    calificacion: undefined, // Arranca sin nota para que el profesor o nosotros podamos probar las estrellas
     respuestaFormal:
-      "Se ejecutaron obras de bacheo asfáltico en frío el día 12 del presente mes por equipo de emergencia.",
-    calificacion: 5,
+      "Se ejecutaron obras de bacheo asfaltico en frio el dia 12 del presente mes por equipo de emergencia.",
     historial: [
       {
         estado: "Pendiente",
         fecha: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
-        observacion: "Ingresado por vecino en portal público.",
+        observacion: "Ingresado por vecina en portal municipal.",
       },
       {
         estado: "Resuelto",
@@ -84,6 +84,7 @@ const RECLAMOS_SEMILLA: IReport[] = [
 ];
 
 class ReportService {
+  // Obtiene los reclamos de localStorage o inicializa con la semilla
   private getStorage(): IReport[] {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -93,9 +94,18 @@ class ReportService {
       }
       const data: IReport[] = JSON.parse(raw);
 
-      // Normaliza categorias y unidades viejas que hayan quedado en el cache
+      // Normaliza cualquier dato viejo que haya quedado guardado en cache
       const dataLimpia = data.map((r) => {
-        // Normaliza categorias
+        // Asegura que el reclamo resuelto sea de la vecina y este listo para calificar
+        if (r.folio === "SD-2026-000042") {
+          r.creadorId = "usr-vecino-1";
+          r.origen = "usuario";
+          r.estado = "Resuelto";
+          r.categoria = "Calles y veredas";
+          r.unidadAsignada = "Obras municipales";
+        }
+
+        // Limpia nombres de categorias para que calcen con el selector
         if (
           r.categoria.includes("Luminarias") ||
           r.categoria.includes("Alumbrado")
@@ -114,7 +124,7 @@ class ReportService {
           r.categoria = "Calles y veredas";
         }
 
-        // Normaliza unidades
+        // Limpia nombres de unidades para que calcen con el filtro
         if (!r.unidadAsignada || r.unidadAsignada === "OIRS Central") {
           r.unidadAsignada = "OIRS Central";
         } else if (
@@ -140,11 +150,12 @@ class ReportService {
     }
   }
 
+  // Guarda los cambios en el almacenamiento local
   private setStorage(data: IReport[]): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
 
-  // Para elRF-04: Cálculo automático de plazo legal (20 días corridos desde el ingreso)
+  // Calcula dias restantes del plazo legal de 20 dias corridos (RF-04)
   public calcularDiasRestantes(fechaIngresoStr: string): {
     diasRestantes: number;
     vencido: boolean;
@@ -162,14 +173,14 @@ class ReportService {
     };
   }
 
-  // Listar todos los reclamos con Promise
+  // Retorna todos los reclamos con Promise simulando una API real
   public async obtenerReclamos(): Promise<IReport[]> {
     return new Promise((resolve) => {
       setTimeout(() => resolve(this.getStorage()), 100);
     });
   }
 
-  // Para elRF-03: Consulta por Folio único
+  // Busca un reclamo por su numero de folio unico (RF-03)
   public async obtenerReclamoPorFolio(folio: string): Promise<IReport | null> {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -181,8 +192,7 @@ class ReportService {
     });
   }
 
-  // Para elRF-01 y RF-02: Creación de reclamo con generación de Folio único SD-2026-XXXXXX
-  // RF-01 y RF-02: Creación de reclamo con generación de Folio único SD-2026-XXXXXX
+  // Crea un nuevo reclamo y genera el folio SD-2026-XXXXXX automaticamente (RF-01 y RF-02)
   public async crearReclamo(
     input: ICreateReportInput,
     creadorId?: string,
@@ -194,7 +204,6 @@ class ReportService {
         const nuevoFolio = `SD-2026-${correlativo}`;
         const fechaActual = new Date().toISOString();
 
-        // Asegura que tome el ID del creador y origen correcto
         const creadorIdFinal = input.creadorId || creadorId || "usr-vecino-1";
         const origenFinal =
           input.origen || (creadorIdFinal ? "usuario" : "publico");
@@ -207,7 +216,7 @@ class ReportService {
           fotoUrl: input.fotoUrl,
           estado: "Pendiente",
           fechaIngreso: fechaActual,
-          unidadAsignada: "OIRS Central",
+          unidadAsignada: "OIRS Central", // Ingresa a mesa de entrada
           origen: origenFinal,
           creadorId: creadorIdFinal,
           historial: [
@@ -223,11 +232,11 @@ class ReportService {
         const actualizados = [nuevo, ...reclamos];
         this.setStorage(actualizados);
         resolve(nuevo);
-      }, 150);
+      }, 200);
     });
   }
 
-  // Para elRF-07 y RF-08: Derivar reclamo o Cerrar con respuesta formal
+  // Actualiza estado: deriva a otra unidad (RF-07) o cierra formalmente (RF-08)
   public async actualizarEstado(
     folio: string,
     input: IUpdateReportStatusInput,
@@ -261,7 +270,7 @@ class ReportService {
     });
   }
 
-  // Para el RF-09: Calificación de la solución municipal
+  // Guarda la calificacion de 1 a 5 estrellas dada por el ciudadano (RF-09)
   public async calificarRespuesta(
     folio: string,
     rating: IRatingInput,
@@ -272,7 +281,7 @@ class ReportService {
         const index = reclamos.findIndex((r) => r.folio === folio);
         if (index === -1) return reject(new Error("Reclamo no encontrado"));
 
-        reclamos[index].calificacion = rating.calificacion; // <-- Aquí: rating.calificacion
+        reclamos[index].calificacion = rating.calificacion;
         this.setStorage(reclamos);
         resolve(reclamos[index]);
       }, 150);
