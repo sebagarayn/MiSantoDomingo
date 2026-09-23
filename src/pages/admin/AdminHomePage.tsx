@@ -11,27 +11,18 @@ import {
   IonIcon,
   IonCard,
   IonCardContent,
-  IonBadge,
   IonModal,
-  IonItem,
-  IonLabel,
   IonSelect,
   IonSelectOption,
   IonTextarea,
   IonSearchbar,
-  IonText,
   IonToast,
 } from "@ionic/react";
-import {
-  checkmarkCircleOutline,
-  arrowBackOutline,
-  swapHorizontalOutline,
-  closeCircleOutline,
-} from "ionicons/icons";
+import { checkmarkCircleOutline, arrowBackOutline } from "ionicons/icons";
 import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
 
-// Unidades exactas del Figma de PC
+// Unidades municipales del Figma de escritorio
 const UNIDADES_FIGMA = [
   "Salud",
   "Educación",
@@ -50,14 +41,13 @@ const AdminHomePage: React.FC = () => {
     useState<IReport | null>(null);
   const [modalDetalleAbierto, setModalDetalleAbierto] = useState(false);
 
-  // Subflujo de Derivación (RF-07)
+  // Subflujos de derivacion y cierre formal
   const [pasoDerivacion, setPasoDerivacion] = useState<
     "none" | "elegir_unidad" | "motivo" | "exito"
   >("none");
   const [unidadElegida, setUnidadElegida] = useState("");
   const [motivoDerivacion, setMotivoDerivacion] = useState("");
 
-  // Subflujo de Cierre Formal (RF-08)
   const [pasoCierre, setPasoCierre] = useState<
     "none" | "descripcion" | "exito"
   >("none");
@@ -65,6 +55,7 @@ const AdminHomePage: React.FC = () => {
 
   const [toastMsg, setToastMsg] = useState("");
 
+  // Carga inicial de datos desde el servicio mock
   const cargarDatos = async () => {
     const data = await reportService.obtenerReclamos();
     setReclamos(data);
@@ -74,7 +65,7 @@ const AdminHomePage: React.FC = () => {
     cargarDatos();
   }, []);
 
-  // Filtrado reactivo combinado (RF-06)
+  // Filtros combinados de busqueda, categoria y unidad (RF-06)
   const reclamosFiltrados = reclamos.filter((r) => {
     const matchCat =
       filtroCategoria === "todos" ||
@@ -98,7 +89,7 @@ const AdminHomePage: React.FC = () => {
     setModalDetalleAbierto(true);
   };
 
-  // Ejecución de Derivación (RF-07)
+  // Ejecuta la derivacion a otra unidad (RF-07)
   const handleConfirmarDerivacion = async () => {
     if (!reclamoSeleccionado || !unidadElegida || !motivoDerivacion.trim()) {
       setToastMsg("Debe ingresar el motivo de la derivación.");
@@ -120,7 +111,7 @@ const AdminHomePage: React.FC = () => {
     cargarDatos();
   };
 
-  // Ejecución de Cierre (RF-08)
+  // Cierra formalmente el reclamo con respuesta oficial (RF-08)
   const handleConfirmarCierre = async () => {
     if (!reclamoSeleccionado || !descripcionCierre.trim()) {
       setToastMsg("Debe ingresar la descripción formal del cierre.");
@@ -142,23 +133,93 @@ const AdminHomePage: React.FC = () => {
     cargarDatos();
   };
 
+  // Colores semanticos de badges
+  const getBadgeStyle = (estado: string) => {
+    switch (estado) {
+      case "Resuelto":
+        return { background: "#DCFCE7", color: "#15803D" };
+      case "Derivado":
+        return { background: "#E0F2FE", color: "#0369A1" };
+      case "En Revisión":
+        return { background: "#F1F5F9", color: "#334155" };
+      case "Pendiente":
+      default:
+        return { background: "#FEF3C7", color: "#B45309" };
+    }
+  };
+
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar color="primary">
+      {/* Barra superior institucional azul Santo Domingo */}
+      <IonHeader className="ion-no-border">
+        <IonToolbar
+          style={{
+            "--background": "#0D3B66",
+            padding: "4px 0",
+          }}
+        >
           <IonButtons slot="start">
-            <IonMenuButton />
+            <IonMenuButton style={{ color: "#FFFFFF" }} />
           </IonButtons>
-          <IonTitle>Panel OIRS — Reclamos</IonTitle>
+
+          <IonTitle
+            style={{
+              fontSize: "14px",
+              fontWeight: 800,
+              color: "#FFFFFF",
+              letterSpacing: "0.8px",
+              textTransform: "uppercase",
+            }}
+          >
+            Panel OIRS — Gestion de Reclamos
+          </IonTitle>
+
+          {/* Logo municipal arriba a la derecha */}
+          <IonButtons slot="end" style={{ paddingRight: "12px" }}>
+            <div
+              style={{
+                background: "#FFFFFF",
+                borderRadius: "8px",
+                padding: "4px 8px",
+                display: "flex",
+                alignItems: "center",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+              }}
+            >
+              <img
+                src="/logo-santodomingo.png"
+                alt="Logo Santo Domingo"
+                style={{
+                  maxHeight: "30px",
+                  maxWidth: "100px",
+                  objectFit: "contain",
+                  display: "block",
+                }}
+              />
+            </div>
+          </IonButtons>
         </IonToolbar>
+
+        {/* Franja tricolor Santo Domingo */}
+        <div
+          style={{
+            height: "4px",
+            width: "100%",
+            background:
+              "linear-gradient(90deg, #0D3B66 0%, #2E7D32 50%, #F59E0B 100%)",
+          }}
+        />
       </IonHeader>
 
-      <IonContent
-        className="ion-padding"
-        style={{ backgroundColor: "#f4f5f8" }}
-      >
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          {/* Título y Filtros superiores */}
+      <IonContent className="ion-padding" style={{ "--background": "#F8FAFC" }}>
+        <div
+          style={{
+            maxWidth: "1100px",
+            margin: "0 auto",
+            paddingBottom: "30px",
+          }}
+        >
+          {/* Titulo y filtros superiores */}
           <div
             style={{
               display: "flex",
@@ -166,46 +227,74 @@ const AdminHomePage: React.FC = () => {
               alignItems: "center",
               marginBottom: "16px",
               flexWrap: "wrap",
-              gap: "10px",
+              gap: "12px",
             }}
           >
-            <h2 style={{ fontWeight: 700, margin: 0 }}>Reclamos</h2>
+            <div>
+              <h2
+                style={{
+                  fontWeight: 800,
+                  color: "#0D3B66",
+                  margin: "0 0 2px 0",
+                  fontSize: "1.4rem",
+                }}
+              >
+                Reclamos Ingresados
+              </h2>
+              <p style={{ margin: 0, fontSize: "13px", color: "#64748B" }}>
+                Bandeja de gestion y derivacion municipal
+              </p>
+            </div>
+
             <div
               style={{
                 display: "flex",
-                gap: "12px",
+                gap: "10px",
                 alignItems: "center",
                 flexWrap: "wrap",
               }}
             >
-              <div style={{ width: "220px" }}>
+              <div
+                style={{
+                  width: "220px",
+                  border: "1px solid #CBD5E1",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  background: "#FFFFFF",
+                }}
+              >
                 <IonSearchbar
                   value={busqueda}
                   placeholder="Buscar folio o texto..."
                   onIonInput={(e) => setBusqueda(e.detail.value!)}
-                  className="ion-no-padding"
+                  style={{ "--background": "#FFFFFF", padding: "0" }}
                 />
               </div>
 
-              {/* Filtro Categoría */}
+              {/* Filtro por categoria */}
               <div
                 style={{
-                  background: "#fff",
-                  border: "1px solid #ccc",
+                  background: "#FFFFFF",
+                  border: "1px solid #CBD5E1",
                   borderRadius: "8px",
-                  padding: "0 8px",
+                  padding: "2px 8px",
                 }}
               >
                 <IonSelect
                   value={filtroCategoria}
                   interface="popover"
                   onIonChange={(e) => setFiltroCategoria(e.detail.value)}
+                  style={{
+                    fontSize: "13px",
+                    color: "#0D3B66",
+                    fontWeight: 600,
+                  }}
                 >
                   <IonSelectOption value="todos">
-                    Categoría: Todas
+                    Categoria: Todas
                   </IonSelectOption>
                   <IonSelectOption value="Alumbrado">
-                    Alumbrado público
+                    Alumbrado publico
                   </IonSelectOption>
                   <IonSelectOption value="Aseo">Aseo y ornato</IonSelectOption>
                   <IonSelectOption value="Vialidad">
@@ -215,19 +304,24 @@ const AdminHomePage: React.FC = () => {
                 </IonSelect>
               </div>
 
-              {/* Filtro Unidad Responsable */}
+              {/* Filtro por unidad municipal */}
               <div
                 style={{
-                  background: "#fff",
-                  border: "1px solid #ccc",
+                  background: "#FFFFFF",
+                  border: "1px solid #CBD5E1",
                   borderRadius: "8px",
-                  padding: "0 8px",
+                  padding: "2px 8px",
                 }}
               >
                 <IonSelect
                   value={filtroUnidad}
                   interface="popover"
                   onIonChange={(e) => setFiltroUnidad(e.detail.value)}
+                  style={{
+                    fontSize: "13px",
+                    color: "#0D3B66",
+                    fontWeight: 600,
+                  }}
                 >
                   <IonSelectOption value="todos">Unidad: Todas</IonSelectOption>
                   {UNIDADES_FIGMA.map((u) => (
@@ -240,12 +334,15 @@ const AdminHomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Tabla de Reclamos */}
+          {/* Tabla de reclamos */}
           <IonCard
             style={{
-              borderRadius: "12px",
+              borderRadius: "16px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E2E8F0",
+              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.04)",
               overflow: "hidden",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+              margin: "0",
             }}
           >
             <div style={{ overflowX: "auto" }}>
@@ -254,31 +351,31 @@ const AdminHomePage: React.FC = () => {
                   width: "100%",
                   borderCollapse: "collapse",
                   textAlign: "left",
-                  fontSize: "14px",
+                  fontSize: "13px",
                 }}
               >
                 <thead>
                   <tr
                     style={{
-                      background: "#f8f9fa",
-                      borderBottom: "2px solid #e9ecef",
-                      color: "#495057",
+                      background: "#F1F5F9",
+                      borderBottom: "2px solid #E2E8F0",
+                      color: "#334155",
                     }}
                   >
-                    <th style={{ padding: "14px 16px", fontWeight: 600 }}>
-                      Folio
+                    <th style={{ padding: "14px 16px", fontWeight: 700 }}>
+                      FOLIO
                     </th>
-                    <th style={{ padding: "14px 16px", fontWeight: 600 }}>
-                      Categoría
+                    <th style={{ padding: "14px 16px", fontWeight: 700 }}>
+                      CATEGORIA
                     </th>
-                    <th style={{ padding: "14px 16px", fontWeight: 600 }}>
-                      Unidad Responsable
+                    <th style={{ padding: "14px 16px", fontWeight: 700 }}>
+                      UNIDAD RESPONSABLE
                     </th>
-                    <th style={{ padding: "14px 16px", fontWeight: 600 }}>
-                      Estado
+                    <th style={{ padding: "14px 16px", fontWeight: 700 }}>
+                      ESTADO
                     </th>
-                    <th style={{ padding: "14px 16px", fontWeight: 600 }}>
-                      Días Restantes
+                    <th style={{ padding: "14px 16px", fontWeight: 700 }}>
+                      DIAS RESTANTES
                     </th>
                   </tr>
                 </thead>
@@ -290,7 +387,7 @@ const AdminHomePage: React.FC = () => {
                         style={{
                           padding: "24px",
                           textAlign: "center",
-                          color: "#777",
+                          color: "#64748B",
                         }}
                       >
                         No se encontraron reclamos con los filtros aplicados.
@@ -307,12 +404,12 @@ const AdminHomePage: React.FC = () => {
                           key={r.folio}
                           onClick={() => abrirDetalle(r)}
                           style={{
-                            borderBottom: "1px solid #e9ecef",
+                            borderBottom: "1px solid #E2E8F0",
                             cursor: "pointer",
-                            transition: "background 0.2s",
+                            transition: "background 0.15s",
                           }}
                           onMouseEnter={(e) =>
-                            (e.currentTarget.style.background = "#f1f3f5")
+                            (e.currentTarget.style.background = "#F8FAFC")
                           }
                           onMouseLeave={(e) =>
                             (e.currentTarget.style.background = "transparent")
@@ -321,51 +418,56 @@ const AdminHomePage: React.FC = () => {
                           <td
                             style={{
                               padding: "14px 16px",
-                              fontWeight: 700,
-                              color: "#111",
+                              fontWeight: 800,
+                              color: "#0D3B66",
                             }}
                           >
                             {r.folio}
                           </td>
-                          <td style={{ padding: "14px 16px" }}>
+                          <td
+                            style={{
+                              padding: "14px 16px",
+                              color: "#1E293B",
+                              fontWeight: 600,
+                            }}
+                          >
                             {r.categoria}
                           </td>
-                          <td style={{ padding: "14px 16px" }}>
+                          <td
+                            style={{ padding: "14px 16px", color: "#475569" }}
+                          >
                             {r.unidadAsignada || "OIRS Central"}
                           </td>
                           <td style={{ padding: "14px 16px" }}>
-                            <IonBadge
-                              color={
-                                esResuelto
-                                  ? "success"
-                                  : r.estado === "Derivado"
-                                    ? "primary"
-                                    : "warning"
-                              }
+                            <span
                               style={{
+                                ...getBadgeStyle(r.estado),
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                padding: "3px 8px",
+                                borderRadius: "6px",
                                 textTransform: "uppercase",
-                                padding: "4px 8px",
                               }}
                             >
                               {r.estado}
-                            </IonBadge>
+                            </span>
                           </td>
                           <td
                             style={{
                               padding: "14px 16px",
-                              fontWeight: 600,
+                              fontWeight: 700,
                               color: esResuelto
-                                ? "#2e7d32"
+                                ? "#15803D"
                                 : vencido
-                                  ? "#c62828"
-                                  : "#333",
+                                  ? "#DC2626"
+                                  : "#D97706",
                             }}
                           >
                             {esResuelto
                               ? "0 (Resuelto)"
                               : vencido
                                 ? `Vencido (${diasRestantes}d)`
-                                : `${diasRestantes} días`}
+                                : `${diasRestantes} dias`}
                           </td>
                         </tr>
                       );
@@ -377,48 +479,77 @@ const AdminHomePage: React.FC = () => {
           </IonCard>
         </div>
 
-        {/* MODAL PRINCIPAL: Detalle del reclamo */}
+        {/* Modal: Detalle del reclamo */}
         <IonModal
           isOpen={modalDetalleAbierto}
           onDidDismiss={() => setModalDetalleAbierto(false)}
         >
-          <IonHeader>
-            <IonToolbar color="dark">
+          <IonHeader className="ion-no-border">
+            <IonToolbar style={{ "--background": "#0D3B66" }}>
               <IonButtons slot="start">
-                <IonButton onClick={() => setModalDetalleAbierto(false)}>
+                <IonButton
+                  onClick={() => setModalDetalleAbierto(false)}
+                  style={{ color: "#FFFFFF" }}
+                >
                   <IonIcon icon={arrowBackOutline} />
                 </IonButton>
               </IonButtons>
-              <IonTitle>Detalle del reclamo</IonTitle>
+              <IonTitle
+                style={{
+                  color: "#FFFFFF",
+                  fontWeight: 700,
+                  fontSize: "14px",
+                  textTransform: "uppercase",
+                }}
+              >
+                Detalle del reclamo
+              </IonTitle>
             </IonToolbar>
+            <div
+              style={{
+                height: "3px",
+                width: "100%",
+                background:
+                  "linear-gradient(90deg, #0D3B66 0%, #2E7D32 50%, #F59E0B 100%)",
+              }}
+            />
           </IonHeader>
 
-          <IonContent className="ion-padding">
+          <IonContent
+            className="ion-padding"
+            style={{ "--background": "#F8FAFC" }}
+          >
             <div style={{ maxWidth: "640px", margin: "0 auto" }}>
-              {/* VISTA 1: FICHA DE DATOS DEL RECLAMO */}
+              {/* Ficha de datos del reclamo */}
               {pasoDerivacion === "none" &&
                 pasoCierre === "none" &&
                 reclamoSeleccionado && (
                   <div>
                     <IonCard
                       style={{
-                        border: "1px solid #ddd",
-                        borderRadius: "12px",
-                        margin: "0 0 24px 0",
-                        boxShadow: "none",
+                        borderRadius: "16px",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E2E8F0",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
+                        margin: "0 0 20px 0",
                       }}
                     >
                       <div
                         style={{
-                          background: "#f5f5f5",
+                          background: "#F1F5F9",
                           padding: "12px 16px",
-                          borderBottom: "1px solid #ddd",
-                          fontWeight: 700,
+                          borderBottom: "1px solid #E2E8F0",
+                          fontWeight: 800,
+                          color: "#0D3B66",
                           textAlign: "center",
+                          fontSize: "13px",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
                         }}
                       >
                         Datos del reclamo
                       </div>
+
                       <IonCardContent style={{ padding: "20px" }}>
                         <div
                           style={{
@@ -431,39 +562,59 @@ const AdminHomePage: React.FC = () => {
                           <div>
                             <small
                               style={{
-                                color: "#777",
+                                color: "#64748B",
                                 textTransform: "uppercase",
+                                fontSize: "11px",
+                                fontWeight: 700,
                               }}
                             >
                               Folio
                             </small>
-                            <p style={{ margin: "2px 0 0 0", fontWeight: 700 }}>
+                            <p
+                              style={{
+                                margin: "2px 0 0 0",
+                                fontWeight: 800,
+                                color: "#0D3B66",
+                              }}
+                            >
                               {reclamoSeleccionado.folio}
                             </p>
                           </div>
                           <div>
                             <small
                               style={{
-                                color: "#777",
+                                color: "#64748B",
                                 textTransform: "uppercase",
+                                fontSize: "11px",
+                                fontWeight: 700,
                               }}
                             >
-                              Categoría
+                              Categoria
                             </small>
-                            <p style={{ margin: "2px 0 0 0", fontWeight: 600 }}>
+                            <p
+                              style={{
+                                margin: "2px 0 0 0",
+                                fontWeight: 600,
+                                color: "#1E293B",
+                              }}
+                            >
                               {reclamoSeleccionado.categoria}
                             </p>
                           </div>
                           <div>
                             <small
                               style={{
-                                color: "#777",
+                                color: "#64748B",
                                 textTransform: "uppercase",
+                                fontSize: "11px",
+                                fontWeight: 700,
                               }}
                             >
                               Fecha de Ingreso
                             </small>
-                            <p style={{ margin: "2px 0 0 0" }}>
+                            <p
+                              style={{ margin: "2px 0 0 0", color: "#475569" }}
+                            >
                               {new Date(
                                 reclamoSeleccionado.fechaIngreso,
                               ).toLocaleDateString()}
@@ -472,13 +623,21 @@ const AdminHomePage: React.FC = () => {
                           <div>
                             <small
                               style={{
-                                color: "#777",
+                                color: "#64748B",
                                 textTransform: "uppercase",
+                                fontSize: "11px",
+                                fontWeight: 700,
                               }}
                             >
                               Unidad Responsable
                             </small>
-                            <p style={{ margin: "2px 0 0 0", fontWeight: 600 }}>
+                            <p
+                              style={{
+                                margin: "2px 0 0 0",
+                                fontWeight: 600,
+                                color: "#0D3B66",
+                              }}
+                            >
                               {reclamoSeleccionado.unidadAsignada ||
                                 "OIRS Central"}
                             </p>
@@ -487,25 +646,30 @@ const AdminHomePage: React.FC = () => {
 
                         <div
                           style={{
-                            borderTop: "1px solid #eee",
+                            borderTop: "1px solid #F1F5F9",
                             paddingTop: "12px",
                             marginTop: "12px",
                           }}
                         >
                           <small
                             style={{
-                              color: "#777",
+                              color: "#64748B",
                               textTransform: "uppercase",
+                              fontSize: "11px",
+                              fontWeight: 700,
                             }}
                           >
-                            Motivo del reclamo (Descripción)
+                            Motivo del reclamo
                           </small>
                           <p
                             style={{
                               margin: "4px 0 12px 0",
-                              background: "#fafafa",
+                              background: "#F8FAFC",
                               padding: "10px",
-                              borderRadius: "6px",
+                              borderRadius: "8px",
+                              border: "1px solid #E2E8F0",
+                              color: "#1E293B",
+                              fontSize: "13px",
                             }}
                           >
                             {reclamoSeleccionado.descripcion}
@@ -519,38 +683,51 @@ const AdminHomePage: React.FC = () => {
                             alignItems: "center",
                           }}
                         >
-                          <div>
-                            <small
-                              style={{
-                                color: "#777",
-                                textTransform: "uppercase",
-                              }}
-                            >
-                              Estado Actual:{" "}
-                            </small>
-                            <IonBadge
-                              color={
-                                reclamoSeleccionado.estado === "Resuelto"
-                                  ? "success"
-                                  : "warning"
-                              }
-                            >
-                              {reclamoSeleccionado.estado}
-                            </IonBadge>
-                          </div>
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#64748B",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Estado Actual:
+                          </span>
+                          <span
+                            style={{
+                              ...getBadgeStyle(reclamoSeleccionado.estado),
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              padding: "3px 8px",
+                              borderRadius: "6px",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            {reclamoSeleccionado.estado}
+                          </span>
                         </div>
 
                         {reclamoSeleccionado.respuestaFormal && (
                           <div
                             style={{
                               marginTop: "16px",
-                              background: "#e8f5e9",
+                              background: "#F0FDF4",
+                              borderLeft: "4px solid #2E7D32",
                               padding: "12px",
-                              borderRadius: "6px",
+                              borderRadius: "0 8px 8px 0",
                             }}
                           >
-                            <strong>Respuesta formal emitida:</strong>
-                            <p style={{ margin: "4px 0 0 0" }}>
+                            <strong
+                              style={{ color: "#15803D", fontSize: "13px" }}
+                            >
+                              Respuesta formal emitida:
+                            </strong>
+                            <p
+                              style={{
+                                margin: "4px 0 0 0",
+                                color: "#166534",
+                                fontSize: "13px",
+                              }}
+                            >
                               {reclamoSeleccionado.respuestaFormal}
                             </p>
                           </div>
@@ -558,32 +735,52 @@ const AdminHomePage: React.FC = () => {
                       </IonCardContent>
                     </IonCard>
 
-                    {/* Botones de acción del Figma: Cerrar Reclamo / Derivar Reclamo */}
+                    {/* Acciones principales: Derivar y Cerrar */}
                     {reclamoSeleccionado.estado !== "Resuelto" ? (
-                      <div style={{ display: "flex", gap: "16px" }}>
+                      <div style={{ display: "flex", gap: "12px" }}>
                         <IonButton
                           expand="block"
-                          color="dark"
-                          style={{ flex: 1, height: "44px", fontWeight: 600 }}
-                          onClick={() => setPasoCierre("descripcion")}
+                          fill="outline"
+                          style={{
+                            flex: 1,
+                            height: "46px",
+                            fontWeight: 600,
+                            fontSize: "14px",
+                            "--border-color": "#0D3B66",
+                            "--color": "#0D3B66",
+                            "--border-radius": "8px",
+                          }}
+                          onClick={() => setPasoDerivacion("elegir_unidad")}
                         >
-                          Cerrar Reclamo
+                          Derivar Reclamo
                         </IonButton>
 
                         <IonButton
                           expand="block"
-                          color="dark"
-                          style={{ flex: 1, height: "44px", fontWeight: 600 }}
-                          onClick={() => setPasoDerivacion("elegir_unidad")}
+                          style={{
+                            flex: 1,
+                            height: "46px",
+                            fontWeight: 600,
+                            fontSize: "14px",
+                            "--background": "#2E7D32",
+                            "--border-radius": "8px",
+                          }}
+                          onClick={() => setPasoCierre("descripcion")}
                         >
-                          Derivar Reclamo
+                          Cerrar Reclamo
                         </IonButton>
                       </div>
                     ) : (
                       <IonButton
                         expand="block"
                         fill="outline"
-                        color="dark"
+                        style={{
+                          "--border-color": "#0D3B66",
+                          "--color": "#0D3B66",
+                          "--border-radius": "8px",
+                          height: "44px",
+                          fontWeight: 600,
+                        }}
                         onClick={() => setModalDetalleAbierto(false)}
                       >
                         Volver a la lista
@@ -592,10 +789,16 @@ const AdminHomePage: React.FC = () => {
                   </div>
                 )}
 
-              {/* SUBFLUJO DERIVAR PASO 1 */}
+              {/* Subflujo derivacion: Elegir unidad */}
               {pasoDerivacion === "elegir_unidad" && (
-                <div className="ion-text-center">
-                  <h3 style={{ fontWeight: 700, marginBottom: "20px" }}>
+                <div style={{ textAlign: "center" }}>
+                  <h3
+                    style={{
+                      fontWeight: 800,
+                      color: "#0D3B66",
+                      marginBottom: "16px",
+                    }}
+                  >
                     Seleccione la unidad
                   </h3>
                   <div
@@ -603,17 +806,25 @@ const AdminHomePage: React.FC = () => {
                       display: "flex",
                       flexDirection: "column",
                       gap: "10px",
-                      marginBottom: "24px",
+                      marginBottom: "20px",
                     }}
                   >
                     {UNIDADES_FIGMA.map((u) => (
                       <IonButton
                         key={u}
                         expand="block"
-                        color={unidadElegida === u ? "dark" : "medium"}
                         fill={unidadElegida === u ? "solid" : "outline"}
+                        style={{
+                          height: "46px",
+                          fontWeight: 600,
+                          "--background":
+                            unidadElegida === u ? "#0D3B66" : "transparent",
+                          "--color":
+                            unidadElegida === u ? "#FFFFFF" : "#0D3B66",
+                          "--border-color": "#0D3B66",
+                          "--border-radius": "8px",
+                        }}
                         onClick={() => setUnidadElegida(u)}
-                        style={{ height: "46px", fontWeight: 600 }}
                       >
                         {u}
                       </IonButton>
@@ -624,16 +835,21 @@ const AdminHomePage: React.FC = () => {
                     <IonButton
                       expand="block"
                       fill="clear"
-                      color="medium"
-                      style={{ flex: 1 }}
+                      style={{ flex: 1, "--color": "#64748B", fontWeight: 600 }}
                       onClick={() => setPasoDerivacion("none")}
                     >
                       Regresar
                     </IonButton>
+
                     <IonButton
                       expand="block"
-                      color="dark"
-                      style={{ flex: 1, fontWeight: 600 }}
+                      style={{
+                        flex: 1,
+                        "--background": "#0D3B66",
+                        "--border-radius": "8px",
+                        height: "44px",
+                        fontWeight: 600,
+                      }}
                       disabled={!unidadElegida}
                       onClick={() => setPasoDerivacion("motivo")}
                     >
@@ -643,41 +859,45 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* SUBFLUJO DERIVAR PASO 2 */}
+              {/* Subflujo derivacion: Motivo */}
               {pasoDerivacion === "motivo" && (
                 <div>
                   <h3
                     style={{
-                      fontWeight: 700,
+                      fontWeight: 800,
+                      color: "#0D3B66",
                       textAlign: "center",
-                      marginBottom: "16px",
+                      margin: "0 0 6px 0",
                     }}
                   >
-                    Motivo de la derivación del reclamo
+                    Motivo de la derivacion
                   </h3>
                   <p
                     style={{
                       textAlign: "center",
-                      color: "#666",
-                      fontSize: "14px",
-                      marginTop: 0,
+                      color: "#64748B",
+                      fontSize: "13px",
+                      margin: "0 0 16px 0",
                     }}
                   >
-                    Unidad destino: <strong>{unidadElegida}</strong>
+                    Unidad de destino:{" "}
+                    <strong style={{ color: "#0D3B66" }}>
+                      {unidadElegida}
+                    </strong>
                   </p>
 
                   <div
                     style={{
-                      background: "#fff",
-                      border: "1px solid #ccc",
+                      border: "1px solid #CBD5E1",
                       borderRadius: "8px",
-                      padding: "8px",
+                      padding: "6px",
+                      background: "#FFFFFF",
                       marginBottom: "20px",
                     }}
                   >
                     <IonTextarea
-                      rows={6}
-                      placeholder="Ingrese los antecedentes y justificación de la derivación..."
+                      rows={5}
+                      placeholder="Ingrese los antecedentes para la unidad responsable..."
                       value={motivoDerivacion}
                       onIonInput={(e) => setMotivoDerivacion(e.detail.value!)}
                     />
@@ -687,16 +907,21 @@ const AdminHomePage: React.FC = () => {
                     <IonButton
                       expand="block"
                       fill="clear"
-                      color="medium"
-                      style={{ flex: 1 }}
+                      style={{ flex: 1, "--color": "#64748B", fontWeight: 600 }}
                       onClick={() => setPasoDerivacion("elegir_unidad")}
                     >
                       Regresar
                     </IonButton>
+
                     <IonButton
                       expand="block"
-                      color="dark"
-                      style={{ flex: 1, fontWeight: 600 }}
+                      style={{
+                        flex: 1,
+                        "--background": "#0D3B66",
+                        "--border-radius": "8px",
+                        height: "44px",
+                        fontWeight: 600,
+                      }}
                       onClick={handleConfirmarDerivacion}
                     >
                       Aceptar
@@ -705,37 +930,40 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* SUBFLUJO DERIVAR PASO 3: SUCCESS */}
+              {/* Subflujo derivacion: SUCCESS (Verde Parque) */}
               {pasoDerivacion === "exito" && (
-                <div
-                  className="ion-text-center"
-                  style={{ padding: "30px 10px" }}
-                >
+                <div style={{ textAlign: "center", padding: "24px 10px" }}>
                   <IonIcon
                     icon={checkmarkCircleOutline}
-                    style={{ fontSize: "72px", color: "#555" }}
+                    style={{ fontSize: "72px", color: "#2E7D32" }}
                   />
                   <h3
                     style={{
                       letterSpacing: "2px",
                       fontWeight: 800,
-                      margin: "16px 0 8px 0",
+                      margin: "14px 0 6px 0",
+                      color: "#0D3B66",
                     }}
                   >
                     SUCCESS
                   </h3>
                   <p
                     style={{
-                      color: "#444",
-                      fontSize: "16px",
-                      margin: "0 0 24px 0",
+                      color: "#475569",
+                      fontSize: "14px",
+                      margin: "0 0 20px 0",
                     }}
                   >
-                    Reclamo derivado con éxito a{" "}
+                    Reclamo derivado con exito a{" "}
                     <strong>{unidadElegida}</strong>
                   </p>
                   <IonButton
-                    color="dark"
+                    style={{
+                      "--background": "#0D3B66",
+                      "--border-radius": "8px",
+                      height: "44px",
+                      fontWeight: 600,
+                    }}
                     onClick={() => {
                       setPasoDerivacion("none");
                       setModalDetalleAbierto(false);
@@ -746,42 +974,43 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* SUBFLUJO CIERRE PASO 1 */}
+              {/* Subflujo cierre: Descripcion formal */}
               {pasoCierre === "descripcion" && (
                 <div>
                   <h3
                     style={{
-                      fontWeight: 700,
+                      fontWeight: 800,
+                      color: "#0D3B66",
                       textAlign: "center",
-                      marginBottom: "16px",
+                      margin: "0 0 6px 0",
                     }}
                   >
-                    Descripción del cierre de reclamo
+                    Descripcion del cierre de reclamo
                   </h3>
                   <p
                     style={{
                       textAlign: "center",
-                      color: "#666",
+                      color: "#64748B",
                       fontSize: "13px",
-                      marginTop: 0,
+                      margin: "0 0 16px 0",
                     }}
                   >
-                    Esta respuesta formal quedará visible de inmediato para el
+                    Esta respuesta formal quedara visible de inmediato para el
                     vecino.
                   </p>
 
                   <div
                     style={{
-                      background: "#fff",
-                      border: "1px solid #ccc",
+                      border: "1px solid #CBD5E1",
                       borderRadius: "8px",
-                      padding: "8px",
+                      padding: "6px",
+                      background: "#FFFFFF",
                       marginBottom: "20px",
                     }}
                   >
                     <IonTextarea
-                      rows={6}
-                      placeholder="Detalle la solución municipal ejecutada..."
+                      rows={5}
+                      placeholder="Detalle los trabajos o solucion municipal ejecutada..."
                       value={descripcionCierre}
                       onIonInput={(e) => setDescripcionCierre(e.detail.value!)}
                     />
@@ -791,16 +1020,21 @@ const AdminHomePage: React.FC = () => {
                     <IonButton
                       expand="block"
                       fill="clear"
-                      color="medium"
-                      style={{ flex: 1 }}
+                      style={{ flex: 1, "--color": "#64748B", fontWeight: 600 }}
                       onClick={() => setPasoCierre("none")}
                     >
                       Regresar
                     </IonButton>
+
                     <IonButton
                       expand="block"
-                      color="dark"
-                      style={{ flex: 1, fontWeight: 600 }}
+                      style={{
+                        flex: 1,
+                        "--background": "#2E7D32",
+                        "--border-radius": "8px",
+                        height: "44px",
+                        fontWeight: 600,
+                      }}
                       onClick={handleConfirmarCierre}
                     >
                       Cerrar reclamo
@@ -809,36 +1043,39 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* SUBFLUJO CIERRE PASO 2: SUCCESS */}
+              {/* Subflujo cierre: SUCCESS (Verde Parque) */}
               {pasoCierre === "exito" && (
-                <div
-                  className="ion-text-center"
-                  style={{ padding: "30px 10px" }}
-                >
+                <div style={{ textAlign: "center", padding: "24px 10px" }}>
                   <IonIcon
                     icon={checkmarkCircleOutline}
-                    style={{ fontSize: "72px", color: "#555" }}
+                    style={{ fontSize: "72px", color: "#2E7D32" }}
                   />
                   <h3
                     style={{
                       letterSpacing: "2px",
                       fontWeight: 800,
-                      margin: "16px 0 8px 0",
+                      margin: "14px 0 6px 0",
+                      color: "#0D3B66",
                     }}
                   >
                     SUCCESS
                   </h3>
                   <p
                     style={{
-                      color: "#444",
-                      fontSize: "16px",
-                      margin: "0 0 24px 0",
+                      color: "#475569",
+                      fontSize: "14px",
+                      margin: "0 0 20px 0",
                     }}
                   >
-                    Reclamo cerrado con éxito
+                    Reclamo cerrado con exito
                   </p>
                   <IonButton
-                    color="dark"
+                    style={{
+                      "--background": "#0D3B66",
+                      "--border-radius": "8px",
+                      height: "44px",
+                      fontWeight: 600,
+                    }}
                     onClick={() => {
                       setPasoCierre("none");
                     }}
@@ -854,7 +1091,7 @@ const AdminHomePage: React.FC = () => {
         <IonToast
           isOpen={!!toastMsg}
           message={toastMsg}
-          duration={3000}
+          duration={2500}
           onDidDismiss={() => setToastMsg("")}
         />
       </IonContent>

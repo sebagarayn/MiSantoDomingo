@@ -38,65 +38,129 @@ const AppRoutes: React.FC = () => {
   return (
     <>
       {/* IonMenu: Es el menú lateral adaptable para móvil y escritorio */}
+      {/* Menu Lateral adaptado al diseno municipal */}
       <IonMenu contentId="main-content" type="overlay">
-        <IonHeader>
-          <IonToolbar color="primary">
-            <IonTitle>MiSantoDomingo</IonTitle>
+        <IonHeader className="ion-no-border">
+          <IonToolbar style={{ "--background": "#0D3B66", padding: "6px 0" }}>
+            <IonTitle
+              style={{
+                color: "#FFFFFF",
+                fontWeight: 800,
+                fontSize: "14px",
+                letterSpacing: "0.5px",
+              }}
+            >
+              SANTO DOMINGO
+            </IonTitle>
           </IonToolbar>
+          <div
+            style={{
+              height: "4px",
+              width: "100%",
+              background:
+                "linear-gradient(90deg, #0D3B66 0%, #2E7D32 50%, #F59E0B 100%)",
+            }}
+          />
         </IonHeader>
-        <IonContent>
-          <IonList lines="full">
-            {/* Opción Pública: Para las consulta por folio sin cuenta (RF-03) */}
+
+        <IonContent style={{ "--background": "#FFFFFF" }}>
+          <IonList lines="full" style={{ padding: "8px 0" }}>
             <IonMenuToggle autoHide={false}>
-              <IonItem routerLink="/consulta" routerDirection="root">
-                <IonIcon slot="start" icon={searchOutline} />
+              <IonItem
+                routerLink="/consulta"
+                routerDirection="root"
+                style={{ "--color": "#0D3B66", fontWeight: 600 }}
+              >
+                <IonIcon
+                  slot="start"
+                  icon={searchOutline}
+                  style={{ color: "#0D3B66" }}
+                />
                 <IonLabel>Consulta por Folio</IonLabel>
               </IonItem>
             </IonMenuToggle>
 
-            {/* Opciones del Vecino Autenticado */}
             {isAuthenticated && user?.rol === "vecino" && (
               <IonMenuToggle autoHide={false}>
-                <IonItem routerLink="/app/inicio" routerDirection="root">
-                  <IonIcon slot="start" icon={homeOutline} />
+                <IonItem
+                  routerLink="/app/inicio"
+                  routerDirection="root"
+                  style={{ "--color": "#0D3B66", fontWeight: 600 }}
+                >
+                  <IonIcon
+                    slot="start"
+                    icon={homeOutline}
+                    style={{ color: "#0D3B66" }}
+                  />
                   <IonLabel>Mis Reclamos</IonLabel>
                 </IonItem>
               </IonMenuToggle>
             )}
 
-            {/* Opciones del Funcionario Municipal / Admin */}
             {isAuthenticated && user?.rol === "admin" && (
               <>
                 <IonMenuToggle autoHide={false}>
-                  <IonItem routerLink="/admin/inicio" routerDirection="root">
-                    <IonIcon slot="start" icon={clipboardOutline} />
-                    <IonLabel>Gestión OIRS</IonLabel>
+                  <IonItem
+                    routerLink="/admin/inicio"
+                    routerDirection="root"
+                    style={{ "--color": "#0D3B66", fontWeight: 600 }}
+                  >
+                    <IonIcon
+                      slot="start"
+                      icon={clipboardOutline}
+                      style={{ color: "#0D3B66" }}
+                    />
+                    <IonLabel>Gestion OIRS</IonLabel>
                   </IonItem>
                 </IonMenuToggle>
                 <IonMenuToggle autoHide={false}>
-                  <IonItem routerLink="/admin/dashboard" routerDirection="root">
-                    <IonIcon slot="start" icon={statsChartOutline} />
+                  <IonItem
+                    routerLink="/admin/dashboard"
+                    routerDirection="root"
+                    style={{ "--color": "#0D3B66", fontWeight: 600 }}
+                  >
+                    <IonIcon
+                      slot="start"
+                      icon={statsChartOutline}
+                      style={{ color: "#0D3B66" }}
+                    />
                     <IonLabel>Dashboard KPIs</IonLabel>
                   </IonItem>
                 </IonMenuToggle>
               </>
             )}
 
-            {/* Iniciar o Cerrar Sesión según estado */}
             {isAuthenticated ? (
               <IonMenuToggle autoHide={false}>
-                <IonItem button onClick={logout} detail={false}>
-                  <IonIcon slot="start" icon={logOutOutline} color="danger" />
-                  <IonLabel color="danger">
-                    Cerrar Sesión ({user?.rol})
+                <IonItem
+                  button
+                  onClick={logout}
+                  detail={false}
+                  style={{ marginTop: "16px" }}
+                >
+                  <IonIcon
+                    slot="start"
+                    icon={logOutOutline}
+                    style={{ color: "#DC2626" }}
+                  />
+                  <IonLabel style={{ color: "#DC2626", fontWeight: 600 }}>
+                    Cerrar Sesion ({user?.rol})
                   </IonLabel>
                 </IonItem>
               </IonMenuToggle>
             ) : (
               <IonMenuToggle autoHide={false}>
-                <IonItem routerLink="/login" routerDirection="root">
-                  <IonIcon slot="start" icon={logInOutline} />
-                  <IonLabel>Iniciar Sesión</IonLabel>
+                <IonItem
+                  routerLink="/login"
+                  routerDirection="root"
+                  style={{ "--color": "#0D3B66", fontWeight: 600 }}
+                >
+                  <IonIcon
+                    slot="start"
+                    icon={logInOutline}
+                    style={{ color: "#0D3B66" }}
+                  />
+                  <IonLabel>Iniciar Sesion</IonLabel>
                 </IonItem>
               </IonMenuToggle>
             )}

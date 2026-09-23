@@ -19,11 +19,8 @@ import {
   IonCol,
   IonSelect,
   IonSelectOption,
-  IonBadge,
-  IonProgressBar,
 } from "@ionic/react";
 import {
-  statsChartOutline,
   timeOutline,
   alertCircleOutline,
   documentTextOutline,
@@ -39,15 +36,16 @@ const Dashboard: React.FC = () => {
   const [reclamos, setReclamos] = useState<IReport[]>([]);
   const [periodo, setPeriodo] = useState("30dias");
 
+  // Carga los reclamos del servicio mock
   useEffect(() => {
     reportService.obtenerReclamos().then(setReclamos);
   }, []);
 
-  // Cálculos reactivos de los KPIs (RF-10)
+  // Calculo de metricas en tiempo real (RF-10)
   const totalIngresados = reclamos.length;
   const resueltos = reclamos.filter((r) => r.estado === "Resuelto").length;
 
-  // Reclamos vencidos según el plazo legal de 20 días corridos (RF-04)
+  // Detecta reclamos con mas de 20 dias corridos sin resolver
   const vencidos = reclamos.filter(
     (r) =>
       r.estado !== "Resuelto" &&
@@ -57,7 +55,7 @@ const Dashboard: React.FC = () => {
   const tasaResolucion =
     totalIngresados > 0 ? Math.round((resueltos / totalIngresados) * 100) : 0;
 
-  // Agrupación por categoría para las barras
+  // Agrupa el volumen por categoria para el grafico de barras
   const categoriasConteo: { [key: string]: number } = {};
   reclamos.forEach((r) => {
     const cat = r.categoria || "Otros";
@@ -66,21 +64,79 @@ const Dashboard: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar color="primary">
+      {/* Barra superior con identidad unificada */}
+      <IonHeader className="ion-no-border">
+        <IonToolbar
+          style={{
+            "--background": "#0D3B66",
+            padding: "4px 0",
+          }}
+        >
           <IonButtons slot="start">
-            <IonMenuButton />
+            <IonMenuButton
+              className="ion-hide-md-up"
+              style={{ color: "#FFFFFF" }}
+            />
           </IonButtons>
-          <IonTitle>Dashboard de Gestión OIRS</IonTitle>
+
+          <IonTitle
+            style={{
+              fontSize: "14px",
+              fontWeight: 800,
+              color: "#FFFFFF",
+              letterSpacing: "0.8px",
+              textTransform: "uppercase",
+            }}
+          >
+            Dashboard OIRS
+          </IonTitle>
+
+          {/* Logo en pastilla blanca a la derecha */}
+          <IonButtons slot="end" style={{ paddingRight: "12px" }}>
+            <div
+              style={{
+                background: "#FFFFFF",
+                borderRadius: "8px",
+                padding: "4px 8px",
+                display: "flex",
+                alignItems: "center",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+              }}
+            >
+              <img
+                src="/logo-santodomingo.png"
+                alt="Logo Santo Domingo"
+                style={{
+                  maxHeight: "30px",
+                  maxWidth: "100px",
+                  objectFit: "contain",
+                  display: "block",
+                }}
+              />
+            </div>
+          </IonButtons>
         </IonToolbar>
+
+        {/* Franja tricolor Santo Domingo */}
+        <div
+          style={{
+            height: "4px",
+            width: "100%",
+            background:
+              "linear-gradient(90deg, #0D3B66 0%, #2E7D32 50%, #F59E0B 100%)",
+          }}
+        />
       </IonHeader>
 
-      <IonContent
-        className="ion-padding"
-        style={{ backgroundColor: "#f4f5f8" }}
-      >
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          {/* Encabezado y Selector de Período */}
+      <IonContent className="ion-padding" style={{ "--background": "#F8FAFC" }}>
+        <div
+          style={{
+            maxWidth: "1100px",
+            margin: "0 auto",
+            paddingBottom: "30px",
+          }}
+        >
+          {/* Cabecera y selector de periodo */}
           <div
             style={{
               display: "flex",
@@ -92,21 +148,30 @@ const Dashboard: React.FC = () => {
             }}
           >
             <div>
-              <h2 style={{ fontWeight: 700, margin: "0 0 4px 0" }}>
-                Dashboard
+              <h2
+                style={{
+                  fontWeight: 800,
+                  color: "#0D3B66",
+                  margin: "0 0 2px 0",
+                  fontSize: "1.4rem",
+                }}
+              >
+                Dashboard de Indicadores
               </h2>
-              <span style={{ color: "#666", fontSize: "14px" }}>
-                Monitoreo comunal de reclamos y tiempos de respuesta municipal
-              </span>
+              <p style={{ margin: 0, fontSize: "13px", color: "#64748B" }}>
+                Monitoreo comunal de cumplimiento y volumen de solicitudes
+                (RF-10)
+              </p>
             </div>
 
             <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              {/* Filtro de rango temporal */}
               <div
                 style={{
-                  background: "#fff",
-                  border: "1px solid #ccc",
+                  background: "#FFFFFF",
+                  border: "1px solid #CBD5E1",
                   borderRadius: "8px",
-                  padding: "0 10px",
+                  padding: "2px 8px",
                   display: "flex",
                   alignItems: "center",
                 }}
@@ -120,12 +185,17 @@ const Dashboard: React.FC = () => {
                   value={periodo}
                   interface="popover"
                   onIonChange={(e) => setPeriodo(e.detail.value)}
+                  style={{
+                    fontSize: "13px",
+                    color: "#0D3B66",
+                    fontWeight: 600,
+                  }}
                 >
                   <IonSelectOption value="7dias">
-                    Últimos 7 días
+                    Ultimos 7 dias
                   </IonSelectOption>
                   <IonSelectOption value="30dias">
-                    Últimos 30 días
+                    Ultimos 30 dias
                   </IonSelectOption>
                   <IonSelectOption value="anio">
                     Año en curso (2026)
@@ -133,10 +203,18 @@ const Dashboard: React.FC = () => {
                 </IonSelect>
               </div>
 
+              {/* Boton para regresar a la tabla */}
               <IonButton
                 fill="outline"
-                color="dark"
                 onClick={() => history.push("/admin/inicio")}
+                style={{
+                  "--border-color": "#0D3B66",
+                  "--color": "#0D3B66",
+                  "--border-radius": "8px",
+                  height: "40px",
+                  fontWeight: 600,
+                  fontSize: "13px",
+                }}
               >
                 <IonIcon slot="start" icon={clipboardOutline} />
                 Ver Reclamos
@@ -144,45 +222,49 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* LOS 3 INDICADORES CLAVE */}
-          <IonGrid className="ion-no-padding" style={{ marginBottom: "24px" }}>
+          {/* Tarjetas KPI superiores */}
+          <IonGrid className="ion-no-padding" style={{ marginBottom: "20px" }}>
             <IonRow>
-              {/* Tarjeta 1: Reclamos Ingresados */}
+              {/* KPI 1: Reclamos Ingresados */}
               <IonCol size="12" sizeMd="4">
                 <IonCard
                   style={{
-                    borderRadius: "12px",
+                    borderRadius: "14px",
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E2E8F0",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
                     margin: "6px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                   }}
                 >
-                  <IonCardHeader style={{ paddingBottom: "8px" }}>
+                  <IonCardHeader style={{ padding: "16px 16px 8px 16px" }}>
                     <IonCardSubtitle
                       style={{
-                        color: "#666",
-                        fontWeight: 600,
-                        fontSize: "13px",
+                        color: "#64748B",
+                        fontWeight: 700,
+                        fontSize: "12px",
+                        textTransform: "uppercase",
                       }}
                     >
                       Reclamos Ingresados
                     </IonCardSubtitle>
                     <IonCardTitle
                       style={{
-                        fontSize: "2.5rem",
+                        fontSize: "2.4rem",
                         fontWeight: 800,
-                        color: "#111",
+                        color: "#0D3B66",
+                        margin: "4px 0 0 0",
                       }}
                     >
                       {totalIngresados}
                     </IonCardTitle>
                   </IonCardHeader>
-                  <IonCardContent>
+                  <IonCardContent style={{ padding: "0 16px 16px 16px" }}>
                     <div
                       style={{
                         display: "flex",
                         alignItems: "center",
                         gap: "6px",
-                        color: "#555",
+                        color: "#475569",
                         fontSize: "13px",
                       }}
                     >
@@ -195,97 +277,106 @@ const Dashboard: React.FC = () => {
                 </IonCard>
               </IonCol>
 
-              {/* Tarjeta 2: Tiempo promedio de respuesta */}
+              {/* KPI 2: Tiempo promedio de respuesta */}
               <IonCol size="12" sizeMd="4">
                 <IonCard
                   style={{
-                    borderRadius: "12px",
+                    borderRadius: "14px",
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E2E8F0",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
                     margin: "6px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                   }}
                 >
-                  <IonCardHeader style={{ paddingBottom: "8px" }}>
+                  <IonCardHeader style={{ padding: "16px 16px 8px 16px" }}>
                     <IonCardSubtitle
                       style={{
-                        color: "#666",
-                        fontWeight: 600,
-                        fontSize: "13px",
+                        color: "#64748B",
+                        fontWeight: 700,
+                        fontSize: "12px",
+                        textTransform: "uppercase",
                       }}
                     >
-                      Tiempo promedio de respuesta
+                      Tiempo Promedio de Respuesta
                     </IonCardSubtitle>
                     <IonCardTitle
                       style={{
-                        fontSize: "2.5rem",
+                        fontSize: "2.4rem",
                         fontWeight: 800,
-                        color: "#111",
+                        color: "#0D3B66",
+                        margin: "4px 0 0 0",
                       }}
                     >
-                      7 días
+                      7 dias
                     </IonCardTitle>
                   </IonCardHeader>
-                  <IonCardContent>
+                  <IonCardContent style={{ padding: "0 16px 16px 16px" }}>
                     <div
                       style={{
                         display: "flex",
                         alignItems: "center",
                         gap: "6px",
-                        color: "#2e7d32",
+                        color: "#15803D",
                         fontSize: "13px",
                         fontWeight: 600,
                       }}
                     >
                       <IonIcon icon={timeOutline} />
-                      <span>Dentro del estándar legal de 20 días</span>
+                      <span>Cumple estandar legal de 20 dias</span>
                     </div>
                   </IonCardContent>
                 </IonCard>
               </IonCol>
 
-              {/* Tarjeta 3: Reclamos vencidos */}
+              {/* KPI 3: Reclamos vencidos */}
               <IonCol size="12" sizeMd="4">
                 <IonCard
                   style={{
-                    borderRadius: "12px",
+                    borderRadius: "14px",
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E2E8F0",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
                     margin: "6px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                   }}
                 >
-                  <IonCardHeader style={{ paddingBottom: "8px" }}>
+                  <IonCardHeader style={{ padding: "16px 16px 8px 16px" }}>
                     <IonCardSubtitle
                       style={{
-                        color: "#666",
-                        fontWeight: 600,
-                        fontSize: "13px",
+                        color: "#64748B",
+                        fontWeight: 700,
+                        fontSize: "12px",
+                        textTransform: "uppercase",
                       }}
                     >
-                      Reclamos vencidos
+                      Reclamos Vencidos
                     </IonCardSubtitle>
                     <IonCardTitle
                       style={{
-                        fontSize: "2.5rem",
+                        fontSize: "2.4rem",
                         fontWeight: 800,
-                        color: vencidos > 0 ? "#c62828" : "#111",
+                        color: vencidos > 0 ? "#DC2626" : "#0D3B66",
+                        margin: "4px 0 0 0",
                       }}
                     >
                       {vencidos}
                     </IonCardTitle>
                   </IonCardHeader>
-                  <IonCardContent>
+                  <IonCardContent style={{ padding: "0 16px 16px 16px" }}>
                     <div
                       style={{
                         display: "flex",
                         alignItems: "center",
                         gap: "6px",
-                        color: vencidos > 0 ? "#c62828" : "#666",
+                        color: vencidos > 0 ? "#DC2626" : "#64748B",
                         fontSize: "13px",
+                        fontWeight: vencidos > 0 ? 700 : 400,
                       }}
                     >
                       <IonIcon icon={alertCircleOutline} />
                       <span>
                         {vencidos > 0
-                          ? "Requieren atención urgente"
-                          : "Sin alertas de vencimiento"}
+                          ? "Requieren atencion urgente"
+                          : "Sin alertas de plazo"}
                       </span>
                     </div>
                   </IonCardContent>
@@ -294,12 +385,15 @@ const Dashboard: React.FC = () => {
             </IonRow>
           </IonGrid>
 
-          {/* GRÁFICO DE BARRAS COMPARATIVAS */}
+          {/* Grafico de barras por categoria */}
           <IonCard
             style={{
-              borderRadius: "12px",
-              padding: "16px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              borderRadius: "16px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E2E8F0",
+              padding: "20px",
+              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.04)",
+              margin: "6px",
             }}
           >
             <IonCardHeader
@@ -313,35 +407,49 @@ const Dashboard: React.FC = () => {
                   alignItems: "center",
                 }}
               >
-                <IonCardTitle style={{ fontSize: "1.2rem", fontWeight: 700 }}>
-                  Volumen de solicitudes por Categoría
+                <IonCardTitle
+                  style={{
+                    fontSize: "1.15rem",
+                    fontWeight: 800,
+                    color: "#0D3B66",
+                  }}
+                >
+                  Volumen de Solicitudes por Categoria
                 </IonCardTitle>
-                <IonBadge color="dark">
-                  Período: {periodo === "30dias" ? "Últimos 30 días" : periodo}
-                </IonBadge>
+                <span
+                  style={{
+                    background: "#F1F5F9",
+                    color: "#0D3B66",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    padding: "4px 8px",
+                    borderRadius: "6px",
+                  }}
+                >
+                  {periodo === "30dias" ? "Ultimos 30 dias" : periodo}
+                </span>
               </div>
             </IonCardHeader>
 
             <IonCardContent className="ion-no-padding">
-              {/* Contenedor del gráfico con altura fija */}
+              {/* Contenedor del grafico con barras en azul municipal */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "flex-end",
                   justifyContent: "space-around",
                   height: "240px",
-                  borderBottom: "2px solid #ccc",
+                  borderBottom: "2px solid #E2E8F0",
                   paddingBottom: "0",
                   margin: "20px 0 10px 0",
                 }}
               >
                 {Object.keys(categoriasConteo).length === 0 ? (
-                  <p style={{ color: "#777", margin: "auto" }}>
-                    Cargando datos del gráfico...
+                  <p style={{ color: "#64748B", margin: "auto" }}>
+                    Cargando datos del grafico...
                   </p>
                 ) : (
                   Object.entries(categoriasConteo).map(([cat, count]) => {
-                    // Calcula altura garantizada entre 40px y 170px según el conteo
                     const alturaPx = Math.max(
                       45,
                       Math.min(
@@ -367,7 +475,7 @@ const Dashboard: React.FC = () => {
                             fontSize: "13px",
                             fontWeight: 800,
                             marginBottom: "8px",
-                            color: "#111",
+                            color: "#0D3B66",
                           }}
                         >
                           {count}
@@ -375,10 +483,10 @@ const Dashboard: React.FC = () => {
                         <div
                           style={{
                             width: "38px",
-                            height: `${alturaPx}px`, // Altura fija en px que nunca colapsa
-                            backgroundColor: "#1976d2",
+                            height: `${alturaPx}px`,
+                            backgroundColor: "#0D3B66",
                             borderRadius: "4px 4px 0 0",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+                            boxShadow: "0 2px 4px rgba(13, 59, 102, 0.2)",
                           }}
                         />
                       </div>
@@ -387,13 +495,13 @@ const Dashboard: React.FC = () => {
                 )}
               </div>
 
-              {/* Etiquetas de categorías debajo de cada barra */}
+              {/* Etiquetas debajo de las barras */}
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-around",
                   textAlign: "center",
-                  marginTop: "6px",
+                  marginTop: "8px",
                 }}
               >
                 {Object.keys(categoriasConteo).map((cat) => (
@@ -402,7 +510,7 @@ const Dashboard: React.FC = () => {
                     style={{
                       width: "80px",
                       fontSize: "11px",
-                      color: "#555",
+                      color: "#64748B",
                       fontWeight: 600,
                     }}
                   >

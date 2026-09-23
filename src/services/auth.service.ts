@@ -1,23 +1,32 @@
 import { IUser } from "../types";
 
-// Usuarios de prueba para simular el login
-const usuariosPrueba: IUser[] = [
+export const usuariosPrueba: IUser[] = [
   {
-    id: "1",
-    nombre: "Vecino Demo",
+    id: "usr-vecino-1",
+    nombre: "María González (Vecina)",
     email: "vecino@correo.cl",
     rol: "vecino",
+    fechaRegistro: "2026-01-15",
   },
   {
-    id: "2",
-    nombre: "Funcionario Municipal",
+    id: "usr-admin-1",
+    nombre: "Felipe OIRS (Funcionario)",
     email: "admin@correo.cl",
     rol: "admin",
+    fechaRegistro: "2026-01-10",
   },
 ];
 
-// Simula el inicio de sesion buscando el usuario por email
-export function login(email: string, password: string): IUser | null {
-  const usuario = usuariosPrueba.find((u) => u.email === email);
+export const login = (email: string, _password?: string): IUser | null => {
+  const usuario = usuariosPrueba.find(
+    (u) => u.email.toLowerCase() === email.trim().toLowerCase(),
+  );
   return usuario || null;
-}
+};
+
+export const authService = {
+  usuariosPrueba,
+  login,
+};
+
+export default authService;

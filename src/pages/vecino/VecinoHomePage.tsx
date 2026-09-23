@@ -11,7 +11,6 @@ import {
   IonIcon,
   IonCard,
   IonCardContent,
-  IonBadge,
   IonModal,
   IonItem,
   IonLabel,
@@ -36,7 +35,6 @@ import {
   arrowBackOutline,
   imageOutline,
   homeOutline,
-  documentTextOutline,
   logOutOutline,
 } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
@@ -44,7 +42,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
 
-// Categorías exactas del Figma móvil
+// Categorias del Figma movil
 const CATEGORIAS_FIGMA = [
   "Alumbrado público",
   "Aseo y ornato",
@@ -71,6 +69,7 @@ const VecinoHomePage: React.FC = () => {
   const [ubicacion, setUbicacion] = useState("");
   const [fotoSimulada, setFotoSimulada] = useState(false);
 
+  // Carga los reclamos del usuario conectado
   const cargarReclamos = async () => {
     const data = await reportService.obtenerReclamos();
     setReclamos(
@@ -82,6 +81,7 @@ const VecinoHomePage: React.FC = () => {
     cargarReclamos();
   }, []);
 
+  // Envia el reclamo al mock
   const handleEnviarReclamo = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoria || !descripcion.trim() || !ubicacion.trim()) {
@@ -105,11 +105,9 @@ const VecinoHomePage: React.FC = () => {
       idUsuario,
     );
 
-    // Agrega el reclamo de inmediato arriba en la lista
     setReclamos((prev) => [nuevo, ...prev]);
     setReclamoCreadoExito(nuevo);
 
-    // Limpiar formulario
     setCategoria("");
     setDescripcion("");
     setUbicacion("");
@@ -124,56 +122,132 @@ const VecinoHomePage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar color="primary">
+      {/* Barra superior con identidad unificada */}
+      <IonHeader className="ion-no-border">
+        <IonToolbar
+          style={{
+            "--background": "#0D3B66",
+            padding: "4px 0",
+          }}
+        >
           <IonButtons slot="start">
-            <IonMenuButton />
+            {/* Se oculta en PC automaticamente */}
+            <IonMenuButton
+              className="ion-hide-md-up"
+              style={{ color: "#FFFFFF" }}
+            />
           </IonButtons>
-          <IonTitle>MiSantoDomingo</IonTitle>
+
+          <IonTitle
+            style={{
+              fontSize: "14px",
+              fontWeight: 800,
+              color: "#FFFFFF",
+              letterSpacing: "0.8px",
+              textTransform: "uppercase",
+            }}
+          >
+            Mis Reclamos
+          </IonTitle>
+
+          {/* Logo municipal en pastilla blanca limpia */}
+          <IonButtons slot="end" style={{ paddingRight: "12px" }}>
+            <div
+              style={{
+                background: "#FFFFFF",
+                borderRadius: "8px",
+                padding: "4px 8px",
+                display: "flex",
+                alignItems: "center",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+              }}
+            >
+              <img
+                src="/logo-santodomingo.png"
+                alt="Logo Santo Domingo"
+                style={{
+                  maxHeight: "30px",
+                  maxWidth: "100px",
+                  objectFit: "contain",
+                  display: "block",
+                }}
+              />
+            </div>
+          </IonButtons>
         </IonToolbar>
+
+        {/* Franja tricolor Santo Domingo */}
+        <div
+          style={{
+            height: "4px",
+            width: "100%",
+            background:
+              "linear-gradient(90deg, #0D3B66 0%, #2E7D32 50%, #F59E0B 100%)",
+          }}
+        />
       </IonHeader>
 
-      <IonContent className="ion-padding">
+      <IonContent className="ion-padding" style={{ "--background": "#F8FAFC" }}>
         <div
-          style={{ maxWidth: "520px", margin: "0 auto", paddingBottom: "20px" }}
+          style={{ maxWidth: "520px", margin: "0 auto", paddingBottom: "30px" }}
         >
-          {/* Bienvenida */}
-          <div style={{ margin: "10px 0 20px 0" }}>
-            <h2 style={{ fontWeight: 700, margin: "0 0 4px 0" }}>
+          {/* Bienvenida al vecino */}
+          <div style={{ margin: "8px 0 16px 0" }}>
+            <h2
+              style={{
+                fontWeight: 800,
+                fontSize: "1.3rem",
+                color: "#0D3B66",
+                margin: "0 0 2px 0",
+              }}
+            >
               Hola, {user?.nombre || "Vecino"}
             </h2>
             <IonText color="medium">
-              <p style={{ margin: 0 }}>
-                Portal de atención y seguimiento comunal
+              <p style={{ margin: 0, fontSize: "13px" }}>
+                Portal de atencion y seguimiento comunal
               </p>
             </IonText>
           </div>
 
-          {/* Menú "¿Qué desea hacer?" (Figma móvil - Fila 1) */}
+          {/* Tarjeta "¿Que desea hacer?" */}
           <IonCard
             style={{
               borderRadius: "16px",
-              margin: "0 0 24px 0",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E2E8F0",
+              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.04)",
+              overflow: "hidden",
+              margin: "0 0 20px 0",
             }}
           >
-            <IonCardContent>
+            <IonCardContent style={{ padding: "20px" }}>
               <h3
-                style={{ fontWeight: 700, marginBottom: "16px", color: "#111" }}
+                style={{
+                  fontWeight: 800,
+                  fontSize: "15px",
+                  marginBottom: "14px",
+                  color: "#0F172A",
+                }}
               >
-                ¿Qué desea hacer?
+                ¿Que desea hacer?
               </h3>
               <div
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "12px",
+                  gap: "10px",
                 }}
               >
                 <IonButton
                   expand="block"
-                  color="dark"
-                  style={{ height: "48px", fontWeight: 600 }}
+                  style={{
+                    "--background": "#0D3B66",
+                    "--border-radius": "8px",
+                    height: "46px",
+                    fontWeight: 600,
+                    fontSize: "14px",
+                  }}
                   onClick={() => setModalCrearAbierto(true)}
                 >
                   <IonIcon slot="start" icon={addCircleOutline} />
@@ -183,8 +257,14 @@ const VecinoHomePage: React.FC = () => {
                 <IonButton
                   expand="block"
                   fill="outline"
-                  color="dark"
-                  style={{ height: "48px", fontWeight: 600 }}
+                  style={{
+                    "--border-color": "#0D3B66",
+                    "--color": "#0D3B66",
+                    "--border-radius": "8px",
+                    height: "44px",
+                    fontWeight: 600,
+                    fontSize: "14px",
+                  }}
                   onClick={() => history.push("/consulta")}
                 >
                   <IonIcon slot="start" icon={searchOutline} />
@@ -194,7 +274,7 @@ const VecinoHomePage: React.FC = () => {
             </IonCardContent>
           </IonCard>
 
-          {/* Sección "Mis reclamos" (Figma móvil - Fila 1) */}
+          {/* Listado "Mis reclamos" */}
           <div
             style={{
               display: "flex",
@@ -203,8 +283,28 @@ const VecinoHomePage: React.FC = () => {
               marginBottom: "12px",
             }}
           >
-            <h3 style={{ fontWeight: 700, margin: 0 }}>Mis reclamos</h3>
-            <IonBadge color="medium">{reclamos.length}</IonBadge>
+            <h3
+              style={{
+                fontWeight: 800,
+                fontSize: "15px",
+                color: "#0F172A",
+                margin: 0,
+              }}
+            >
+              Mis reclamos
+            </h3>
+            <span
+              style={{
+                background: "#0D3B66",
+                color: "#FFFFFF",
+                fontSize: "11px",
+                fontWeight: 700,
+                padding: "2px 8px",
+                borderRadius: "10px",
+              }}
+            >
+              {reclamos.length}
+            </span>
           </div>
 
           {reclamos.length === 0 ? (
@@ -213,10 +313,13 @@ const VecinoHomePage: React.FC = () => {
                 borderRadius: "12px",
                 textAlign: "center",
                 padding: "20px",
+                border: "1px solid #E2E8F0",
               }}
             >
               <IonText color="medium">
-                <p>No tienes reclamos registrados actualmente.</p>
+                <p style={{ margin: 0, fontSize: "13px" }}>
+                  No tienes reclamos registrados actualmente.
+                </p>
               </IonText>
             </IonCard>
           ) : (
@@ -231,11 +334,13 @@ const VecinoHomePage: React.FC = () => {
                   key={r.folio}
                   style={{
                     borderRadius: "14px",
-                    marginBottom: "14px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E2E8F0",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                    marginBottom: "12px",
                   }}
                 >
-                  <IonCardContent>
+                  <IonCardContent style={{ padding: "16px" }}>
                     <div
                       style={{
                         display: "flex",
@@ -243,26 +348,38 @@ const VecinoHomePage: React.FC = () => {
                         alignItems: "center",
                       }}
                     >
-                      <strong style={{ fontSize: "1.1rem", color: "#111" }}>
+                      <strong
+                        style={{
+                          fontSize: "1.1rem",
+                          color: "#0D3B66",
+                          fontWeight: 800,
+                        }}
+                      >
                         #{r.folio}
                       </strong>
-                      <IonBadge
-                        color={r.estado === "Resuelto" ? "success" : "dark"}
+
+                      {/* Badge con color semantico */}
+                      <span
                         style={{
+                          background: enProceso ? "#FEF3C7" : "#DCFCE7",
+                          color: enProceso ? "#B45309" : "#15803D",
                           fontSize: "11px",
-                          padding: "4px 10px",
+                          fontWeight: 700,
+                          padding: "3px 8px",
+                          borderRadius: "6px",
                           textTransform: "uppercase",
                         }}
                       >
                         {enProceso ? "EN PROCESO" : r.estado}
-                      </IonBadge>
+                      </span>
                     </div>
 
                     <h4
                       style={{
                         margin: "8px 0 4px 0",
-                        fontWeight: 600,
-                        color: "#333",
+                        fontWeight: 700,
+                        color: "#1E293B",
+                        fontSize: "14px",
                       }}
                     >
                       {r.categoria}
@@ -273,8 +390,8 @@ const VecinoHomePage: React.FC = () => {
                         display: "flex",
                         alignItems: "center",
                         gap: "6px",
-                        color: "#666",
-                        fontSize: "13px",
+                        color: "#64748B",
+                        fontSize: "12px",
                       }}
                     >
                       <IonIcon icon={locationOutline} />
@@ -288,7 +405,7 @@ const VecinoHomePage: React.FC = () => {
                         alignItems: "center",
                         marginTop: "10px",
                         paddingTop: "10px",
-                        borderTop: "1px solid #f0f0f0",
+                        borderTop: "1px solid #F1F5F9",
                         fontSize: "12px",
                       }}
                     >
@@ -297,7 +414,7 @@ const VecinoHomePage: React.FC = () => {
                           display: "flex",
                           alignItems: "center",
                           gap: "4px",
-                          color: "#777",
+                          color: "#64748B",
                         }}
                       >
                         <IonIcon icon={calendarOutline} />
@@ -312,17 +429,17 @@ const VecinoHomePage: React.FC = () => {
                             display: "flex",
                             alignItems: "center",
                             gap: "4px",
-                            color: vencido ? "red" : "#e65100",
-                            fontWeight: 600,
+                            color: vencido ? "#DC2626" : "#D97706",
+                            fontWeight: 700,
                           }}
                         >
                           <IonIcon icon={timeOutline} />
-                          <span>{diasRestantes} días restantes</span>
+                          <span>{diasRestantes} dias restantes</span>
                         </div>
                       ) : (
-                        <IonText color="success" style={{ fontWeight: 600 }}>
-                          Completado
-                        </IonText>
+                        <span style={{ color: "#15803D", fontWeight: 700 }}>
+                          Resuelto
+                        </span>
                       )}
                     </div>
                   </IonCardContent>
@@ -332,46 +449,73 @@ const VecinoHomePage: React.FC = () => {
           )}
         </div>
 
-        {/* MODAL: Ingresar un reclamo (Figma móvil - Fila 3) */}
+        {/* Modal: Ingresar un reclamo (RF-01) */}
         <IonModal
           isOpen={modalCrearAbierto}
           onDidDismiss={() => setModalCrearAbierto(false)}
         >
-          <IonHeader>
-            <IonToolbar color="light">
+          <IonHeader className="ion-no-border">
+            <IonToolbar style={{ "--background": "#0D3B66" }}>
               <IonButtons slot="start">
-                <IonButton onClick={() => setModalCrearAbierto(false)}>
+                <IonButton
+                  onClick={() => setModalCrearAbierto(false)}
+                  style={{ color: "#FFFFFF" }}
+                >
                   <IonIcon icon={arrowBackOutline} />
                 </IonButton>
               </IonButtons>
-              <IonTitle style={{ fontWeight: 600 }}>
+              <IonTitle
+                style={{
+                  color: "#FFFFFF",
+                  fontWeight: 700,
+                  fontSize: "14px",
+                  textTransform: "uppercase",
+                }}
+              >
                 Ingresar un reclamo
               </IonTitle>
             </IonToolbar>
+            <div
+              style={{
+                height: "3px",
+                width: "100%",
+                background:
+                  "linear-gradient(90deg, #0D3B66 0%, #2E7D32 50%, #F59E0B 100%)",
+              }}
+            />
           </IonHeader>
 
-          <IonContent className="ion-padding">
+          <IonContent
+            className="ion-padding"
+            style={{ "--background": "#F8FAFC" }}
+          >
             <div style={{ maxWidth: "520px", margin: "0 auto" }}>
               {!reclamoCreadoExito ? (
                 <form onSubmit={handleEnviarReclamo}>
-                  {/* Selector Categoría */}
-                  <div style={{ marginBottom: "16px" }}>
-                    <IonLabel
+                  {/* Selector de categoria */}
+                  <div style={{ marginBottom: "14px" }}>
+                    <label
                       style={{
+                        fontSize: "13px",
                         fontWeight: 600,
+                        color: "#334155",
                         display: "block",
-                        marginBottom: "6px",
+                        marginBottom: "4px",
                       }}
                     >
-                      Seleccionar Categoría (*)
-                    </IonLabel>
+                      Seleccionar Categoria (*)
+                    </label>
                     <IonItem
                       lines="none"
-                      style={{ border: "1px solid #ccc", borderRadius: "8px" }}
+                      style={{
+                        border: "1px solid #CBD5E1",
+                        borderRadius: "8px",
+                        background: "#FFFFFF",
+                      }}
                     >
                       <IonSelect
                         value={categoria}
-                        placeholder="Seleccionar Categoría..."
+                        placeholder="Seleccionar Categoria..."
                         onIonChange={(e) => setCategoria(e.detail.value)}
                         interface="action-sheet"
                       >
@@ -384,21 +528,28 @@ const VecinoHomePage: React.FC = () => {
                     </IonItem>
                   </div>
 
-                  {/* Descripción con contador 0/500 */}
-                  <div style={{ marginBottom: "16px" }}>
+                  {/* Descripcion con contador de caracteres */}
+                  <div style={{ marginBottom: "14px" }}>
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
-                        marginBottom: "6px",
+                        marginBottom: "4px",
                       }}
                     >
-                      <IonLabel style={{ fontWeight: 600 }}>
-                        Descripción (*)
-                      </IonLabel>
+                      <label
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          color: "#334155",
+                        }}
+                      >
+                        Descripcion (*)
+                      </label>
                       <small
                         style={{
-                          color: descripcion.length >= 500 ? "red" : "#777",
+                          color:
+                            descripcion.length >= 500 ? "#DC2626" : "#64748B",
                         }}
                       >
                         {descripcion.length}/500 caracteres
@@ -406,32 +557,42 @@ const VecinoHomePage: React.FC = () => {
                     </div>
                     <IonItem
                       lines="none"
-                      style={{ border: "1px solid #ccc", borderRadius: "8px" }}
+                      style={{
+                        border: "1px solid #CBD5E1",
+                        borderRadius: "8px",
+                        background: "#FFFFFF",
+                      }}
                     >
                       <IonTextarea
                         value={descripcion}
                         rows={5}
                         maxlength={500}
-                        placeholder="Cuéntanos qué ocurrió..."
+                        placeholder="Cuentanos que ocurrio..."
                         onIonInput={(e) => setDescripcion(e.detail.value!)}
                       />
                     </IonItem>
                   </div>
 
-                  {/* Dirección */}
-                  <div style={{ marginBottom: "16px" }}>
-                    <IonLabel
+                  {/* Direccion */}
+                  <div style={{ marginBottom: "14px" }}>
+                    <label
                       style={{
+                        fontSize: "13px",
                         fontWeight: 600,
+                        color: "#334155",
                         display: "block",
-                        marginBottom: "6px",
+                        marginBottom: "4px",
                       }}
                     >
-                      Ingresa la dirección (*)
-                    </IonLabel>
+                      Ingresa la direccion (*)
+                    </label>
                     <IonItem
                       lines="none"
-                      style={{ border: "1px solid #ccc", borderRadius: "8px" }}
+                      style={{
+                        border: "1px solid #CBD5E1",
+                        borderRadius: "8px",
+                        background: "#FFFFFF",
+                      }}
                     >
                       <IonInput
                         value={ubicacion}
@@ -441,32 +602,39 @@ const VecinoHomePage: React.FC = () => {
                     </IonItem>
                   </div>
 
-                  {/* Adjuntar fotografía */}
-                  <div style={{ marginBottom: "24px" }}>
-                    <IonLabel
+                  {/* Adjuntar fotografia */}
+                  <div style={{ marginBottom: "22px" }}>
+                    <label
                       style={{
+                        fontSize: "13px",
                         fontWeight: 600,
+                        color: "#334155",
                         display: "block",
-                        marginBottom: "4px",
+                        marginBottom: "2px",
                       }}
                     >
-                      ADJUNTAR FOTOGRAFÍA
-                    </IonLabel>
+                      ADJUNTAR FOTOGRAFIA
+                    </label>
                     <small
                       style={{
-                        color: "#777",
+                        color: "#64748B",
                         display: "block",
-                        marginBottom: "10px",
+                        marginBottom: "8px",
+                        fontSize: "11px",
                       }}
                     >
-                      JPG o PNG - Máx. 5MB (Opcional)
+                      JPG o PNG - Max. 5MB (Opcional)
                     </small>
 
                     <IonButton
                       expand="block"
                       fill="outline"
-                      color="medium"
-                      style={{ borderRadius: "8px" }}
+                      style={{
+                        "--border-color": "#CBD5E1",
+                        "--color": "#0D3B66",
+                        "--border-radius": "8px",
+                        fontSize: "13px",
+                      }}
                       onClick={() => setFotoSimulada(!fotoSimulada)}
                     >
                       <IonIcon
@@ -474,64 +642,74 @@ const VecinoHomePage: React.FC = () => {
                         icon={fotoSimulada ? imageOutline : cameraOutline}
                       />
                       {fotoSimulada
-                        ? "✓ Fotografía adjuntada (1 archivo)"
-                        : "Adjuntar fotografía"}
+                        ? "Fotografia adjuntada (1 archivo)"
+                        : "Adjuntar fotografia"}
                     </IonButton>
                   </div>
 
-                  {/* Botón Enviar reclamo */}
+                  {/* Boton enviar con azul municipal */}
                   <IonButton
                     expand="block"
                     type="submit"
-                    color="dark"
-                    style={{ height: "48px", fontWeight: 600 }}
+                    style={{
+                      "--background": "#0D3B66",
+                      "--border-radius": "8px",
+                      height: "46px",
+                      fontWeight: 600,
+                      fontSize: "14px",
+                    }}
                   >
                     Enviar reclamo
                   </IonButton>
                 </form>
               ) : (
-                /* Pantalla de Confirmación de Folio (Figma) */
+                /* Pantalla de confirmacion con folio unico (RF-02) */
                 <div
                   className="ion-text-center"
                   style={{ padding: "20px 10px" }}
                 >
                   <IonIcon
                     icon={checkmarkCircle}
-                    style={{
-                      fontSize: "72px",
-                      color: "var(--ion-color-dark, #222)",
-                    }}
+                    style={{ fontSize: "72px", color: "#2E7D32" }}
                   />
 
-                  <h2 style={{ fontWeight: 700, margin: "16px 0 8px 0" }}>
+                  <h2
+                    style={{
+                      fontWeight: 800,
+                      margin: "14px 0 6px 0",
+                      color: "#0D3B66",
+                    }}
+                  >
                     ¡Reclamo ingresado correctamente!
                   </h2>
 
                   <IonCard
                     style={{
                       borderRadius: "16px",
-                      margin: "24px 0",
-                      border: "1px solid #e0e0e0",
-                      boxShadow: "none",
+                      margin: "20px 0",
+                      border: "1px solid #E2E8F0",
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
+                      background: "#FFFFFF",
                     }}
                   >
                     <IonCardContent style={{ padding: "20px" }}>
                       <span
                         style={{
-                          fontSize: "13px",
-                          color: "#666",
+                          fontSize: "12px",
+                          color: "#64748B",
                           textTransform: "uppercase",
                           letterSpacing: "0.5px",
+                          fontWeight: 600,
                         }}
                       >
-                        Número de folio
+                        Numero de folio
                       </span>
                       <h1
                         style={{
                           fontWeight: 800,
                           fontSize: "2rem",
-                          margin: "8px 0",
-                          color: "#111",
+                          margin: "6px 0",
+                          color: "#0D3B66",
                         }}
                       >
                         #{reclamoCreadoExito.folio}
@@ -539,19 +717,19 @@ const VecinoHomePage: React.FC = () => {
                       <p
                         style={{
                           fontSize: "13px",
-                          color: "#777",
-                          margin: "8px 0 16px 0",
+                          color: "#64748B",
+                          margin: "6px 0 14px 0",
                         }}
                       >
-                        Guarda este número para realizar el seguimiento de tu
+                        Guarda este numero para realizar el seguimiento de tu
                         reclamo.
                       </p>
                       <div
                         style={{
-                          borderTop: "1px solid #eee",
-                          paddingTop: "12px",
+                          borderTop: "1px solid #F1F5F9",
+                          paddingTop: "10px",
                           fontSize: "13px",
-                          color: "#555",
+                          color: "#475569",
                         }}
                       >
                         <strong>Fecha de ingreso:</strong>{" "}
@@ -564,8 +742,13 @@ const VecinoHomePage: React.FC = () => {
 
                   <IonButton
                     expand="block"
-                    color="dark"
-                    style={{ height: "48px", fontWeight: 600 }}
+                    style={{
+                      "--background": "#0D3B66",
+                      "--border-radius": "8px",
+                      height: "46px",
+                      fontWeight: 600,
+                      fontSize: "14px",
+                    }}
                     onClick={cerrarFlujoExito}
                   >
                     Volver al inicio
@@ -579,23 +762,31 @@ const VecinoHomePage: React.FC = () => {
         <IonToast
           isOpen={!!toastMsg}
           message={toastMsg}
-          duration={3000}
+          duration={2500}
           onDidDismiss={() => setToastMsg("")}
         />
       </IonContent>
 
-      {/* BARRA INFERIOR FIGMA MÓVIL (IonTabBar y IonTabButton) */}
-      <IonFooter>
+      {/* Barra inferior nativa con estilo unificado */}
+      {/* CAMBIO 1: Agregamos ion-hide-md-up para que en PC desaparezca */}
+      <IonFooter className="ion-hide-md-up">
         <IonTabBar
           slot="bottom"
-          style={{ borderTop: "1px solid #e0e0e0", height: "60px" }}
+          style={{
+            borderTop: "1px solid #E2E8F0",
+            height: "60px",
+            "--background": "#FFFFFF",
+          }}
         >
           <IonTabButton
             tab="inicio"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            style={{ "--color-selected": "#0D3B66" }}
           >
-            <IonIcon icon={homeOutline} />
-            <IonLabel>Inicio</IonLabel>
+            <IonIcon icon={homeOutline} style={{ color: "#0D3B66" }} />
+            <IonLabel style={{ color: "#0D3B66", fontWeight: 700 }}>
+              Inicio
+            </IonLabel>
           </IonTabButton>
 
           <IonTabButton
