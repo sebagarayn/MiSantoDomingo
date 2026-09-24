@@ -1,76 +1,45 @@
 # MiSantoDomingo
 
-## Identificacion de los integrantes del equipo
-Sebastian Garay
-Vicente Olguin
-Ignacio Maureira
+## Identificacion de los integrantes del equipo y sus roles
+**Sebastian Garay** - Arquitectura de Software, Desarrollo Frontend y Control de Calidad
+
+**Benjamín Lazcano** - Líder de Requerimientos, Investigación y Documentación UX
+
+**Vicente Olguin** - Diseño UI/UX y Prototipado Manual Figma (Versión Escritorio / Web)
+
+**Ignacio Maureira** - Diseño UI/UX y Prototipado Manual Figma (Versión Móvil)
 ## Distribucion de responsabilidades
+
 ### Sebastian Garay 
 
-Responsabilidad: Arquitectura, componentes estructurales, lógica de enrutamiento y control de calidad.
+Responsabilidad: Arquitectura frontend, componentes estructurales, enrutamiento y desarrollo en Ionic con React (EP 1.5 y EP 1.6).
 
-### Tareas EP1:
-Configurar la estructura de carpetas (pages/, components/, routes/, services/, types/).
+Entregables:Configuración modular del proyecto (`pages/`, `components/`, `routes/`, `services/`, `types/`, `contexts/`, `hooks/`); enrutamiento con React Router y rutas protegidas por rol con guardias; desarrollo de los servicios mock asíncronos (`report.service.ts` y `auth.service.ts`) con contratos TypeScript; implementación de las 6 vistas funcionales responsivas; sincronización de layouts (sidebar colapsable en PC y barra de navegación inferior en celular); guardia de cambios no guardados y alertas de sesión.
 
-Implementar React Router con separación de rutas públicas y protegidas por rol, incluyendo redirecciones automáticas obligatorias (ej. usuario no autenticado redirigido a Login).
-
-Programar contratos de datos (interfaces TypeScript) y servicios simulados (mocks) basados en promesas.
-
-Implementar las 4 vistas mínimas en código (IonPage, IonHeader, IonContent, IonTabs, IonMenu) asegurando funcionamiento responsivo en móvil y escritorio.
-
-Validar y mezclar los Pull Requests en la rama fronten
 
 ### Benjamin Lazcano
 
 Responsabilidad: Requerimientos (EP 1.1), investigación de usuarios (EP 1.2), arquitectura de información (EP 1.4) y README.md (3.1).
 
-### Tareas EP1:
-Requerimientos (EP 1.1): Matriz de 7 Requerimientos Funcionales (RF) y 5 No Funcionales (RNF) con ID, Nombre y Descripción. Restricción: Ningún RF puede ser Login ni Registro.
-
-Investigación (EP 1.2): Justificación del problema con fuentes secundarias citadas y 2 proto-personas, diferenciando explícitamente la evidencia de los supuestos hipotéticos.
-
-Arquitectura UX (EP 1.4): Definición de task flows, jerarquía de vistas, puntos críticos y la justificación técnica (usabilidad, eficiencia, claridad y escalabilidad).
-
-README.md (3.1): Redactar la documentación completa en Markdown con los 11 puntos obligatorios (instalación, ejecución, tecnologías, tablas, enlaces y multimedia)
+Entregables: Matriz de 11 Requerimientos Funcionales (sin login/registro) y 6 No Funcionales; justificación demográfica del problema basada en datos del Censo INE 2017 y 2024 de Santo Domingo; caracterización de 2 proto-personas con supuestos razonados; redacción de los 4 Task Flows y justificación técnica de arquitectura.
 
 ### Vicente Olguin
 
 Responsabilidad: Prototipado manual en Figma del flujo de gestión del funcionario, versión web (EP 1.3).
 
-### Tareas EP1:
-Diseñar las pantallas de Login y Registro (versión web) con estados de validación, mensajes de error (correo incorrecto, cuenta inexistente, contraseñas no coincidentes) y campos de seguridad de contraseña.
-
-Diseñar el Dashboard (RF-10): panel de indicadores en tiempo real — reclamos ingresados, tiempo promedio de respuesta y reclamos vencidos, con filtro por rango de fechas.
-
-Diseñar la pantalla de Gestión de reclamos (RF-06): listado tabular con filtros combinables por categoría, unidad responsable y días restantes de plazo.
-
-Diseñar el Detalle del reclamo, incluyendo las acciones de Derivar (RF-07, con selección de unidad destino y observación) y Cerrar reclamo (RF-08, con respuesta formal), más las pantallas de resultado (éxito y error de conexión).
-
-Diseñar la pantalla de Reportes (RF-11): selector de rango de fechas, métricas del período (tiempo promedio, % resuelto, total) y descarga en formato PDF/CSV.
+Entregables: Diseño manual en Figma de las vistas de escritorio: pantalla de acceso/login; bandeja general tabular de reclamos con filtros combinables por unidad y categoría (RF-06); modal de detalle con flujo de derivación a unidades técnicas (RF-07) y cierre formal con respuesta oficial (RF-08); estados de éxito (SUCCESS) y error; dashboard de indicadores KPI con gráfico de barras comparativo (RF-10).
 
 ### Ignacio Maureira
 
 Responsabilidad: Prototipado manual en Figma del flujo completo del vecino, versión móvil (EP 1.3).
 
-### Tareas EP1:
-Diseñar las pantallas de Login, Registro y recuperación de contraseña (olvidé mi contraseña → código de verificación → cambio de contraseña), con sus estados de error.
-
-Diseñar el menú de reclamos (elegir entre "Ingresar un reclamo" o "Consultar un reclamo") como punto de entrada tras iniciar sesión.
-
-Diseñar el flujo de Ingresar un reclamo (RF-01): selección de categoría, descripción, dirección y adjuntar fotografía (cámara, archivos, galería o Google Drive), terminando en una pantalla de confirmación con el folio generado automáticamente (RF-02).
-
-Diseñar el flujo de Consultar un reclamo (RF-03): búsqueda por folio, manejo del caso "folio no encontrado", y detalle con estado, plazo de respuesta restante (RF-04) e historial cronológico de avances.
-
-Diseñar la pantalla de Mis reclamos: listado personal con estado y días restantes de cada reclamo.
-
-Diseñar la pantalla de Calificación de respuesta (RF-09): visible solo cuando el reclamo está resuelto, con escala de estrellas y la respuesta formal visible.
-
-Diseñar el menú de Perfil (datos personales, idioma, apariencia, seguridad, centro de ayuda, términos y condiciones, cerrar sesión) y el menú de Notificaciones (RF-05), con historial de actualizaciones por reclamo y opción de borrarlas.
+Entregables: Diseño manual en Figma de la experiencia móvil ciudadana: pantallas de bienvenida, login y registro con validaciones visuales; portal de inicio del vecino con listado "Mis Reclamos"; flujo de ingreso de reclamo con categorías, descripción con contador de caracteres, dirección y adjunto de fotografía (RF-01) con confirmación de folio único (RF-02); flujo de consulta de estado por número de folio sin sesión (RF-03); cálculo visual de plazo legal de 20 días (RF-04); módulo de calificación ciudadana con escala de 5 estrellas (RF-09); barra de navegación inferior móvil.
 
 
 ## Problema o necesidad que aborda
 Tiempos de respuesta prolongados o falta de soluciones efectivas a los reclamos y
 solicitudes que los ciudadanos ingresan al municipio, generando frustración.
+
 ## Justificacion del problema y caracterizacion de los usuarios objetivos
 La propuesta nace a partir del análisis del reporte comunal de Santo Domingo (Censo de Población y Vivienda 2017 y 2024, INE). Al comparar ambos períodos se observa que el grupo etario de 45 a 64 años es el más numeroso de la comuna (26,6% de la población comunal en 2024), y que el grupo de 65 años o más presenta un crecimiento sostenido entre 2017 y 2024 (de 1.457 a 2.474 personas, pasando de 13,4% a 18,8% de la población comunal). Este comportamiento demográfico es consistente con un proceso de envejecimiento poblacional que ya supera el promedio regional (16,6%) y nacional (14%) en ese tramo etario.
 Este contexto es relevante porque los canales actuales de gestión de reclamos municipales (atención presencial y telefónica en la Oficina de Informaciones, Reclamos y Sugerencias, OIRS) no entregan trazabilidad al vecino: una vez ingresado un reclamo, la persona no tiene forma autónoma de saber en qué estado se encuentra ni qué unidad lo está gestionando. Cuando el reclamo pasa por más de una unidad municipal (según lo descrito en el Art. 42 del manual de ordenanzas), esta falta de visibilidad se agrava tanto para el vecino como para el propio funcionario, generando reclamos duplicados, pérdida de antecedentes y desgaste en la atención.
@@ -117,33 +86,32 @@ Nota: los perfiles a continuación son proto-personas construidas mediante inves
 ### Proto-persona 1 — Vecina
 Rol: Vecina
 
-Perfil: Maria (nombre ficticio), 58 años, dueña de casa experiencia tegnologica media-baja
+Perfil: Maria (nombre ficticio), 58 años, dueña de casa experiencia tegnologica media-baja.
 
-Necesidad principal: Saber si su reclamo esta siendo atendido 
+Necesidad principal: Saber con certeza y claridad qué está pasando con su solicitud sin tener que viajar al municipio ni esperar llamadas telefónicas.
 
-Objetivo de uso: Ingresar el reclamo una vez y consultarlo sin tener que llamar o ir presencialmente
+Objetivo de uso: Ingresar el reclamo una vez y consultarlo sin tener que llamar o ir presencialmente.
 
-Frustracion: Llama a la municipalidad y no se le puede confirmar en qué estado está su reclamo, por falta de coordinación, demoras o mala gestión
+Frustracion: Llamar a la municipalidad y que no le sepan informar en qué estado está su solicitud o enterarse semanas después de que el reclamo fue archivado sin respuesta.
 
-Funcionalidades que usaria:Ingresar reclamo, consultar por folio, recibir notificaciones de cambio de estado
+Funcionalidades que utilizaría:Ingresar reclamo (RF-01), seguimiento por folio sin cuenta (RF-03), ver días restantes (RF-04) y calificar la atención recibida (RF-09).
 
-Dispositivo/contexto : 	Celular Android de gama media, con uso en cualquier lugar con conexión a internet
-
+Dispositivo/contexto : Celular Android de gama media, conexión móvil estándar/intermitente, uso en momentos domésticos no planificados.
 
 ### Proto-persona 2 — Funcionario municipal
 Rol:Funcionario municipal
 
 Perfil: 	Felipe (nombre ficticio), 32 años, encargado de OIRS, gestiona decenas de reclamos diarios, experiencia tecnológica media-alta
 
-Necesidad principal:Priorizar y derivar reclamos sin perder trazabilidad entre unidades
+Necesidad principal: Priorizar un volumen alto de solicitudes y derivar casos entre unidades municipales sin perder el historial.
 
-Objetivo de uso: Ver todos los reclamos pendientes, filtrar por plazo vencido/próximo a vencer, responder
+Objetivo de uso: Revisar la bandeja central, filtrar por plazo legal próximo a vencer, derivar formalmente a cuadrillas técnicas y responder con cierre formal.
 
-Frustración: Reclamos duplicados o traspapelados entre direcciones distintas
+Frustración: Reclamos duplicados o solicitudes traspapeladas entre direcciones distintas por falta de registro unificado.
 
-Funcionalidades que usaría: Panel de gestión, filtros, derivación, cierre con respuesta, dashboard de indicadores
+Funcionalidades que usaría: Tabla de gestión con filtros combinados (RF-06), derivación con observación obligatoria (RF-07), cierre formal con respuesta visible al vecino (RF-08) y panel de indicadores KPI (RF-10).
 
-Dispositivo/contexto: Computador de escritorio, oficina municipal
+Dispositivo/contexto: Computador de escritorio, oficina municipal.
 
 
 ### Supuestos utilizados para construir los perfiles
@@ -164,81 +132,311 @@ El ítem 1.1 explícitamente dice:”Estas funcionalidades están fuera de inici
 Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza en la principal problemática.
 
 ## Requerimientos funcionales
-RF-01: El sistema deberá permitir que el vecino ingrese un reclamo indicando categoría (selección de lista predefinida), descripción (texto libre, máximo 500 caracteres), ubicación (dirección) y, opcionalmente, una fotografía (formato jpg o png, máximo 5 MB).
+**RF-01 Ingreso de Reclamo**: El sistema permitira al vecino ingresar un reclamo seleccionando una categoría de lista cerrada, redactando una descripción (máx. 500 caracteres), indicando la ubicación física y adjuntando opcionalmente una fotografía de respaldo.
 
-RF-02: El sistema deberá generar automáticamente un número de folio único y alfanumérico (ej. SD-2026-000123) para cada reclamo ingresado, sin duplicados, mostrado al usuario inmediatamente después del envío
+**RF-02 Generación de Folio Único** : El sistema generara automáticamente tras el envío un identificador alfanumérico único e irrepetible (formato #SD-2026-XXXXXX), mostrándolo de inmediato en una pantalla de confirmación.
 
-RF-03: El sistema deberá permitir que el vecino consulte el estado y el historial de su reclamo mediante una búsqueda por número de folio, sin requerir inicio de sesión, mostrando el estado actual y la fecha de cada cambio
+**RF-03 Consulta Pública por Folio**: El sistema deberá permitir al vecino consultar el estado actualizado, ubicación y unidad asignada a un reclamo ingresando únicamente su número de folio, sin exigir inicio de sesión previo.
 
-RF-04: El sistema deberá calcular automáticamente, desde la fecha de ingreso, los días restantes del plazo legal de 20 días corridos (prorrogable a 30)
+**RF-04 Cálculo de Plazo Legal**: El sistema deberá calcular de forma automática desde la fecha de ingreso los días restantes del plazo legal de 20 días corridos de respuesta municipal, alertando visualmente cuando el plazo se encuentra vencido.
 
-RF-05: El sistema deberá notificar al usuario dentro de la aplicación cada vez que el estado de su reclamo cambie, indicando el nuevo estado y la fecha del cambio, y manteniendo un historial de notificaciones disponible en su perfil.
+**RF-05 Trazabilidad Histórica**: El sistema deberá mantener un registro cronológico de cada avance, cambio de estado y derivación de la solicitud, disponible tanto en la ficha del vecino como en el panel administrativo.
 
-Nota de diseño: El sistema contempla dos vías de consulta para el vecino: (a) consulta rápida por folio sin necesidad de cuenta (RF-03), pensada para minimizar la barrera de entrada; y (b) una cuenta opcional que permite ver el historial completo de reclamos propios y recibir notificaciones (RF-05). Esto responde al perfil de baja experiencia tecnológica de María, evitando forzar un registro obligatorio para una consulta simple.
+**RF-06 Bandeja Filtrable de Reclamos** : El sistema  deberá permitir al funcionario listar todas las solicitudes y aplicar filtros combinables por categoría, unidad responsable asignada y búsqueda libre de texto o folio. 
 
-RF-06: El sistema deberá permitir que el funcionario liste y filtre los reclamos por categoría, unidad responsable y rango de días restantes, pudiendo combinar estos filtros entre sí.
+**RF-07 Derivación entre Unidades** : El sistema deberá permitir al funcionario derivar un reclamo hacia otra unidad municipal técnica (Obras, Salud, Educación, Desarrollo comunitario), exigiendo registrar un motivo u observación de traspaso.
 
-RF-07: El sistema deberá permitir que el funcionario derive un reclamo a otra unidad municipal, seleccionando la unidad destino y registrando una observación obligatoria en el historial.
+**RF-08 Cierre Formal con Respuesta**: El sistema deberá permitir al funcionario cerrar un reclamo ingresando obligatoriamente una respuesta formal descriptiva, cambiando el estado a "Resuelto" y dejándola visible para el vecino.
 
-RF-08: El sistema deberá permitir que el funcionario cierre un reclamo ingresando obligatoriamente una respuesta formal en texto libre, cambiando automáticamente el estado a "Resuelto" y dejando la respuesta visible para el vecino.
+**RF-09 Calificación Ciudadana Única** : El sistema deberá permitir al vecino evaluar la solución municipal en una escala de 1 a 5 estrellas, bloqueando la votación tras el primer envío para asegurar que se vote una única vez por reclamo resuelto.
 
-RF-09: El sistema deberá permitir que el vecino califique, en una escala de 1 a 5, la respuesta recibida, una única vez por reclamo, y solo cuando este se encuentre en estado "Resuelto".
+**RF-10 Dashboard de Indicadores KPI** : El sistema deberá desplegar un panel de métricas en tiempo real con el volumen total de solicitudes, el tiempo promedio de respuesta comunal, el recuento de casos vencidos y un gráfico de barras por categoría con filtro por período.
 
-RF-10: El sistema deberá mostrar al funcionario un panel con el tiempo promedio de respuesta en días, la cantidad de reclamos vencidos, y la posibilidad de filtrar estos indicadores por rango de fechas.
 
-RF-11: El sistema deberá permitir que el funcionario genere un informe periódico (mensual o por rango de fechas) con la cantidad de reclamos ingresados, el tiempo promedio de respuesta por categoría y el porcentaje de reclamos resueltos dentro del plazo legal, descargable en formato PDF o CSV. 
+**RF-11 Reportes Periódicos de Gestión**: El sistema deberá permitir consolidar el porcentaje de resolución de reclamos dentro del plazo legal y desglosar el volumen mensual para auditoría municipal mediante un archivo pdf.
+
 
 ## Requerimientos no funcionales
 
-RNF-01 (Usabilidad): La interfaz deberá cumplir un estándar de lenguaje simple y tipografía legible (tamaño mínimo 16px, sin tecnicismos), permitiendo que el ingreso de un reclamo se complete en 3 minutos o menos sin ayuda externa.
+**RNF-01 (Usabilidad)**: La interfaz móvil debe diseñarse con lenguaje simple, tipografía mínima de 14–16px y alto contraste, permitiendo completar un reclamo en menos de 3 minutos por usuarios de tercera edad.
 
-RNF-02 (Rendimiento): El formulario de ingreso de reclamo, incluida la carga de 
-fotografía, deberá funcionar de forma aceptable en conexión 3G/intermitente, 
-mostrando retroalimentación visual de progreso durante la subida.
+**RNF-02 (Accesibilidad Táctil)**: Todas las áreas de interacción táctil principales (botones de acción y pestañas de navegación) deben tener un tamaño objetivo mínimo de 44x44 px.
 
-RNF-03 (Seguridad): El sistema deberá restringir el acceso a las funciones según el rol del usuario, permitiendo que cada tipo de usuario acceda únicamente a las funcionalidades que le correspondan.
+**RNF-03 (Seguridad)**: El sistema deberá restringir el acceso a las funciones según el rol del usuario, permitiendo que cada tipo de usuario acceda únicamente a las funcionalidades que le correspondan.
 
-RNF-04 (Usabilidad): Las acciones principales del vecino (ingresar reclamo, 
-consultar por folio) deberán estar accesibles en máximo 2 toques desde la 
-pantalla de inicio, con elementos interactivos de mínimo 44x44 px.
+**RNF-04 (Integridad y Prevención)**: El formulario de ingreso de reclamos debe contar con una guardia preventiva contra pérdida de datos (Unsaved Changes Guard), alertando al usuario si intenta cambiar de sección con cambios sin guardar.
 
-RNF-05 (Trazabilidad): Todo cambio de estado o derivación entre unidades 
-municipales deberá quedar registrado con fecha, hora y responsable, visible 
-en el historial del reclamo.
+**RNF-05 (Trazabilidad)**: Toda actualización de estado debe registrar fecha, hora y responsable de la acción de forma inmutable en el historial.
 
-RNF-06 (Compatibilidad): La aplicación deberá funcionar correctamente en las últimas dos versiones de Chrome y Safari, y como app móvil en Android 10 o superior e iOS 15.
+**RNF-06 (Adaptabilidad Responsiva)**: La aplicación debe ofrecer una experiencia adaptada según el dispositivo: barra de navegación inferior en dispositivos móviles y menú lateral colapsable en escritorio.
+
+
+## Arquitectura de Navegación y Experiencia de Usuario
+
+### Mapa General de Rutas
+
+```mermaid
+flowchart TD
+    INICIO["INICIO: /"] -->|Redirección obligatoria| LOGIN["/login"]
+
+    LOGIN -->|"¿No tienes cuenta?"| REGISTRO["/registro"]
+    LOGIN -->|"¿Ya tienes cuenta?"| VALIDAR{"Validar rol"}
+    LOGIN -.->|"Pública / Sin sesión"| CONSULTA["/consulta"]
+
+    VALIDAR -->|"Rol: vecino"| APPINICIO["/app/inicio"]
+    VALIDAR -->|"Rol: admin"| ADMININICIO["/admin/inicio"]
+
+    APPINICIO --> MISRECLAMOS["Mis Reclamos"]
+    APPINICIO --> NUEVO["Nuevo"]
+    APPINICIO --> CONSULTAR["Consultar"]
+
+    MISRECLAMOS --> MODAL["Modal Detalle<br/>(Trazabilidad/Estrellas)"]
+    CONSULTAR --> SEGUIMIENTO["Seguimiento<br/>(Días/Plazos)"]
+
+    ADMININICIO -->|"Sidebar/Switch"| DASHBOARD["/admin/dashboard"]
+    DASHBOARD --> KPIS["Ver KPIs"]
+    DASHBOARD --> BARRAS["Gráfico Barras"]
+```
+
+
+
+
+### Jerarquía de Vistas y Diferenciación por Rol
+
+1. Rutas Públicas:
+- /login: Acceso unificado con detección automática de rol.
+  
+- /registro: Creación de cuenta vecinal con validación individual de campos.
+  
+- /consulta: Búsqueda ciudadana por número de folio alfanumérico.
+
+2. Rutas Privadas del Vecino (Móvil-First):
+
+- /app/inicio: Vista principal del vecino protegida por rol. Integra dinámicamente el listado de Mis Reclamos, el formulario de Nuevo Reclamo y la Consulta integrada por folio.
+
+3. Rutas Privadas del Funcionario Municipal (Desktop-First):
+
+- /admin/inicio: Bandeja central tabular de solicitudes con filtros y acciones de derivación y cierre formal.
+- /admin/dashboard: Monitor de indicadores de gestión comunal y métricas de rendimiento.
+
+
+
+### Principales Flujos de Tareas (Task Flows)
+
+1. Task Flow 1 — Vecino reporta problema comunal:
+   Login como vecina ->
+   portal /app/inicio ->
+   pulsa pestaña "Nuevo" ->
+   completa categoría, descripción, dirección y foto ->
+   presiona "Enviar reclamo" ->
+   pantalla de confirmación con folio #SD-2026-XXXXXX ->
+   retorno al listado donde el reclamo aparece inmediatamente como EN PROCESO.
+
+2. Task Flow 2 — Consulta anónima ciudadana:
+   Abre /consulta ->
+   tipea folio ->
+   el sistema despliega estado, días restantes del plazo de 20 días y línea de tiempo ->
+   si está resuelto, lee la solución formal y evalúa con 1 a 5 estrellas doradas.
+
+3. Task Flow 3 — Funcionario deriva y cierra reclamos:
+   Login administrativo ->
+   bandeja /admin/inicio ->
+   filtra por unidad o categoría ->
+   abre ficha de detalle ->
+   selecciona "Derivar" (elige unidad destino y redacta observación) o "Cerrar" (redacta solución técnica oficial) ->
+   confirmación SUCCESS ->
+   actualización reactiva de la tabla.
+
+4. Task Flow 4 — Monitoreo de indicadores OIRS:
+   Desde la barra lateral hace clic en "Métricas de Gestión" ->
+   visualiza KPIs de volumen y plazos vencidos ->
+   filtra por período temporal ->
+   analiza gráfico de barras.
+
+### Puntos Críticos de Interacción y Justificación Técnica
+
+- Guardia de Datos no Guardados (Unsaved Changes Guard): Si el vecino está redactando un reclamo y pulsa accidentalmente otra pestaña de la barra inferior, el sistema intercepta el cambio y abre una alerta nativa (IonAlert) consultando si desea descartar o continuar editando, mitigando la pérdida accidental de datos.
+  
+- Confirmación Universal de Salida: Toda acción de "Cerrar Sesión" exige confirmación previa mediante modal destructivo, impidiendo salidas involuntarias de la sesión.
+
+- Bloqueo de Votación Única: Tras emitir la calificación de estrellas, los controles se bloquean permanentemente mostrando el puntaje asignado, satisfaciendo la condición de voto único de RF-09.
+
+- Coherencia entre Dispositivos: En pantallas móviles se utiliza una barra de pestañas fija (IonTabBar) al alcance del pulgar, mientras que en pantallas de escritorio se activa una barra lateral colapsable (AdminSidebar y VecinoSidebar) que permite maximizar el área de trabajo de las tablas y gráficos mediante botones de repliegue.
+
+
+## Prototipos UI/UX en Figma
+
+1. Prototipo Versión Web / Escritorio (Vicente Olguín):
+   https://www.figma.com/design/g226BWBCK7VZ2fzl9aj8at/Sin-título?node-id=0-1&t=OWk7vIgmDlFjNYgl-1
+
+2. Prototipo Versión Móvil (Ignacio Maureira):
+   [FALTA PONER EL LINK]
+
+
+## Tecnologías y herramientas utilizadas
+
+- Framework UI: Ionic 8 (@ionic/react, @ionic/react-router)
+- Librería Base: React 18 con TypeScript
+- Enrutamiento: React Router v5 (react-router-dom 5.3.4) con Switch, Route y Redirect
+- Herramienta de Compilación: Vite 5 (@vitejs/plugin-react)
+- Iconografía: Ionicons 7
+- Almacenamiento y Estado: Context API de React con persistencia sincronizada en localStorage
+- Control de Versiones: Git y GitHub
+
+
+## Estructura del Proyecto
+
+```
+MiSantoDomingo/
+├── public/
+│   ├── favicon.png
+│   ├── logo-santodomingo.png       # Emblema oficial municipal
+│   └── manifest.json
+├── src/
+│   ├── components/                 # Componentes reutilizables
+│   │   ├── AdminSidebar.tsx        # Barra lateral colapsable del funcionario (Web)
+│   │   ├── VecinoSidebar.tsx       # Barra lateral colapsable del vecino (Web)
+│   │   └── ProtectedRoute.tsx      # Guardia de autenticación y control de rol
+│   ├── contexts/
+│   │   └── AuthContext.tsx         # Estado global de sesión con persistencia F5
+│   ├── hooks/
+│   │   └── useAuth.ts              # Hook personalizado para consumo de sesión
+│   ├── pages/                      # Pantallas de la aplicación
+│   │   ├── auth/
+│   │   │   ├── LoginPage.tsx       # Inicio de sesión institucional
+│   │   │   └── RegistroPage.tsx    # Registro ciudadano con validaciones
+│   │   ├── public/
+│   │   │   └── ConsultaPublicaPage.tsx  # Búsqueda por folio sin sesión
+│   │   ├── vecino/
+│   │   │   └── VecinoHomePage.tsx  # Portal del vecino (Mis Reclamos / Nuevo)
+│   │   ├── admin/
+│   │   │   ├── AdminHomePage.tsx   # Gestión OIRS tabular y derivación
+│   │   │   └── Dashboard.tsx       # Monitor de métricas comunales y KPIs
+│   │   └── NotFoundPage.tsx        # Página de error 404
+│   ├── routes/
+│   │   └── AppRoutes.tsx           # Mapa central de rutas e IonRouterOutlet
+│   ├── services/                   # Servicios mock asíncronos (Promise)
+│   │   ├── auth.service.ts         # Mock de cuentas de prueba
+│   │   └── report.service.ts       # Mock de reclamos, cálculo legal y folios
+│   ├── theme/
+│   │   └── variables.css           # Paleta Santo Domingo (Azul, Verde, Amarillo)
+│   ├── types/
+│   │   └── index.ts                # Contratos de datos del dominio
+│   ├── App.tsx                     # Raíz: IonApp > IonReactRouter > AuthProvider
+│   └── main.tsx                    # Entrada React 18
+├── index.html                      # Entry point con viewport nativo y favicon
+├── package.json
+└── README.md
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Instrucciones de instalación y configuración
 
+### Requisitos previos
+
+- Node.js: Versión 18.x o superior recomendada.
+- npm: Versión 9.x o superior.
+- Git: Instalado en el sistema operativo.
+
+### Pasos de instalación
 1. Clonar el repositorio:
 
    ```bash
    git clone https://github.com/sebagarayn/MiSantoDomingo.git
-
    ```
 
-2. Cambiar a la rama de desarrollo:
+2. Entrar al directorio del proyecto:
+
+   ```bash
    cd MiSantoDomingo
+   ```
+
+3. Cambiar a la rama frontend:
+
+   ```bash
    git checkout frontend
+   ```
 
-3. Instalar las dependencias:
+4. Instalar dependencias:
+
+   ```bash
    npm install
+   ```
 
-# Instrucciones de ejecución y uso
+## Instrucciones de ejecución y uso
 
-Para levantar el entorno de desarrollo local
+### Levantar el servidor del desarrollo
+
+```bash
 npm run dev
+```
 
-(o ionic serve si se prefiere usar la CLI de Ionic)
+Una vez iniciado, abre el navegador en la URL indicada por la terminal (por defecto http://localhost:5173).
 
-Una vez iniciado, abrir el navegador en la URL que indique la terminal (por defecto http://localhost:5173 o similar).
+### Cuentas de acceso de prueba (para la demostración)
 
-# Mockups
+Para evaluar las rutas protegidas y la diferenciación por roles, utiliza las siguientes credenciales:
 
-Vicente Olguin: https://www.figma.com/design/g226BWBCK7VZ2fzl9aj8at/Sin-título?node-id=0-1&t=OWk7vIgmDlFjNYgl-1
+1. **Vecina (Ciudadano)**
 
+- Correo Electrónico: vecino@correo.cl
+- Contraseña: Cualquier clave (ej: 123456)
 
+(Esto lleva a /app/inicio)
 
-### Link para mockups app movil
+2. **Funcionario OIRS (Admin)**
 
-Ignacio Maureira:
+- Correo Electrónico: admin@correo.cl
+- Contraseña: Cualquier clave (ej: 123456)
+
+(Esto lleva a /admin/inicio)
+
+3. **Público (Sin Cuenta)**
+
+No usa credenciales, es la opción de consultar sin cuenta, lleva directamente a /consulta.
