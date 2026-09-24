@@ -5,11 +5,11 @@ import {
   IRatingInput,
 } from "../types";
 
-// Clave para guardar los reclamos en el almacenamiento del navegador
+// Clave para guardar los reclamos en el localStorage del navegador
 const STORAGE_KEY = "msd_mock_reports_v2";
 
-// Semilla con los reclamos de prueba iniciales para la comuna de Santo Domingo
-const RECLAMOS_SEMILLA: IReport[] = [
+// Reclamos de prueba iniciales
+const RECLAMOS_INICIALES: IReport[] = [
   {
     folio: "SD-2026-000101",
     categoria: "Alumbrado público",
@@ -18,7 +18,7 @@ const RECLAMOS_SEMILLA: IReport[] = [
     ubicacion: "Calle Los Aromos 450, Santo Domingo",
     estado: "Pendiente",
     fechaIngreso: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    unidadAsignada: "OIRS Central", // Todo reclamo nuevo llega primero a OIRS Central
+    unidadAsignada: "OIRS Central", // Entra primero a la mesa central
     origen: "usuario",
     creadorId: "usr-vecino-1",
     historial: [
@@ -37,7 +37,7 @@ const RECLAMOS_SEMILLA: IReport[] = [
     ubicacion: "Av. Santa María con Las Lilas",
     estado: "Derivado",
     fechaIngreso: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-    unidadAsignada: "Desarrollo comunitario", // Derivado a unidad ejecutora
+    unidadAsignada: "Desarrollo comunitario", // Ya asignado a unidad de apoyo
     origen: "usuario",
     creadorId: "usr-vecino-1",
     historial: [
@@ -64,8 +64,8 @@ const RECLAMOS_SEMILLA: IReport[] = [
     fechaIngreso: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
     unidadAsignada: "Obras municipales",
     origen: "usuario",
-    creadorId: "usr-vecino-1", // Asignado a la vecina Maria para que aparezca en su lista
-    calificacion: undefined, // Arranca sin nota para que el profesor o nosotros podamos probar las estrellas
+    creadorId: "usr-vecino-1", // Asignado a Maria Gonzalez para poder probar la calificacion
+    calificacion: undefined, // Arranca sin nota para probar las estrellas interactivas
     respuestaFormal:
       "Se ejecutaron obras de bacheo asfaltico en frio el dia 12 del presente mes por equipo de emergencia.",
     historial: [
@@ -84,78 +84,81 @@ const RECLAMOS_SEMILLA: IReport[] = [
 ];
 
 class ReportService {
-  // Obtiene los reclamos de localStorage o inicializa con la semilla
+  // Lee los reclamos guardados en el navegador o carga la lista inicial
   private getStorage(): IReport[] {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(RECLAMOS_SEMILLA));
-        return RECLAMOS_SEMILLA;
+      const datosGuardados = localStorage.getItem(STORAGE_KEY);
+      if (!datosGuardados) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(RECLAMOS_INICIALES));
+        return RECLAMOS_INICIALES;
       }
-      const data: IReport[] = JSON.parse(raw);
+      const listaReclamos: IReport[] = JSON.parse(datosGuardados);
 
-      // Normaliza cualquier dato viejo que haya quedado guardado en cache
-      const dataLimpia = data.map((r) => {
-        // Asegura que el reclamo resuelto sea de la vecina y este listo para calificar
-        if (r.folio === "SD-2026-000042") {
-          r.creadorId = "usr-vecino-1";
-          r.origen = "usuario";
-          r.estado = "Resuelto";
-          r.categoria = "Calles y veredas";
-          r.unidadAsignada = "Obras municipales";
+      // Normaliza unidades o categorias viejas que hayan quedado en cache
+      const reclamosActualizados = listaReclamos.map((reclamo) => {
+        // Asegura que el resuelto pertenezca a la vecina Maria y arranque limpio de estrellas
+        if (reclamo.folio === "SD-2026-000042") {
+          reclamo.creadorId = "usr-vecino-1";
+          reclamo.origen = "usuario";
+          reclamo.estado = "Resuelto";
+          reclamo.categoria = "Calles y veredas";
+          reclamo.unidadAsignada = "Obras municipales";
         }
 
-        // Limpia nombres de categorias para que calcen con el selector
+        // Corrige nombres de categorias para calzar con el filtro
         if (
-          r.categoria.includes("Luminarias") ||
-          r.categoria.includes("Alumbrado")
+          reclamo.categoria.includes("Luminarias") ||
+          reclamo.categoria.includes("Alumbrado")
         ) {
-          r.categoria = "Alumbrado público";
+          reclamo.categoria = "Alumbrado público";
         } else if (
-          r.categoria.includes("Aseo") ||
-          r.categoria.includes("Basura")
+          reclamo.categoria.includes("Aseo") ||
+          reclamo.categoria.includes("Basura")
         ) {
-          r.categoria = "Aseo y ornato";
+          reclamo.categoria = "Aseo y ornato";
         } else if (
-          r.categoria.includes("Vialidad") ||
-          r.categoria.includes("Calles") ||
-          r.categoria.includes("Bache")
+          reclamo.categoria.includes("Vialidad") ||
+          reclamo.categoria.includes("Calles") ||
+          reclamo.categoria.includes("Bache")
         ) {
-          r.categoria = "Calles y veredas";
+          reclamo.categoria = "Calles y veredas";
         }
 
-        // Limpia nombres de unidades para que calcen con el filtro
-        if (!r.unidadAsignada || r.unidadAsignada === "OIRS Central") {
-          r.unidadAsignada = "OIRS Central";
-        } else if (
-          r.unidadAsignada.includes("Operaciones") ||
-          r.unidadAsignada.includes("DOM") ||
-          r.unidadAsignada.includes("Obras")
+        // Corrige nombres de unidades
+        if (
+          !reclamo.unidadAsignada ||
+          reclamo.unidadAsignada === "OIRS Central"
         ) {
-          r.unidadAsignada = "Obras municipales";
+          reclamo.unidadAsignada = "OIRS Central";
         } else if (
-          r.unidadAsignada.includes("Ambiente") ||
-          r.unidadAsignada.includes("Comunitario") ||
-          r.unidadAsignada.includes("Desarrollo")
+          reclamo.unidadAsignada.includes("Operaciones") ||
+          reclamo.unidadAsignada.includes("DOM") ||
+          reclamo.unidadAsignada.includes("Obras")
         ) {
-          r.unidadAsignada = "Desarrollo comunitario";
+          reclamo.unidadAsignada = "Obras municipales";
+        } else if (
+          reclamo.unidadAsignada.includes("Ambiente") ||
+          reclamo.unidadAsignada.includes("Comunitario") ||
+          reclamo.unidadAsignada.includes("Desarrollo")
+        ) {
+          reclamo.unidadAsignada = "Desarrollo comunitario";
         }
 
-        return r;
+        return reclamo;
       });
 
-      return dataLimpia;
+      return reclamosActualizados;
     } catch {
-      return RECLAMOS_SEMILLA;
+      return RECLAMOS_INICIALES;
     }
   }
 
-  // Guarda los cambios en el almacenamiento local
-  private setStorage(data: IReport[]): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  // Guarda la lista actualizada en el localStorage
+  private setStorage(datos: IReport[]): void {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
   }
 
-  // Calcula dias restantes del plazo legal de 20 dias corridos (RF-04)
+  // Calcula si quedan dias o si se paso del plazo legal de 20 dias (RF-04)
   public calcularDiasRestantes(fechaIngresoStr: string): {
     diasRestantes: number;
     vencido: boolean;
@@ -173,42 +176,41 @@ class ReportService {
     };
   }
 
-  // Retorna todos los reclamos con Promise simulando una API real
+  // Retorna todos los reclamos con Promise para simular API asincrona
   public async obtenerReclamos(): Promise<IReport[]> {
     return new Promise((resolve) => {
       setTimeout(() => resolve(this.getStorage()), 100);
     });
   }
 
-  // Busca un reclamo por su numero de folio unico (RF-03)
+  // Busca un reclamo por su folio alfanumerico (RF-03)
   public async obtenerReclamoPorFolio(folio: string): Promise<IReport | null> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const found = this.getStorage().find(
+        const reclamoEncontrado = this.getStorage().find(
           (r) => r.folio.trim().toUpperCase() === folio.trim().toUpperCase(),
         );
-        resolve(found || null);
+        resolve(reclamoEncontrado || null);
       }, 150);
     });
   }
 
-  // Crea un nuevo reclamo y genera el folio SD-2026-XXXXXX automaticamente (RF-01 y RF-02)
+  // Genera un folio unico tipo SD-2026-XXXXXX y guarda el nuevo reclamo (RF-01 y RF-02)
   public async crearReclamo(
     input: ICreateReportInput,
     creadorId?: string,
   ): Promise<IReport> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const reclamos = this.getStorage();
-        const correlativo = Math.floor(100000 + Math.random() * 900000);
-        const nuevoFolio = `SD-2026-${correlativo}`;
+        const listaReclamos = this.getStorage();
+        const numeroRandom = Math.floor(100000 + Math.random() * 900000);
+        const nuevoFolio = `SD-2026-${numeroRandom}`;
         const fechaActual = new Date().toISOString();
 
-        const creadorIdFinal = input.creadorId || creadorId || "usr-vecino-1";
-        const origenFinal =
-          input.origen || (creadorIdFinal ? "usuario" : "publico");
+        const idCreador = input.creadorId || creadorId || "usr-vecino-1";
+        const tipoOrigen = input.origen || (idCreador ? "usuario" : "publico");
 
-        const nuevo: IReport = {
+        const nuevoReclamo: IReport = {
           folio: nuevoFolio,
           categoria: input.categoria,
           descripcion: input.descripcion,
@@ -216,9 +218,9 @@ class ReportService {
           fotoUrl: input.fotoUrl,
           estado: "Pendiente",
           fechaIngreso: fechaActual,
-          unidadAsignada: "OIRS Central", // Ingresa a mesa de entrada
-          origen: origenFinal,
-          creadorId: creadorIdFinal,
+          unidadAsignada: "OIRS Central", // Entra primero a mesa central
+          origen: tipoOrigen,
+          creadorId: idCreador,
           historial: [
             {
               estado: "Pendiente",
@@ -229,14 +231,14 @@ class ReportService {
           ],
         };
 
-        const actualizados = [nuevo, ...reclamos];
-        this.setStorage(actualizados);
-        resolve(nuevo);
+        const nuevaLista = [nuevoReclamo, ...listaReclamos];
+        this.setStorage(nuevaLista);
+        resolve(nuevoReclamo);
       }, 200);
     });
   }
 
-  // Actualiza estado: deriva a otra unidad (RF-07) o cierra formalmente (RF-08)
+  // Permite derivar (RF-07) o cerrar formalmente con respuesta municipal (RF-08)
   public async actualizarEstado(
     folio: string,
     input: IUpdateReportStatusInput,
@@ -244,18 +246,18 @@ class ReportService {
   ): Promise<IReport> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const reclamos = this.getStorage();
-        const index = reclamos.findIndex((r) => r.folio === folio);
+        const lista = this.getStorage();
+        const index = lista.findIndex((r) => r.folio === folio);
         if (index === -1) return reject(new Error("Reclamo no encontrado"));
 
-        const r = reclamos[index];
+        const reclamo = lista[index];
         const fecha = new Date().toISOString();
 
-        r.estado = input.estado;
-        if (input.unidadAsignada) r.unidadAsignada = input.unidadAsignada;
-        if (respuestaFormal) r.respuestaFormal = respuestaFormal;
+        reclamo.estado = input.estado;
+        if (input.unidadAsignada) reclamo.unidadAsignada = input.unidadAsignada;
+        if (respuestaFormal) reclamo.respuestaFormal = respuestaFormal;
 
-        r.historial.push({
+        reclamo.historial.push({
           estado: input.estado,
           fecha,
           observacion:
@@ -263,27 +265,27 @@ class ReportService {
           responsableId: input.responsableId,
         });
 
-        reclamos[index] = r;
-        this.setStorage(reclamos);
-        resolve(r);
+        lista[index] = reclamo;
+        this.setStorage(lista);
+        resolve(reclamo);
       }, 200);
     });
   }
 
-  // Guarda la calificacion de 1 a 5 estrellas dada por el ciudadano (RF-09)
+  // Guarda la calificacion de 1 a 5 estrellas dada por el vecino (RF-09)
   public async calificarRespuesta(
     folio: string,
     rating: IRatingInput,
   ): Promise<IReport> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const reclamos = this.getStorage();
-        const index = reclamos.findIndex((r) => r.folio === folio);
+        const lista = this.getStorage();
+        const index = lista.findIndex((r) => r.folio === folio);
         if (index === -1) return reject(new Error("Reclamo no encontrado"));
 
-        reclamos[index].calificacion = rating.calificacion;
-        this.setStorage(reclamos);
-        resolve(reclamos[index]);
+        lista[index].calificacion = rating.calificacion;
+        this.setStorage(lista);
+        resolve(lista[index]);
       }, 150);
     });
   }

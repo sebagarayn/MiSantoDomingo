@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { IUser, UserRole } from "../types";
 
+// Contrato con las variables y funciones que compartimos a toda la app
 export interface AuthContextType {
   user: IUser | null;
   isAuthenticated: boolean;
@@ -12,24 +13,26 @@ export interface AuthContextType {
   logout: () => void;
 }
 
+// Creamos el contexto vacio
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
 
+// Proveedor que envuelve toda la aplicacion en App.tsx
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // Acá se lee la sesión guardada previamente en localStorage si es que existe
+  // Al partir lee si habia una sesion guardada en el navegador para que no se caiga con F5 (lo de la persistencia)
   const [user, setUser] = useState<IUser | null>(() => {
     try {
-      const savedUser = localStorage.getItem("msd_session_user");
-      return savedUser ? JSON.parse(savedUser) : null;
+      const sesionGuardada = localStorage.getItem("msd_session_user");
+      return sesionGuardada ? JSON.parse(sesionGuardada) : null;
     } catch {
       return null;
     }
   });
 
-  // Se mantiene sincronizado el localStorage cuando el usuario inicia o cierra sesión
+  // Mantiene sincronizado el localStorage cuando alguien inicia o cierra sesion
   useEffect(() => {
     if (user) {
       localStorage.setItem("msd_session_user", JSON.stringify(user));
@@ -38,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [user]);
 
-  // Soporta tanto login(email, password, rol) como login(email, rol)
+  // Simula el login asignando el nombre y rol segun el usuario de prueba
   const login = (email: string, param2?: string, param3?: UserRole) => {
     let rol: UserRole = "vecino";
     if (param3) {
@@ -49,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       rol = "admin";
     }
 
-    const newUser: IUser = {
+    const nuevoUsuario: IUser = {
       id: rol === "admin" ? "usr-admin-1" : "usr-vecino-1",
       email,
       nombre:
@@ -59,9 +62,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       rol,
       fechaRegistro: new Date().toISOString(),
     };
-    setUser(newUser);
+    setUser(nuevoUsuario);
   };
 
+  // Limpia la sesion actual
   const logout = () => {
     setUser(null);
   };

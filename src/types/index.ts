@@ -1,20 +1,9 @@
-// TIPOS E INTERFACES
+// INTERFACES Y TIPOS DE DATOS
 
-/**
- * ROLES DE USUARIO EN EL SISTEMA
- * - vecino: Usuario residencial que reporta reclamos
- * - admin: Funcionario municipal que gestiona reclamos
- */
+// Roles del sistema (Vecino y funcionario municipal (admin))
 export type UserRole = "vecino" | "admin";
 
-/**
- * ESTADOS POSIBLES DE UN RECLAMO
- * - Pendiente: Recién ingresado, sin revisión
- * - En Revisión: Siendo analizado por funcionarios
- * - Derivado: Asignado a una unidad municipal específica
- * - Resuelto: Completado con respuesta formal
- * - Rechazado: No procede su atención
- */
+// Estados por los que puede pasar un reclamo durante su ciclo de atencion
 export type ReportStatus =
   | "Pendiente"
   | "En Revisión"
@@ -22,142 +11,80 @@ export type ReportStatus =
   | "Resuelto"
   | "Rechazado";
 
-/**
- * ORIGEN DEL RECLAMO
- * - publico: Ingresado por persona sin cuenta
- * - usuario: Ingresado por vecino autenticado
- */
+// Origen del reclamo: puede ser anonimo si se hace en el portal publico o con cuenta vecinal
 export type ReportOrigin = "publico" | "usuario";
 
-/**
- * INTERFAZ DE USUARIO DEL SISTEMA
- */
+// Estructura del usuario en sesion
 export interface IUser {
-  /** Identificador único del usuario */
   id: string;
-  /** Nombre completo del usuario */
   nombre: string;
-  /** Correo electrónico (usado para autenticación) */
   email: string;
-  /** Rol del usuario en el sistema */
   rol: UserRole;
-  /** Fecha de creación de la cuenta (formato ISO 8601) */
   fechaRegistro?: string;
 }
 
-/**
- * Entrada de historial de estados de un reclamo
- * Registra cada cambio de estado para trazabilidad
- */
+// Historial de trazabilidad de cada cambio de estado (RNF-05)
 export interface IStatusHistory {
-  /** Estado del reclamo en este punto */
   estado: ReportStatus;
-  /** Fecha y hora del cambio (formato ISO 8601) */
-  fecha: string;
-  /** Observación o comentario del funcionario */
+  fecha: string; // Utiliza el formato ISO 8601
   observacion?: string;
-  /** ID del funcionario responsable del cambio */
   responsableId?: string;
 }
 
-/**
- * INTERFAZ PRINCIPAL DE UN RECLAMO MUNICIPAL
- */
+// Entidad principal de un reclamo municipal
 export interface IReport {
-  /** Folio único público para seguimiento (ej: MSD-2026-0001) */
-  folio: string;
-  /** Categoría del reclamo (Alumbrado, Pavimento, Basura, etc) */
+  folio: string; // Codigo unico (Por ejemplo SD-2026-000101)
   categoria: string;
-  /** Descripción detallada del problema */
   descripcion: string;
-  /** Dirección o referencia de ubicación */
   ubicacion: string;
-  /** URL de fotografía adjunta (opcional) */
   fotoUrl?: string;
-  /** Estado actual del reclamo */
   estado: ReportStatus;
-  /** Fecha de ingreso del reclamo (formato ISO 8601) */
   fechaIngreso: string;
-  /** Unidad municipal asignada para resolución */
-  unidadAsignada?: string;
-  /** Historial completo de cambios de estado */
+  unidadAsignada?: string; // Unidad municipal responsable
   historial: IStatusHistory[];
-  /** Respuesta formal emitida por el municipio */
-  respuestaFormal?: string;
-  /** Calificación del servicio (1-5 estrellas), solo si está resuelto */
-  calificacion?: number;
-  /** ID del usuario creador (undefined si es anónimo) */
+  respuestaFormal?: string; // Respuesta oficial emitida al resolver
+  calificacion?: number; // Evaluacion de 1 a 5 estrellas (RF-09)
   creadorId?: string;
-  /** Origen del reclamo */
   origen: ReportOrigin;
 }
 
-/**
- * DATOS NECESARIOS PARA CREAR UN RECLAMO
- */
+// Datos que se envian al crear un nuevo reclamo (RF-01)
 export interface ICreateReportInput {
-  /** Categoría del reclamo */
   categoria: string;
-  /** Descripción detallada del problema */
   descripcion: string;
-  /** Dirección o referencia de ubicación */
   ubicacion: string;
-  /** URL de fotografía adjunta (opcional) */
   fotoUrl?: string;
-  /** Origen del reclamo */
   origen: ReportOrigin;
-  /** ID del usuario creador (si aplica) */
   creadorId?: string;
 }
 
-/**
- * DATOS NECESARIOS PARA ACTUALIZAR EL ESTADO DE UN RECLAMO
- */
+// Datos que usa el funcionario para derivar (RF-07) o cerrar (RF-08)
 export interface IUpdateReportStatusInput {
-  /** Nuevo estado del reclamo */
   estado: ReportStatus;
-  /** Observación o comentario del funcionario */
   observacion?: string;
-  /** Unidad municipal asignada */
   unidadAsignada?: string;
-  /** ID del funcionario responsable */
   responsableId: string;
 }
 
-/**
- * DATOS NECESARIOS PARA CALIFICAR UN RECLAMO RESUELTO
- */
+// Datos para calificar una respuesta municipal resuelta (RF-09)
 export interface IRatingInput {
-  /** Calificación de 1 a 5 estrellas */
-  calificacion: number;
-  /** Comentario opcional sobre la atención */
+  calificacion: number; // Escala 1 a 5
   comentario?: string;
 }
 
-/**
- * ESTRUCTURA DE RESPUESTA DE LA API
- * Se usará en la EP2 cuando se conecte con el backend
- */
+// ESTRUCTURAS BASE PARA LA ENTREGA 2 (BACKEND + JWT)
+
+// Estructura estandar de respuesta del backend
 export interface IApiResponse<T> {
-  /** Éxito o fracaso de la operación */
   success: boolean;
-  /** Mensaje descriptivo */
   message: string;
-  /** Datos de la respuesta */
   data?: T;
-  /** Errores de validación si los hay */
   errors?: string[];
 }
 
-/**
- * ESTRUCTURA DE SESIÓN DE AUTENTICACIÓN
- * Se usará en la EP2 con JWT
- */
+// Estructura de sesion con token JWT
 export interface IAuthSession {
-  /** Token de acceso JWT */
   token: string;
-  /** Información del usuario autenticado */
   user: IUser;
-  /** Fecha de expiración del token */
   expiresAt?: string;
 }
