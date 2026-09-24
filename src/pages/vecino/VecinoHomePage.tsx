@@ -54,7 +54,7 @@ import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
 import VecinoSidebar from "../../components/VecinoSidebar";
 
-// Categorias del Figma movil
+// Categorias que aparecian en el Figma
 const CATEGORIAS_FIGMA = [
   "Alumbrado público",
   "Aseo y ornato",
@@ -118,7 +118,7 @@ const VecinoHomePage: React.FC = () => {
     cargarReclamos();
   }, []);
 
-  // Lee el parametro ?tab=nuevo si viene desde otra pantalla
+  // Lee el parametro si viene desde otra pantalla
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("tab") === "nuevo") {
@@ -320,9 +320,7 @@ const VecinoHomePage: React.FC = () => {
               boxSizing: "border-box",
             }}
           >
-            {/* ========================================================= */}
-            {/* VISTA 1: LISTADO DE MIS RECLAMOS                          */}
-            {/* ========================================================= */}
+            {/* VISTA 1: LISTADO DE MIS RECLAMOS */}
             {vistaActiva === "mis_reclamos" && (
               <div>
                 <div
@@ -525,9 +523,7 @@ const VecinoHomePage: React.FC = () => {
               </div>
             )}
 
-            {/* ========================================================= */}
-            {/* VISTA 2: FORMULARIO DE NUEVO RECLAMO                      */}
-            {/* ========================================================= */}
+            {/* VISTA 2: FORMULARIO DE NUEVO RECLAMO */}
             {vistaActiva === "nuevo" && (
               <div>
                 {!reclamoCreadoExito ? (
@@ -831,9 +827,7 @@ const VecinoHomePage: React.FC = () => {
               </div>
             )}
 
-            {/* ========================================================= */}
-            {/* VISTA 3: CONSULTAR FOLIO (CON ESTRELLAS INTERACTIVAS RF-09)*/}
-            {/* ========================================================= */}
+            {/* VISTA 3: CONSULTAR FOLIO (CON ESTRELLAS INTERACTIVAS RF-09) */}
             {vistaActiva === "consulta" && (
               <div>
                 <IonCard

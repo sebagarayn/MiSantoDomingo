@@ -70,7 +70,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <IonPage>
-      {/* Cabecera limpia para celular: sin 3 lineas */}
+      {/* Cabecera para celular */}
       <IonHeader className="ion-no-border ion-hide-md-up">
         <IonToolbar style={{ "--background": "#0D3B66", padding: "4px 0" }}>
           <IonTitle
@@ -510,7 +510,7 @@ const Dashboard: React.FC = () => {
         />
       </IonContent>
 
-      {/* BARRA INFERIOR SOLO EN CELULAR (Admin movil) */}
+      {/* Barra inferior solo para los celulares (Admin movil) */}
       <IonFooter className="ion-hide-md-up">
         <IonTabBar
           slot="bottom"

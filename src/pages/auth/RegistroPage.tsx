@@ -28,13 +28,13 @@ const RegistroPage: React.FC = () => {
   const handleRegistro = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Validar nombre completo
+    // Primero validar nombre completo
     if (!nombre.trim()) {
       setErrorModal("Por favor ingrese su nombre completo.");
       return;
     }
 
-    // 2. Validar correo y su formato
+    // Validar correo y su formato
     if (!email.trim()) {
       setErrorModal("Por favor ingrese su correo electrónico.");
       return;
@@ -46,7 +46,7 @@ const RegistroPage: React.FC = () => {
       return;
     }
 
-    // 3. Validar contrasena y largo minimo
+    // Validar contrasena y largo minimo
     if (!password.trim()) {
       setErrorModal("Por favor ingrese una contraseña.");
       return;
@@ -91,7 +91,7 @@ const RegistroPage: React.FC = () => {
               padding: "0",
             }}
           >
-            {/* Franja tricolor Santo Domingo */}
+            {/* Franja tricolor */}
             <div
               style={{
                 height: "5px",

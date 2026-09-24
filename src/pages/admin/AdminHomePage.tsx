@@ -35,7 +35,7 @@ import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
 import AdminSidebar from "../../components/AdminSidebar";
 
-// Unidades para el filtro de la tabla (incluye OIRS Central de entrada)
+// Unidades para el filtro de la tabla
 const UNIDADES_FILTRO = [
   "OIRS Central",
   "Obras municipales",
@@ -52,7 +52,7 @@ const UNIDADES_DERIVACION = [
   "Desarrollo comunitario",
 ];
 
-// Categorias oficiales definidas en el Figma
+// Categorias oficiales que definimos en el Figma
 const CATEGORIAS_OFICIALES = [
   "Alumbrado público",
   "Aseo y ornato",
@@ -169,7 +169,7 @@ const AdminHomePage: React.FC = () => {
     cargarDatos();
   };
 
-  // Colores limpios para los estados
+  // Colores para los estados
   const getBadgeStyle = (estado: string) => {
     switch (estado) {
       case "Resuelto":
@@ -950,7 +950,7 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* Success de derivacion */}
+              {/* Success de la derivacion */}
               {pasoDerivacion === "exito" && (
                 <div style={{ textAlign: "center", padding: "24px 10px" }}>
                   <IonIcon

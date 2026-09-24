@@ -70,7 +70,7 @@ const LoginPage: React.FC = () => {
               padding: "0",
             }}
           >
-            {/* Franja superior tricolor Santo Domingo: Azul, Verde y Amarillo */}
+            {/* Franja superior tricolor */}
             <div
               style={{
                 height: "5px",
