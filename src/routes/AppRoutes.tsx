@@ -37,8 +37,7 @@ const AppRoutes: React.FC = () => {
 
   return (
     <>
-      {/* IonMenu: Es el menú lateral adaptable para móvil y escritorio */}
-      {/* Menu Lateral adaptado al diseno municipal */}
+      {/* Menu lateral de la app */}
       <IonMenu contentId="main-content" type="overlay">
         <IonHeader className="ion-no-border">
           <IonToolbar style={{ "--background": "#0D3B66", padding: "6px 0" }}>
@@ -65,6 +64,7 @@ const AppRoutes: React.FC = () => {
 
         <IonContent style={{ "--background": "#FFFFFF" }}>
           <IonList lines="full" style={{ padding: "8px 0" }}>
+            {/* Opcion publica de consulta */}
             <IonMenuToggle autoHide={false}>
               <IonItem
                 routerLink="/consulta"
@@ -80,6 +80,7 @@ const AppRoutes: React.FC = () => {
               </IonItem>
             </IonMenuToggle>
 
+            {/* Opciones exclusivas del vecino */}
             {isAuthenticated && user?.rol === "vecino" && (
               <IonMenuToggle autoHide={false}>
                 <IonItem
@@ -97,6 +98,7 @@ const AppRoutes: React.FC = () => {
               </IonMenuToggle>
             )}
 
+            {/* Opciones exclusivas del funcionario */}
             {isAuthenticated && user?.rol === "admin" && (
               <>
                 <IonMenuToggle autoHide={false}>
@@ -110,7 +112,7 @@ const AppRoutes: React.FC = () => {
                       icon={clipboardOutline}
                       style={{ color: "#0D3B66" }}
                     />
-                    <IonLabel>Gestion OIRS</IonLabel>
+                    <IonLabel>Gestión OIRS</IonLabel>
                   </IonItem>
                 </IonMenuToggle>
                 <IonMenuToggle autoHide={false}>
@@ -124,12 +126,13 @@ const AppRoutes: React.FC = () => {
                       icon={statsChartOutline}
                       style={{ color: "#0D3B66" }}
                     />
-                    <IonLabel>Dashboard KPIs</IonLabel>
+                    <IonLabel>Métricas de Gestión</IonLabel>
                   </IonItem>
                 </IonMenuToggle>
               </>
             )}
 
+            {/* Enlace para entrar o salir segun si hay sesion iniciada */}
             {isAuthenticated ? (
               <IonMenuToggle autoHide={false}>
                 <IonItem
@@ -144,7 +147,7 @@ const AppRoutes: React.FC = () => {
                     style={{ color: "#DC2626" }}
                   />
                   <IonLabel style={{ color: "#DC2626", fontWeight: 600 }}>
-                    Cerrar Sesion ({user?.rol})
+                    Cerrar Sesión ({user?.rol})
                   </IonLabel>
                 </IonItem>
               </IonMenuToggle>
@@ -160,7 +163,7 @@ const AppRoutes: React.FC = () => {
                     icon={logInOutline}
                     style={{ color: "#0D3B66" }}
                   />
-                  <IonLabel>Iniciar Sesion</IonLabel>
+                  <IonLabel>Iniciar Sesión</IonLabel>
                 </IonItem>
               </IonMenuToggle>
             )}
@@ -168,15 +171,15 @@ const AppRoutes: React.FC = () => {
         </IonContent>
       </IonMenu>
 
-      {/* Salida de rutas envuelta con IonRouterOutlet para navegación nativa de Ionic */}
+      {/* Salida de rutas envuelta en IonRouterOutlet para que pueda soportar transiciones nativas */}
       <IonRouterOutlet id="main-content">
         <Switch>
-          {/* Rutas Públicas */}
+          {/* Rutas Publicas */}
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/registro" component={RegistroPage} />
           <Route exact path="/consulta" component={ConsultaPublicaPage} />
 
-          {/* Rutas Protegidas Vecino */}
+          {/* Rutas Protegidas del Vecino */}
           <ProtectedRoute
             exact
             path="/app/inicio"
@@ -184,7 +187,7 @@ const AppRoutes: React.FC = () => {
             roles={["vecino"]}
           />
 
-          {/* Rutas Protegidas Funcionario / Admin (Dashboard ahora 100% protegido) */}
+          {/* Rutas Protegidas del Funcionario (Admin) */}
           <ProtectedRoute
             exact
             path="/admin/inicio"
@@ -198,12 +201,12 @@ const AppRoutes: React.FC = () => {
             roles={["admin"]}
           />
 
-          {/* Redirección inicial */}
+          {/* Redireccion automatica de la raiz al login */}
           <Route exact path="/">
             <Redirect to="/login" />
           </Route>
 
-          {/* 404 Not Found */}
+          {/* Pagina de error si la ruta no existe */}
           <Route component={NotFoundPage} />
         </Switch>
       </IonRouterOutlet>
