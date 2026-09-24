@@ -107,7 +107,7 @@ const VecinoSidebar: React.FC<VecinoSidebarProps> = ({
           </button>
         </div>
 
-        {/* Franja tricolor Santo Domingo */}
+        {/* Franja tricolor */}
         <div
           style={{
             height: "4px",
@@ -189,7 +189,7 @@ const VecinoSidebar: React.FC<VecinoSidebarProps> = ({
             )}
           </button>
 
-          {/* Opcion 3: Consultar por Folio (Ahora mantiene la barra activa) */}
+          {/* Opcion 3: Consultar por Folio */}
           <button
             type="button"
             onClick={() => onNavegar("consulta")}
