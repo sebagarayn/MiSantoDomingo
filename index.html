@@ -2,11 +2,13 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
+    <!-- Titulo que se ve en la pestana del navegador -->
     <title>MiSantoDomingo - Municipalidad de Santo Domingo</title>
 
     <base href="/" />
 
-    <meta name="color-scheme" content="light dark" />
+    <!-- Configuracion de pantalla para que en celulares se vea como una app nativa -->
+    <meta name="color-scheme" content="light" />
     <meta
       name="viewport"
       content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
@@ -14,16 +16,17 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
 
+    <!-- Icono de la municipalidad para la pestana y manifest de PWA -->
     <link rel="manifest" href="/manifest.json" />
-
     <link rel="shortcut icon" type="image/png" href="/logo-santodomingo.png" />
 
-    <!-- add to homescreen for ios -->
+    <!-- Compatibilidad para guardar como app en pantalla de inicio de iPhone (No se si se usara, pero ahi lo dejo igual)-->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MiSantoDomingo" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   </head>
   <body>
+    <!-- Aca es donde React monta toda la aplicacion -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
