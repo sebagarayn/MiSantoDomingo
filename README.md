@@ -153,7 +153,7 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 **RF-10 Dashboard de Indicadores KPI** : El sistema deberá desplegar un panel de métricas en tiempo real con el volumen total de solicitudes, el tiempo promedio de respuesta comunal, el recuento de casos vencidos y un gráfico de barras por categoría con filtro por período.
 
 
-**RF-11 Reportes Periódicos de Gestión**: El sistema deberá permitir consolidar el porcentaje de resolución de reclamos dentro del plazo legal y desglosar el volumen mensual para auditoría municipal mediante un archivo pdf.
+**RF-11 Reportes Periódicos de Gestión**: El sistema deberá permitir consolidar el porcentaje de resolución de reclamos dentro del plazo legal y desglosar el volumen mensual para auditoría municipal.
 
 
 ## Requerimientos no funcionales
