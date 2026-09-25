@@ -270,7 +270,8 @@ flowchart TD
    https://www.figma.com/design/g226BWBCK7VZ2fzl9aj8at/Sin-título?node-id=0-1&t=OWk7vIgmDlFjNYgl-1
 
 2. Prototipo Versión Móvil (Ignacio Maureira):
-   [FALTA PONER EL LINK]
+
+https://www.figma.com/design/APracKRLzJMMzqzsLFHSXx/Sin-t%C3%ADtulo?node-id=0-1&t=x8JV6gNCCvaOFn40-1
 
 
 ## Tecnologías y herramientas utilizadas
