@@ -1,6 +1,13 @@
 # MiSantoDomingo
 
+<div align="center">
+  <img src="public/logo-santodomingo.png" alt="Municipalidad de Santo Domingo" width="220" />
+  <h1>MiSantoDomingo</h1>
+  <p><b>Plataforma Municipal de Atención y Seguimiento de Reclamos Vecinales</b></p>
+</div>
+
 ## Identificacion de los integrantes del equipo y sus roles
+
 **Sebastian Garay** - Arquitectura de Software, Desarrollo Frontend y Control de Calidad
 
 **Benjamín Lazcano** - Líder de Requerimientos, Investigación y Documentación UX
@@ -8,14 +15,14 @@
 **Vicente Olguin** - Diseño UI/UX y Prototipado Manual Figma (Versión Escritorio / Web)
 
 **Ignacio Maureira** - Diseño UI/UX y Prototipado Manual Figma (Versión Móvil)
+
 ## Distribucion de responsabilidades
 
-### Sebastian Garay 
+### Sebastian Garay
 
 Responsabilidad: Arquitectura frontend, componentes estructurales, enrutamiento y desarrollo en Ionic con React (EP 1.5 y EP 1.6).
 
 Entregables:Configuración modular del proyecto (`pages/`, `components/`, `routes/`, `services/`, `types/`, `contexts/`, `hooks/`); enrutamiento con React Router y rutas protegidas por rol con guardias; desarrollo de los servicios mock asíncronos (`report.service.ts` y `auth.service.ts`) con contratos TypeScript; implementación de las 6 vistas funcionales responsivas; sincronización de layouts (sidebar colapsable en PC y barra de navegación inferior en celular); guardia de cambios no guardados y alertas de sesión.
-
 
 ### Benjamin Lazcano
 
@@ -35,18 +42,21 @@ Responsabilidad: Prototipado manual en Figma del flujo completo del vecino, vers
 
 Entregables: Diseño manual en Figma de la experiencia móvil ciudadana: pantallas de bienvenida, login y registro con validaciones visuales; portal de inicio del vecino con listado "Mis Reclamos"; flujo de ingreso de reclamo con categorías, descripción con contador de caracteres, dirección y adjunto de fotografía (RF-01) con confirmación de folio único (RF-02); flujo de consulta de estado por número de folio sin sesión (RF-03); cálculo visual de plazo legal de 20 días (RF-04); módulo de calificación ciudadana con escala de 5 estrellas (RF-09); barra de navegación inferior móvil.
 
-
 ## Problema o necesidad que aborda
+
 Tiempos de respuesta prolongados o falta de soluciones efectivas a los reclamos y
 solicitudes que los ciudadanos ingresan al municipio, generando frustración.
 
 ## Justificacion del problema y caracterizacion de los usuarios objetivos
+
 La propuesta nace a partir del análisis del reporte comunal de Santo Domingo (Censo de Población y Vivienda 2017 y 2024, INE). Al comparar ambos períodos se observa que el grupo etario de 45 a 64 años es el más numeroso de la comuna (26,6% de la población comunal en 2024), y que el grupo de 65 años o más presenta un crecimiento sostenido entre 2017 y 2024 (de 1.457 a 2.474 personas, pasando de 13,4% a 18,8% de la población comunal). Este comportamiento demográfico es consistente con un proceso de envejecimiento poblacional que ya supera el promedio regional (16,6%) y nacional (14%) en ese tramo etario.
 Este contexto es relevante porque los canales actuales de gestión de reclamos municipales (atención presencial y telefónica en la Oficina de Informaciones, Reclamos y Sugerencias, OIRS) no entregan trazabilidad al vecino: una vez ingresado un reclamo, la persona no tiene forma autónoma de saber en qué estado se encuentra ni qué unidad lo está gestionando. Cuando el reclamo pasa por más de una unidad municipal (según lo descrito en el Art. 42 del manual de ordenanzas), esta falta de visibilidad se agrava tanto para el vecino como para el propio funcionario, generando reclamos duplicados, pérdida de antecedentes y desgaste en la atención.
 Si este problema no se aborda, las consecuencias esperables son: abandono del proceso de reclamo por parte del vecino (especialmente si los pasos son largos o poco claros), sobrecarga de los canales presenciales y telefónicos, pérdida de trazabilidad entre unidades municipales, y baja capacidad de la municipalidad para priorizar y medir su gestión de reclamos mediante indicadores.
 
 Dado que el grupo etario predominante y de mayor crecimiento en la comuna corresponde a adultos medios y adultos mayores, la solución debe diseñarse pensando prioritariamente en este perfil de usuario —y no en un usuario joven "digital nativo"— sin dejar de lado al funcionario municipal que gestiona la contraparte del proceso.
+
 ## Grupos de usuarios objetivo
+
 El sistema considera dos grupos de usuarios, correspondientes a los dos roles definidos para la aplicación:
 
 -Vecino/Vecina (adulto medio – adulto mayor)
@@ -54,6 +64,7 @@ El sistema considera dos grupos de usuarios, correspondientes a los dos roles de
 -Funcionario municipal (encargado de gestión de reclamos, OIRS)
 
 ## 1. Vecino/Vecina
+
 Características generales: de acuerdo con los datos censales de la comuna, se estima para este grupo un nivel de experiencia tecnológica medio a bajo. Gran parte de las personas de este tramo etario utiliza aplicaciones básicas (por ejemplo, WhatsApp), pero no está necesariamente familiarizada con formularios extensos, procesos con múltiples pasos, o interfaces con alta densidad de información.
 
 Necesidad principal: de carácter informativa — saber "qué está pasando" con su reclamo. Si el procedimiento resulta tedioso o poco claro, el riesgo esperado es el abandono del proceso.
@@ -65,6 +76,7 @@ Objetivos/tareas dentro del sistema: ingresar un reclamo, consultar su estado, y
 Accesibilidad, seguridad y privacidad: se requiere texto legible y lenguaje simple (RNF-01), y dado que el sistema recopila datos personales, estos deben ser protegidos adecuadamente (RNF-03).
 
 ## 2. Funcionario municipal
+
 Características generales: se asume un nivel de experiencia tecnológica media-alta, con uso diario de herramientas de oficina como correo electrónico y planillas.
 
 Necesidad principal: revisar y priorizar un volumen alto de reclamos de forma simultánea, sin perder trazabilidad cuando un reclamo es derivado entre distintas unidades (Art. 42 del manual de ordenanzas).
@@ -76,14 +88,17 @@ Objetivos/tareas dentro del sistema: visualizar reclamos pendientes, filtrar por
 Accesibilidad, seguridad y privacidad: al tratarse de un rol con permisos de gestión y acceso a datos de vecinos, sus acciones (derivar, cerrar, responder) deben quedar protegidas mediante autenticación con verificación de rol (RNF-03), impidiendo que un vecino acceda a estas funciones.
 
 ## Roles considerados en el sistema
-Vecino/Vecina	Usuario que ingresa y hace seguimiento a sus reclamos.
 
-Funcionario municipal	Usuario que gestiona, deriva y responde los reclamos ingresados.
+Vecino/Vecina Usuario que ingresa y hace seguimiento a sus reclamos.
+
+Funcionario municipal Usuario que gestiona, deriva y responde los reclamos ingresados.
 
 ## Proto-personas
+
 Nota: los perfiles a continuación son proto-personas construidas mediante investigación documental (Censo de Población y Vivienda 2017–2024, INE, comuna de Santo Domingo) y supuestos razonados por el equipo. No corresponden a resultados obtenidos de usuarios reales, sino a una caracterización preliminar que será validada en etapas posteriores del proyecto.
 
 ### Proto-persona 1 — Vecina
+
 Rol: Vecina
 
 Perfil: Maria (nombre ficticio), 58 años, dueña de casa experiencia tegnologica media-baja.
@@ -99,9 +114,10 @@ Funcionalidades que utilizaría:Ingresar reclamo (RF-01), seguimiento por folio 
 Dispositivo/contexto : Celular Android de gama media, conexión móvil estándar/intermitente, uso en momentos domésticos no planificados.
 
 ### Proto-persona 2 — Funcionario municipal
+
 Rol:Funcionario municipal
 
-Perfil: 	Felipe (nombre ficticio), 32 años, encargado de OIRS, gestiona decenas de reclamos diarios, experiencia tecnológica media-alta
+Perfil: Felipe (nombre ficticio), 32 años, encargado de OIRS, gestiona decenas de reclamos diarios, experiencia tecnológica media-alta
 
 Necesidad principal: Priorizar un volumen alto de solicitudes y derivar casos entre unidades municipales sin perder el historial.
 
@@ -113,8 +129,8 @@ Funcionalidades que usaría: Tabla de gestión con filtros combinados (RF-06), d
 
 Dispositivo/contexto: Computador de escritorio, oficina municipal.
 
-
 ### Supuestos utilizados para construir los perfiles
+
 -Se asume que María no ha usado antes una aplicación municipal digital, por lo que su primera experiencia debe ser autoexplicativa.
 
 -Se asume que María dispone de un celular Android con conexión intermitente, pero no necesariamente de computador en casa.
@@ -126,12 +142,15 @@ Dispositivo/contexto: Computador de escritorio, oficina municipal.
 -Se asume que ambos roles priorizan la claridad del estado del reclamo por sobre funciones avanzadas o de personalización.
 
 ### Fuente de datos demográficos: Censo de Población y Vivienda 2017 y 2024, INE — Reporte comunal de Santo Domingo, punto 1.4 "Población por grupos de edad".
+
 ## Requerimientos del proyecto
+
 El ítem 1.1 explícitamente dice:”Estas funcionalidades están fuera de inicio se sesión o registrarse ya que deben estar inmersas en la propuesta.” Por lo que se asume todo tipo de requerimiento de agregar usuario, ingresar usuario, ingreso de datos etc.
 
 Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza en la principal problemática.
 
 ## Requerimientos funcionales
+
 **RF-01 Ingreso de Reclamo**: El sistema permitira al vecino ingresar un reclamo seleccionando una categoría de lista cerrada, redactando una descripción (máx. 500 caracteres), indicando la ubicación física y adjuntando opcionalmente una fotografía de respaldo.
 
 **RF-02 Generación de Folio Único** : El sistema generara automáticamente tras el envío un identificador alfanumérico único e irrepetible (formato #SD-2026-XXXXXX), mostrándolo de inmediato en una pantalla de confirmación.
@@ -142,7 +161,7 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 
 **RF-05 Trazabilidad Histórica**: El sistema deberá mantener un registro cronológico de cada avance, cambio de estado y derivación de la solicitud, disponible tanto en la ficha del vecino como en el panel administrativo.
 
-**RF-06 Bandeja Filtrable de Reclamos** : El sistema  deberá permitir al funcionario listar todas las solicitudes y aplicar filtros combinables por categoría, unidad responsable asignada y búsqueda libre de texto o folio. 
+**RF-06 Bandeja Filtrable de Reclamos** : El sistema deberá permitir al funcionario listar todas las solicitudes y aplicar filtros combinables por categoría, unidad responsable asignada y búsqueda libre de texto o folio.
 
 **RF-07 Derivación entre Unidades** : El sistema deberá permitir al funcionario derivar un reclamo hacia otra unidad municipal técnica (Obras, Salud, Educación, Desarrollo comunitario), exigiendo registrar un motivo u observación de traspaso.
 
@@ -152,9 +171,7 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 
 **RF-10 Dashboard de Indicadores KPI** : El sistema deberá desplegar un panel de métricas en tiempo real con el volumen total de solicitudes, el tiempo promedio de respuesta comunal, el recuento de casos vencidos y un gráfico de barras por categoría con filtro por período.
 
-
 **RF-11 Reportes Periódicos de Gestión**: El sistema deberá permitir consolidar el porcentaje de resolución de reclamos dentro del plazo legal y desglosar el volumen mensual para auditoría municipal.
-
 
 ## Requerimientos no funcionales
 
@@ -169,7 +186,6 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 **RNF-05 (Trazabilidad)**: Toda actualización de estado debe registrar fecha, hora y responsable de la acción de forma inmutable en el historial.
 
 **RNF-06 (Adaptabilidad Responsiva)**: La aplicación debe ofrecer una experiencia adaptada según el dispositivo: barra de navegación inferior en dispositivos móviles y menú lateral colapsable en escritorio.
-
 
 ## Arquitectura de Navegación y Experiencia de Usuario
 
@@ -198,16 +214,12 @@ flowchart TD
     DASHBOARD --> BARRAS["Gráfico Barras"]
 ```
 
-
-
-
 ### Jerarquía de Vistas y Diferenciación por Rol
 
 1. Rutas Públicas:
+
 - /login: Acceso unificado con detección automática de rol.
-  
 - /registro: Creación de cuenta vecinal con validación individual de campos.
-  
 - /consulta: Búsqueda ciudadana por número de folio alfanumérico.
 
 2. Rutas Privadas del Vecino (Móvil-First):
@@ -218,8 +230,6 @@ flowchart TD
 
 - /admin/inicio: Bandeja central tabular de solicitudes con filtros y acciones de derivación y cierre formal.
 - /admin/dashboard: Monitor de indicadores de gestión comunal y métricas de rendimiento.
-
-
 
 ### Principales Flujos de Tareas (Task Flows)
 
@@ -256,13 +266,11 @@ flowchart TD
 ### Puntos Críticos de Interacción y Justificación Técnica
 
 - Guardia de Datos no Guardados (Unsaved Changes Guard): Si el vecino está redactando un reclamo y pulsa accidentalmente otra pestaña de la barra inferior, el sistema intercepta el cambio y abre una alerta nativa (IonAlert) consultando si desea descartar o continuar editando, mitigando la pérdida accidental de datos.
-  
 - Confirmación Universal de Salida: Toda acción de "Cerrar Sesión" exige confirmación previa mediante modal destructivo, impidiendo salidas involuntarias de la sesión.
 
 - Bloqueo de Votación Única: Tras emitir la calificación de estrellas, los controles se bloquean permanentemente mostrando el puntaje asignado, satisfaciendo la condición de voto único de RF-09.
 
 - Coherencia entre Dispositivos: En pantallas móviles se utiliza una barra de pestañas fija (IonTabBar) al alcance del pulgar, mientras que en pantallas de escritorio se activa una barra lateral colapsable (AdminSidebar y VecinoSidebar) que permite maximizar el área de trabajo de las tablas y gráficos mediante botones de repliegue.
-
 
 ## Prototipos UI/UX en Figma
 
@@ -271,7 +279,6 @@ flowchart TD
 
 2. Prototipo Versión Móvil (Ignacio Maureira):
    https://www.figma.com/design/APracKRLzJMMzqzsLFHSXx/Sin-t%C3%ADtulo?node-id=0-1&t=x8JV6gNCCvaOFn40-1
-
 
 ## Tecnologías y herramientas utilizadas
 
@@ -282,7 +289,6 @@ flowchart TD
 - Iconografía: Ionicons 7
 - Almacenamiento y Estado: Context API de React con persistencia sincronizada en localStorage
 - Control de Versiones: Git y GitHub
-
 
 ## Estructura del Proyecto
 
@@ -329,53 +335,6 @@ MiSantoDomingo/
 └── README.md
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Instrucciones de instalación y configuración
 
 ### Requisitos previos
@@ -385,6 +344,7 @@ MiSantoDomingo/
 - Git: Instalado en el sistema operativo.
 
 ### Pasos de instalación
+
 1. Clonar el repositorio:
 
    ```bash
