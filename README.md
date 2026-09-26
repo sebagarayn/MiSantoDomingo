@@ -2,7 +2,6 @@
 
 <div align="center">
   <img src="public/logo-santodomingo.png" alt="Municipalidad de Santo Domingo" width="220" />
-  <h1>MiSantoDomingo</h1>
   <p><b>Plataforma Municipal de Atención y Seguimiento de Reclamos Vecinales</b></p>
 </div>
 
