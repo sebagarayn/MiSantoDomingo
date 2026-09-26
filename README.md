@@ -5,7 +5,9 @@
   <p><b>Plataforma Municipal de Atención y Seguimiento de Reclamos Vecinales</b></p>
 </div>
 
-## Identificacion de los integrantes del equipo y sus roles
+---
+
+## 1. Identificacion de los integrantes del equipo y sus roles
 
 **Sebastian Garay** - Arquitectura de Software, Desarrollo Frontend y Control de Calidad
 
@@ -15,46 +17,66 @@
 
 **Ignacio Maureira** - Diseño UI/UX y Prototipado Manual Figma (Versión Móvil)
 
-## Distribucion de responsabilidades
+---
 
-### Sebastian Garay
+## 2. Distribucion de responsabilidades
+
+### 2.1. Sebastián Garay
 
 Responsabilidad: Arquitectura frontend, componentes estructurales, enrutamiento y desarrollo en Ionic con React (EP 1.5 y EP 1.6).
 
 Entregables:Configuración modular del proyecto (`pages/`, `components/`, `routes/`, `services/`, `types/`, `contexts/`, `hooks/`); enrutamiento con React Router y rutas protegidas por rol con guardias; desarrollo de los servicios mock asíncronos (`report.service.ts` y `auth.service.ts`) con contratos TypeScript; implementación de las 6 vistas funcionales responsivas; sincronización de layouts (sidebar colapsable en PC y barra de navegación inferior en celular); guardia de cambios no guardados y alertas de sesión.
 
-### Benjamin Lazcano
+### 2.2. Benjamin Lazcano
 
 Responsabilidad: Requerimientos (EP 1.1), investigación de usuarios (EP 1.2), arquitectura de información (EP 1.4) y README.md (3.1).
 
 Entregables: Matriz de 11 Requerimientos Funcionales (sin login/registro) y 6 No Funcionales; justificación demográfica del problema basada en datos del Censo INE 2017 y 2024 de Santo Domingo; caracterización de 2 proto-personas con supuestos razonados; redacción de los 4 Task Flows y justificación técnica de arquitectura.
 
-### Vicente Olguin
+### 2.3. Vicente Olguin
 
 Responsabilidad: Prototipado manual en Figma del flujo de gestión del funcionario, versión web (EP 1.3).
 
 Entregables: Diseño manual en Figma de las vistas de escritorio: pantalla de acceso/login; bandeja general tabular de reclamos con filtros combinables por unidad y categoría (RF-06); modal de detalle con flujo de derivación a unidades técnicas (RF-07) y cierre formal con respuesta oficial (RF-08); estados de éxito (SUCCESS) y error; dashboard de indicadores KPI con gráfico de barras comparativo (RF-10).
 
-### Ignacio Maureira
+### 2.4. Ignacio Maureira
 
 Responsabilidad: Prototipado manual en Figma del flujo completo del vecino, versión móvil (EP 1.3).
 
 Entregables: Diseño manual en Figma de la experiencia móvil ciudadana: pantallas de bienvenida, login y registro con validaciones visuales; portal de inicio del vecino con listado "Mis Reclamos"; flujo de ingreso de reclamo con categorías, descripción con contador de caracteres, dirección y adjunto de fotografía (RF-01) con confirmación de folio único (RF-02); flujo de consulta de estado por número de folio sin sesión (RF-03); cálculo visual de plazo legal de 20 días (RF-04); módulo de calificación ciudadana con escala de 5 estrellas (RF-09); barra de navegación inferior móvil.
 
-## Problema o necesidad que aborda
+---
+
+## 3. Descripción general del sistema y problema que aborda
+
+### 3.1. Problema o necesidad que aborda
 
 Tiempos de respuesta prolongados o falta de soluciones efectivas a los reclamos y
 solicitudes que los ciudadanos ingresan al municipio, generando frustración.
 
-## Justificacion del problema y caracterizacion de los usuarios objetivos
+### 3.2. Justificacion del problema y caracterizacion de los usuarios objetivos
 
 La propuesta nace a partir del análisis del reporte comunal de Santo Domingo (Censo de Población y Vivienda 2017 y 2024, INE). Al comparar ambos períodos se observa que el grupo etario de 45 a 64 años es el más numeroso de la comuna (26,6% de la población comunal en 2024), y que el grupo de 65 años o más presenta un crecimiento sostenido entre 2017 y 2024 (de 1.457 a 2.474 personas, pasando de 13,4% a 18,8% de la población comunal). Este comportamiento demográfico es consistente con un proceso de envejecimiento poblacional que ya supera el promedio regional (16,6%) y nacional (14%) en ese tramo etario.
+
 Este contexto es relevante porque los canales actuales de gestión de reclamos municipales (atención presencial y telefónica en la Oficina de Informaciones, Reclamos y Sugerencias, OIRS) no entregan trazabilidad al vecino: una vez ingresado un reclamo, la persona no tiene forma autónoma de saber en qué estado se encuentra ni qué unidad lo está gestionando. Cuando el reclamo pasa por más de una unidad municipal (según lo descrito en el Art. 42 del manual de ordenanzas), esta falta de visibilidad se agrava tanto para el vecino como para el propio funcionario, generando reclamos duplicados, pérdida de antecedentes y desgaste en la atención.
+
 Si este problema no se aborda, las consecuencias esperables son: abandono del proceso de reclamo por parte del vecino (especialmente si los pasos son largos o poco claros), sobrecarga de los canales presenciales y telefónicos, pérdida de trazabilidad entre unidades municipales, y baja capacidad de la municipalidad para priorizar y medir su gestión de reclamos mediante indicadores.
 
 Dado que el grupo etario predominante y de mayor crecimiento en la comuna corresponde a adultos medios y adultos mayores, la solución debe diseñarse pensando prioritariamente en este perfil de usuario —y no en un usuario joven "digital nativo"— sin dejar de lado al funcionario municipal que gestiona la contraparte del proceso.
 
-## Grupos de usuarios objetivo
+Fuentes: https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606
+
+### 3.3. Objetivos del proyecto
+
+- Disponer de un canal ciudadano digital accesbile para ingresar reclamos en menos de 3 mnutos con obtención inmediata de comprobante único de folio.
+- Garantizar la trazabilidad completa del ciclo de vida del reclamo tanto para el vecino como para los funcionarios municipales.
+- Proporcionar al municipio una herramienta administrativa para medir tiempos de respuesta frente al plazo legal de 20 días y priorizar la gestión mediante indicadores KPI.
+
+---
+
+## 4. Caracterización de usuarios y proto-personas
+
+### 4.1. Grupos de usuarios y roles del sistema
 
 El sistema considera dos grupos de usuarios, correspondientes a los dos roles definidos para la aplicación:
 
@@ -62,7 +84,7 @@ El sistema considera dos grupos de usuarios, correspondientes a los dos roles de
 
 -Funcionario municipal (encargado de gestión de reclamos, OIRS)
 
-## 1. Vecino/Vecina
+### 4.1.A. Vecino/Vecina
 
 Características generales: de acuerdo con los datos censales de la comuna, se estima para este grupo un nivel de experiencia tecnológica medio a bajo. Gran parte de las personas de este tramo etario utiliza aplicaciones básicas (por ejemplo, WhatsApp), pero no está necesariamente familiarizada con formularios extensos, procesos con múltiples pasos, o interfaces con alta densidad de información.
 
@@ -74,7 +96,7 @@ Objetivos/tareas dentro del sistema: ingresar un reclamo, consultar su estado, y
 
 Accesibilidad, seguridad y privacidad: se requiere texto legible y lenguaje simple (RNF-01), y dado que el sistema recopila datos personales, estos deben ser protegidos adecuadamente (RNF-03).
 
-## 2. Funcionario municipal
+### 4.1.B. Funcionario municipal
 
 Características generales: se asume un nivel de experiencia tecnológica media-alta, con uso diario de herramientas de oficina como correo electrónico y planillas.
 
@@ -86,17 +108,17 @@ Objetivos/tareas dentro del sistema: visualizar reclamos pendientes, filtrar por
 
 Accesibilidad, seguridad y privacidad: al tratarse de un rol con permisos de gestión y acceso a datos de vecinos, sus acciones (derivar, cerrar, responder) deben quedar protegidas mediante autenticación con verificación de rol (RNF-03), impidiendo que un vecino acceda a estas funciones.
 
-## Roles considerados en el sistema
+### 4.2. Roles considerados en el sistema
 
 Vecino/Vecina Usuario que ingresa y hace seguimiento a sus reclamos.
 
 Funcionario municipal Usuario que gestiona, deriva y responde los reclamos ingresados.
 
-## Proto-personas
+### 4.3. Proto-personas
 
 Nota: los perfiles a continuación son proto-personas construidas mediante investigación documental (Censo de Población y Vivienda 2017–2024, INE, comuna de Santo Domingo) y supuestos razonados por el equipo. No corresponden a resultados obtenidos de usuarios reales, sino a una caracterización preliminar que será validada en etapas posteriores del proyecto.
 
-### Proto-persona 1 — Vecina
+### 4.3.A. Proto-persona 1 — Vecina
 
 Rol: Vecina
 
@@ -112,7 +134,7 @@ Funcionalidades que utilizaría:Ingresar reclamo (RF-01), seguimiento por folio 
 
 Dispositivo/contexto : Celular Android de gama media, conexión móvil estándar/intermitente, uso en momentos domésticos no planificados.
 
-### Proto-persona 2 — Funcionario municipal
+### 4.3.B. Proto-persona 2 — Funcionario municipal
 
 Rol:Funcionario municipal
 
@@ -128,7 +150,7 @@ Funcionalidades que usaría: Tabla de gestión con filtros combinados (RF-06), d
 
 Dispositivo/contexto: Computador de escritorio, oficina municipal.
 
-### Supuestos utilizados para construir los perfiles
+### 4.4. Supuestos utilizados para construir los perfiles
 
 -Se asume que María no ha usado antes una aplicación municipal digital, por lo que su primera experiencia debe ser autoexplicativa.
 
@@ -140,15 +162,17 @@ Dispositivo/contexto: Computador de escritorio, oficina municipal.
 
 -Se asume que ambos roles priorizan la claridad del estado del reclamo por sobre funciones avanzadas o de personalización.
 
-### Fuente de datos demográficos: Censo de Población y Vivienda 2017 y 2024, INE — Reporte comunal de Santo Domingo, punto 1.4 "Población por grupos de edad".
+Fuentes: https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606
 
-## Requerimientos del proyecto
+---
+
+## 5. Requerimientos del sistema
 
 El ítem 1.1 explícitamente dice:”Estas funcionalidades están fuera de inicio se sesión o registrarse ya que deben estar inmersas en la propuesta.” Por lo que se asume todo tipo de requerimiento de agregar usuario, ingresar usuario, ingreso de datos etc.
 
 Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza en la principal problemática.
 
-## Requerimientos funcionales
+### 5.1. Requerimientos funcionales (RF)
 
 **RF-01 Ingreso de Reclamo**: El sistema permitira al vecino ingresar un reclamo seleccionando una categoría de lista cerrada, redactando una descripción (máx. 500 caracteres), indicando la ubicación física y adjuntando opcionalmente una fotografía de respaldo.
 
@@ -172,7 +196,7 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 
 **RF-11 Reportes Periódicos de Gestión**: El sistema deberá permitir consolidar el porcentaje de resolución de reclamos dentro del plazo legal y desglosar el volumen mensual para auditoría municipal.
 
-## Requerimientos no funcionales
+### 5.2. Requerimientos no funcionales (RNF)
 
 **RNF-01 (Usabilidad)**: La interfaz móvil debe diseñarse con lenguaje simple, tipografía mínima de 14–16px y alto contraste, permitiendo completar un reclamo en menos de 3 minutos por usuarios de tercera edad.
 
@@ -186,9 +210,11 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 
 **RNF-06 (Adaptabilidad Responsiva)**: La aplicación debe ofrecer una experiencia adaptada según el dispositivo: barra de navegación inferior en dispositivos móviles y menú lateral colapsable en escritorio.
 
-## Arquitectura de Navegación y Experiencia de Usuario
+---
 
-### Mapa General de Rutas
+## 6. Arquitectura de navegación y experiencia de usuario
+
+### 6.1. Mapa General de Rutas
 
 ```mermaid
 flowchart TD
@@ -213,7 +239,7 @@ flowchart TD
     DASHBOARD --> BARRAS["Gráfico Barras"]
 ```
 
-### Jerarquía de Vistas y Diferenciación por Rol
+### 6.2. Jerarquía de Vistas y Diferenciación por Rol
 
 1. Rutas Públicas:
 
@@ -230,7 +256,7 @@ flowchart TD
 - /admin/inicio: Bandeja central tabular de solicitudes con filtros y acciones de derivación y cierre formal.
 - /admin/dashboard: Monitor de indicadores de gestión comunal y métricas de rendimiento.
 
-### Principales Flujos de Tareas (Task Flows)
+### 6.3. Principales Flujos de Tareas (Task Flows)
 
 1. Task Flow 1 — Vecino reporta problema comunal:
    Login como vecina ->
@@ -262,7 +288,7 @@ flowchart TD
    filtra por período temporal ->
    analiza gráfico de barras.
 
-### Puntos Críticos de Interacción y Justificación Técnica
+### 6.4. Puntos Críticos de Interacción y Justificación Técnica
 
 - Guardia de Datos no Guardados (Unsaved Changes Guard): Si el vecino está redactando un reclamo y pulsa accidentalmente otra pestaña de la barra inferior, el sistema intercepta el cambio y abre una alerta nativa (IonAlert) consultando si desea descartar o continuar editando, mitigando la pérdida accidental de datos.
 - Confirmación Universal de Salida: Toda acción de "Cerrar Sesión" exige confirmación previa mediante modal destructivo, impidiendo salidas involuntarias de la sesión.
@@ -271,7 +297,9 @@ flowchart TD
 
 - Coherencia entre Dispositivos: En pantallas móviles se utiliza una barra de pestañas fija (IonTabBar) al alcance del pulgar, mientras que en pantallas de escritorio se activa una barra lateral colapsable (AdminSidebar y VecinoSidebar) que permite maximizar el área de trabajo de las tablas y gráficos mediante botones de repliegue.
 
-## Prototipos UI/UX en Figma
+---
+
+## 7. Prototipos UI/UX en Figma
 
 1. Prototipo Versión Web / Escritorio (Vicente Olguín):
    https://www.figma.com/design/g226BWBCK7VZ2fzl9aj8at/Sin-título?node-id=0-1&t=OWk7vIgmDlFjNYgl-1
@@ -279,7 +307,9 @@ flowchart TD
 2. Prototipo Versión Móvil (Ignacio Maureira):
    https://www.figma.com/design/APracKRLzJMMzqzsLFHSXx/Sin-t%C3%ADtulo?node-id=0-1&t=x8JV6gNCCvaOFn40-1
 
-## Tecnologías y herramientas utilizadas
+---
+
+## 8. Tecnologías y herramientas utilizadas
 
 - Framework UI: Ionic 8 (@ionic/react, @ionic/react-router)
 - Librería Base: React 18 con TypeScript
@@ -289,7 +319,9 @@ flowchart TD
 - Almacenamiento y Estado: Context API de React con persistencia sincronizada en localStorage
 - Control de Versiones: Git y GitHub
 
-## Estructura del Proyecto
+---
+
+## 9. Estructura del Proyecto
 
 ```
 MiSantoDomingo/
@@ -334,15 +366,17 @@ MiSantoDomingo/
 └── README.md
 ```
 
-## Instrucciones de instalación y configuración
+---
 
-### Requisitos previos
+## 10. Instrucciones de instalación y configuración
+
+### 10.1. Requisitos previos
 
 - Node.js: Versión 18.x o superior recomendada.
 - npm: Versión 9.x o superior.
 - Git: Instalado en el sistema operativo.
 
-### Pasos de instalación
+### 10.2. Pasos de instalación
 
 1. Clonar el repositorio:
 
@@ -368,9 +402,11 @@ MiSantoDomingo/
    npm install
    ```
 
-## Instrucciones de ejecución y uso
+---
 
-### Levantar el servidor del desarrollo
+## 11. Instrucciones de ejecución y uso
+
+### 11.1. Levantar el servidor del desarrollo
 
 ```bash
 npm run dev
@@ -378,7 +414,7 @@ npm run dev
 
 Una vez iniciado, abre el navegador en la URL indicada por la terminal (por defecto http://localhost:5173).
 
-### Cuentas de acceso de prueba (para la demostración)
+### 11.2. Cuentas de acceso de prueba (para la demostración)
 
 Para evaluar las rutas protegidas y la diferenciación por roles, utiliza las siguientes credenciales:
 
@@ -399,3 +435,9 @@ Para evaluar las rutas protegidas y la diferenciación por roles, utiliza las si
 3. **Público (Sin Cuenta)**
 
 No usa credenciales, es la opción de consultar sin cuenta, lleva directamente a /consulta.
+
+### 11.3. Para comprobar la compilación
+
+```bash
+npm run build
+```
