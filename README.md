@@ -86,27 +86,21 @@ El sistema considera dos grupos de usuarios, correspondientes a los dos roles de
 
 ### 4.1.A. Vecino/Vecina
 
-Características generales: de acuerdo con los datos censales de la comuna, se estima para este grupo un nivel de experiencia tecnológica medio a bajo. Gran parte de las personas de este tramo etario utiliza aplicaciones básicas (por ejemplo, WhatsApp), pero no está necesariamente familiarizada con formularios extensos, procesos con múltiples pasos, o interfaces con alta densidad de información.
-
-Necesidad principal: de carácter informativa — saber "qué está pasando" con su reclamo. Si el procedimiento resulta tedioso o poco claro, el riesgo esperado es el abandono del proceso.
-
-Contexto de uso: cualquier lugar con conexión a internet, principalmente a través del celular, en momentos no planificados (por ejemplo, al recordar que tiene un reclamo pendiente).
-
-Objetivos/tareas dentro del sistema: ingresar un reclamo, consultar su estado, y ser notificado ante cambios, sin depender de llamadas o visitas presenciales.
-
-Accesibilidad, seguridad y privacidad: se requiere texto legible y lenguaje simple (RNF-01), y dado que el sistema recopila datos personales, estos deben ser protegidos adecuadamente (RNF-03).
+- **Características generales:** Adultos medios y adultos mayores (de acuerdo con el Censo INE, el 26,6% tiene entre 45-64 años y el 18,8% tiene 65 años o más).
+- **Nivel estimado de experiencia tecnológica:** Medio a bajo. Utilizan aplicaciones de mensajería básica (como WhatsApp) y llamadas, pero no están familiarizados con trámites burocráticos complejos ni interfaces con alta densidad de información.
+- **Necesidad principal:** de carácter informativa — saber "qué está pasando" con su reclamo. Si el procedimiento resulta tedioso o poco claro, el riesgo esperado es el abandono del proceso.
+- **Contexto de uso:** cualquier lugar con conexión a internet, principalmente a través del celular, en momentos no planificados (por ejemplo, al recordar que tiene un reclamo pendiente).
+- **Objetivos/tareas dentro del sistema:** ingresar un reclamo, consultar su estado, y ser notificado ante cambios, sin depender de llamadas o visitas presenciales.
+- **Accesibilidad, seguridad y privacidad:** se requiere texto legible y lenguaje simple (RNF-01), y dado que el sistema recopila datos personales, estos deben ser protegidos adecuadamente (RNF-03).
 
 ### 4.1.B. Funcionario municipal
 
-Características generales: se asume un nivel de experiencia tecnológica media-alta, con uso diario de herramientas de oficina como correo electrónico y planillas.
-
-Necesidad principal: revisar y priorizar un volumen alto de reclamos de forma simultánea, sin perder trazabilidad cuando un reclamo es derivado entre distintas unidades (Art. 42 del manual de ordenanzas).
-
-Contexto de uso: jornada laboral, en oficina municipal, principalmente desde computador de escritorio.
-
-Objetivos/tareas dentro del sistema: visualizar reclamos pendientes, filtrar por plazo vencido o próximo a vencer, derivar, responder y cerrar reclamos.
-
-Accesibilidad, seguridad y privacidad: al tratarse de un rol con permisos de gestión y acceso a datos de vecinos, sus acciones (derivar, cerrar, responder) deben quedar protegidas mediante autenticación con verificación de rol (RNF-03), impidiendo que un vecino acceda a estas funciones.
+- **Características generales:** Personal municipal de la Oficina de Informaciones, Reclamos y Sugerencias (OIRS).
+- **Nivel estimado de experiencia tecnológica:** Media a alta. Uso diario y fluido de herramientas de oficina como correo electrónico, planillas de cálculo y sistemas web de gestión documental.
+- **Necesidad principal:** revisar y priorizar un volumen alto de reclamos de forma simultánea, sin perder trazabilidad cuando un reclamo es derivado entre distintas unidades (Art. 42 del manual de ordenanzas).
+- **Contexto de uso:** jornada laboral, en oficina municipal, principalmente desde computador de escritorio.
+- **Objetivos/tareas dentro del sistema:** visualizar reclamos pendientes, filtrar por plazo vencido o próximo a vencer, derivar, responder y cerrar reclamos.
+- **Accesibilidad, seguridad y privacidad:** al tratarse de un rol con permisos de gestión y acceso a datos de vecinos, sus acciones (derivar, cerrar, responder) deben quedar protegidas mediante autenticación con verificación de rol (RNF-03), impidiendo que un vecino acceda a estas funciones.
 
 ### 4.2. Roles considerados en el sistema
 
@@ -120,47 +114,39 @@ Nota: los perfiles a continuación son proto-personas construidas mediante inves
 
 ### 4.3.A. Proto-persona 1 — Vecina
 
-Rol: Vecina
-
-Perfil: Maria (nombre ficticio), 58 años, dueña de casa experiencia tegnologica media-baja.
-
-Necesidad principal: Saber con certeza y claridad qué está pasando con su solicitud sin tener que viajar al municipio ni esperar llamadas telefónicas.
-
-Objetivo de uso: Ingresar el reclamo una vez y consultarlo sin tener que llamar o ir presencialmente.
-
-Frustracion: Llamar a la municipalidad y que no le sepan informar en qué estado está su solicitud o enterarse semanas después de que el reclamo fue archivado sin respuesta.
-
-Funcionalidades que utilizaría:Ingresar reclamo (RF-01), seguimiento por folio sin cuenta (RF-03), ver días restantes (RF-04) y calificar la atención recibida (RF-09).
-
-Dispositivo/contexto : Celular Android de gama media, conexión móvil estándar/intermitente, uso en momentos domésticos no planificados.
+- **Tipo de usuario o rol:** Vecina / Usuario ciudadano
+- **Nombre ficticio y edad:** María González, 58 años, dueña de casa.
+- **Nivel estimado de experiencia tecnológica:** **Medio-bajo.** Manejo básico de smartphone para funciones esenciales (WhatsApp, llamadas).
+- **Características generales:** Residente de Santo Domingo, encargada del hogar, prefiere resolver dudas rápido sin trasladarse al centro municipal.
+- **Necesidad principal:** Saber con certeza y claridad qué está pasando con su solicitud sin tener que viajar al municipio ni esperar llamadas telefónicas.
+- **Objetivos de uso:** Ingresar el reclamo una sola vez y consultarlo desde casa sin trámites presenciales.
+- **Dificultades o puntos de frustración:** Llamar a la municipalidad y que no le sepan informar en qué estado está su solicitud o enterarse semanas después de que el reclamo fue archivado sin respuesta.
+- **Funcionalidades que utilizaría:** Ingresar reclamo (RF-01), seguimiento por folio sin cuenta (RF-03), ver días restantes (RF-04) y calificar la atención recibida (RF-09).
+- **Dispositivo y contexto:** Celular Android de gama media, conexión móvil estándar/intermitente, uso en momentos domésticos no planificados.
 
 ### 4.3.B. Proto-persona 2 — Funcionario municipal
 
-Rol:Funcionario municipal
-
-Perfil: Felipe (nombre ficticio), 32 años, encargado de OIRS, gestiona decenas de reclamos diarios, experiencia tecnológica media-alta
-
-Necesidad principal: Priorizar un volumen alto de solicitudes y derivar casos entre unidades municipales sin perder el historial.
-
-Objetivo de uso: Revisar la bandeja central, filtrar por plazo legal próximo a vencer, derivar formalmente a cuadrillas técnicas y responder con cierre formal.
-
-Frustración: Reclamos duplicados o solicitudes traspapeladas entre direcciones distintas por falta de registro unificado.
-
-Funcionalidades que usaría: Tabla de gestión con filtros combinados (RF-06), derivación con observación obligatoria (RF-07), cierre formal con respuesta visible al vecino (RF-08) y panel de indicadores KPI (RF-10).
-
-Dispositivo/contexto: Computador de escritorio, oficina municipal.
+- **Tipo de usuario o rol:** Funcionario municipal / Administrador OIRS
+- **Nombre ficticio y edad:** Felipe OIRS, 32 años, encargado de atención y derivación.
+- **Nivel estimado de experiencia tecnológica:** **Medio-alto.** Manejo avanzado de computador, ofimática y plataformas de gestión documental.
+- **Características generales:** Funcionario público responsable de canalizar las demandas ciudadanas hacia las cuadrillas técnicas.
+- **Necesidad principal:** Priorizar un volumen alto de solicitudes y derivar casos entre unidades municipales sin perder el historial ni duplicar folios.
+- **Objetivos de uso:** Revisar la bandeja central, filtrar por plazo legal próximo a vencer (20 días), derivar formalmente a cuadrillas y responder con cierre formal.
+- **Dificultades o puntos de frustración:** Reclamos duplicados o solicitudes traspapeladas entre direcciones distintas por falta de registro unificado.
+- **Funcionalidades que usaría:** Tabla de gestión con filtros combinados (RF-06), derivación con observación obligatoria (RF-07), cierre formal con respuesta visible al vecino (RF-08) y panel de indicadores KPI (RF-10).
+- **Dispositivo y contexto:** Computador de escritorio en oficina municipal, jornada laboral estándar con conexión estable.
 
 ### 4.4. Supuestos utilizados para construir los perfiles
 
--Se asume que María no ha usado antes una aplicación municipal digital, por lo que su primera experiencia debe ser autoexplicativa.
+- Se asume que María no ha usado antes una aplicación municipal digital, por lo que su primera experiencia debe ser autoexplicativa.
 
--Se asume que María dispone de un celular Android con conexión intermitente, pero no necesariamente de computador en casa.
+- Se asume que María dispone de un celular Android con conexión intermitente, pero no necesariamente de computador en casa.
 
--Se asume que Felipe trabaja con computador de escritorio fijo en la oficina municipal y no gestiona reclamos desde su celular.
+- Se asume que Felipe trabaja con computador de escritorio fijo en la oficina municipal y no gestiona reclamos desde su celular.
 
--Se asume que Felipe ya está familiarizado con sistemas de gestión documental municipal (Art. 42 del manual), por lo que su curva de aprendizaje de la aplicación es menor que la de un vecino.
+- Se asume que Felipe ya está familiarizado con sistemas de gestión documental municipal (Art. 42 del manual), por lo que su curva de aprendizaje de la aplicación es menor que la de un vecino.
 
--Se asume que ambos roles priorizan la claridad del estado del reclamo por sobre funciones avanzadas o de personalización.
+- Se asume que ambos roles priorizan la claridad del estado del reclamo por sobre funciones avanzadas o de personalización.
 
 Fuentes: https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606
 
