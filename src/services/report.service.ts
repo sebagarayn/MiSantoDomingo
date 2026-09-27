@@ -5,13 +5,13 @@ import {
   IRatingInput,
 } from "../types";
 
-// Le pusimos v2 a la clave para resetear la memoria de las pruebas anteriores y que las estrellas partan limpias en cero
-const STORAGE_KEY = "msd_mock_reports_v2";
+// Le pusimos v3 a la clave para resetear la memoria del navegador, borrar el "gfg" de las pruebas y que todo parta limpio
+const STORAGE_KEY = "msd_mock_reports_v3";
 
-// Estos son los 3 reclamos con los que arranca el sistema para Santo Domingo:
+// Estos son los 3 reclamos con los que arranca el sistema para Santo Domingo (coinciden exactamente con la tabla del Figma):
 // 1. Uno pendiente que llega primero a OIRS Central
-// 2. Uno derivado a Desarrollo Comunitario
-// 3. Uno resuelto asignado a la vecina María para que el evaluador pueda probar la calificación de 5 estrellas
+// 2. Uno derivado a Desarrollo Comunitario (limpio, sin respuestas raras de prueba)
+// 3. Uno resuelto asignado a la vecina María con respuesta formal oficial y listo para calificar
 const RECLAMOS_INICIALES: IReport[] = [
   {
     folio: "SD-2026-000101",
