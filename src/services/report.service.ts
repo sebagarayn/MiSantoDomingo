@@ -5,8 +5,8 @@ import {
   IRatingInput,
 } from "../types";
 
-// Le pusimos v4 a la clave para resetear la memoria del navegador, borrar el "gfg" de las pruebas y que todo parta limpio
-const STORAGE_KEY = "msd_mock_reports_v4";
+// Le pusimos v5 a la clave para resetear la memoria del navegador, borrar el "gfg" de las pruebas y que todo parta limpio (Para actualizar)
+const STORAGE_KEY = "msd_mock_reports_v5";
 
 // Estos son los 3 reclamos con los que arranca el sistema para Santo Domingo (coinciden exactamente con la tabla del Figma):
 // 1. Uno pendiente que llega primero a OIRS Central
