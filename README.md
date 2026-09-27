@@ -7,6 +7,24 @@
 
 ---
 
+## Índice
+
+1. [Identificación de los integrantes del equipo y sus roles](#1-identificacion-de-los-integrantes-del-equipo-y-sus-roles)
+2. [Distribución de responsabilidades](#2-distribucion-de-responsabilidades)
+3. [Descripción general del sistema y problema que aborda](#3-descripcion-general-del-sistema-y-problema-que-aborda)
+4. [Caracterización de usuarios y proto-personas](#4-caracterizacion-de-usuarios-y-proto-personas)
+5. [Requerimientos del sistema](#5-requerimientos-del-sistema)
+6. [Arquitectura de navegación y experiencia de usuario](#6-arquitectura-de-navegacion-y-experiencia-de-usuario)
+7. [Prototipos UI/UX en Figma](#7-prototipos-uiux-en-figma)
+8. [Tecnologías y herramientas utilizadas](#8-tecnologias-y-herramientas-utilizadas)
+9. [Estructura del Proyecto](#9-estructura-del-proyecto)
+10. [Instrucciones de instalación y configuración](#10-instrucciones-de-instalacion-y-configuracion)
+11. [Instrucciones de ejecución y uso](#11-instrucciones-de-ejecucion-y-uso)
+12. [Imágenes de la aplicación en ejecución](#12-imagenes-de-la-aplicacion-en-ejecucion)
+13. [Bibliografía y uso de IA](#13-bibliografia-y-uso-de-ia)
+
+---
+
 ## 1. Identificacion de los integrantes del equipo y sus roles
 
 **Sebastian Garay** - Arquitectura de Software, Desarrollo Frontend y Control de Calidad
@@ -249,6 +267,17 @@ flowchart TD
 
 - /admin/inicio: Bandeja central tabular de solicitudes con filtros y acciones de derivación y cierre formal.
 - /admin/dashboard: Monitor de indicadores de gestión comunal y métricas de rendimiento.
+
+#### Matriz de Acceso por Rol
+
+| Funcionalidad / Ruta                           | Público (Sin sesión) | Vecino | Admin (OIRS) |
+| ---------------------------------------------- | :------------------: | :----: | :----------: |
+| Consulta anónima por folio (`/consulta`)       |          ✓           |   ✓    |      ✓       |
+| Ingresar nuevo reclamo (`/app/inicio`)         |          —           |   ✓    |      —       |
+| Ver "Mis Reclamos" y calificar (`/app/inicio`) |          —           |   ✓    |      —       |
+| Bandeja de gestión y filtros (`/admin/inicio`) |          —           |   —    |      ✓       |
+| Derivar y cerrar reclamos (`/admin/inicio`)    |          —           |   —    |      ✓       |
+| Dashboard de métricas KPI (`/admin/dashboard`) |          —           |   —    |      ✓       |
 
 ### 6.3. Principales Flujos de Tareas (Task Flows)
 
