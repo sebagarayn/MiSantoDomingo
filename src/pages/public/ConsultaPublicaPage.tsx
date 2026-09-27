@@ -52,6 +52,7 @@ const ConsultaPublicaPage: React.FC = () => {
   const history = useHistory();
   const { isAuthenticated, user, logout } = useAuth();
 
+  // Estados locales para el buscador, el reclamo encontrado y las alertas
   const [folioInput, setFolioInput] = useState("");
   const [report, setReport] = useState<IReport | null>(null);
   const [loading, setLoading] = useState(false);
@@ -60,14 +61,14 @@ const ConsultaPublicaPage: React.FC = () => {
   const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
 
-  // Retorno para cuando se visualiza en PC
+  // Aca calculamos a donde debe volver la flecha en PC: si esta logueado vuelve a su panel, si no al login
   const rutaRegreso = isAuthenticated
     ? user?.rol === "admin"
       ? "/admin/inicio"
       : "/app/inicio"
     : "/login";
 
-  // Busca el reclamo por folio unico en el mock
+  // Esta funcion busca el reclamo en el mock y si ya venia con calificacion previa deja las estrellas listas
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!folioInput.trim()) return;
@@ -85,7 +86,7 @@ const ConsultaPublicaPage: React.FC = () => {
     setLoading(false);
   };
 
-  // Envia calificacion de 1 a 5 estrellas al mock (RF-09)
+  // Envia la calificacion de 1 a 5 estrellas al mock y actualiza la tarjeta al tiro para bloquear los botones (RF-09)
   const handleCalificar = async (puntuacion: number) => {
     if (!report) return;
     setCalificacionTemp(puntuacion);
@@ -94,14 +95,14 @@ const ConsultaPublicaPage: React.FC = () => {
     });
     setToastMsg(`Calificación registrada: ${puntuacion} de 5 estrellas.`);
 
-    // Refresca los datos del reclamo
+    // Refrescamos el reclamo para que la interfaz sepa que ya tiene calificacion guardada
     const actualizado = await reportService.obtenerReclamoPorFolio(
       report.folio,
     );
     setReport(actualizado);
   };
 
-  // Colores limpios para los estados
+  // Asigna los colores limpios de la paleta segun el estado del reclamo
   const getBadgeStyle = (estado: string) => {
     switch (estado) {
       case "Resuelto":
@@ -118,7 +119,7 @@ const ConsultaPublicaPage: React.FC = () => {
 
   return (
     <IonPage>
-      {/* Regla CSS para ocultar la flecha en celular y mostrarla solo en PC */}
+      {/* Metemos estas reglas CSS directas con media queries para asegurarnos de que la barra inferior solo se vea en celular y la flecha volver solo en PC */}
       <style>{`
         @media (max-width: 767px) {
           .solo-desktop { display: none !important; }
@@ -130,7 +131,7 @@ const ConsultaPublicaPage: React.FC = () => {
         }
       `}</style>
 
-      {/* Barra superior institucional */}
+      {/* Barra superior con color azul municipal #0D3B66 */}
       <IonHeader className="ion-no-border">
         <IonToolbar
           style={{
@@ -138,7 +139,7 @@ const ConsultaPublicaPage: React.FC = () => {
             padding: "4px 0",
           }}
         >
-          {/* El boton volver solo se muestra en PC */}
+          {/* En celular la flecha no se muestra porque abajo tenemos la barra de navegacion fija */}
           <IonButtons slot="start" className="solo-desktop">
             <IonBackButton
               defaultHref={rutaRegreso}
@@ -159,6 +160,7 @@ const ConsultaPublicaPage: React.FC = () => {
             Consulta Ciudadana
           </IonTitle>
 
+          {/* Logo oficial dentro de una pastilla blanca limpia a la derecha */}
           <IonButtons slot="end" style={{ paddingRight: "12px" }}>
             <div
               style={{
@@ -184,6 +186,7 @@ const ConsultaPublicaPage: React.FC = () => {
           </IonButtons>
         </IonToolbar>
 
+        {/* Franja tricolor */}
         <div
           style={{
             height: "4px",
@@ -198,7 +201,7 @@ const ConsultaPublicaPage: React.FC = () => {
         <div
           style={{ maxWidth: "640px", margin: "0 auto", paddingBottom: "50px" }}
         >
-          {/* Tarjeta del buscador */}
+          {/* Tarjeta con el buscador de folio */}
           <IonCard
             style={{
               borderRadius: "16px",
@@ -270,7 +273,7 @@ const ConsultaPublicaPage: React.FC = () => {
             </IonCardContent>
           </IonCard>
 
-          {/* Tarjeta de error si no existe el folio */}
+          {/* Tarjeta de error si el folio no existe en el mock */}
           {searched && !loading && !report && (
             <IonCard
               style={{
@@ -305,7 +308,7 @@ const ConsultaPublicaPage: React.FC = () => {
             </IonCard>
           )}
 
-          {/* Detalle completo del reclamo */}
+          {/* Ficha completa del reclamo si fue encontrado */}
           {report && (
             <IonCard
               style={{
@@ -363,7 +366,7 @@ const ConsultaPublicaPage: React.FC = () => {
               </IonCardHeader>
 
               <IonCardContent style={{ padding: "10px 20px 20px 20px" }}>
-                {/* Datos generales */}
+                {/* Datos generales de ubicacion y fecha */}
                 <div
                   style={{
                     display: "flex",
@@ -414,7 +417,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Descripcion */}
+                {/* Descripcion ingresada por el vecino */}
                 <div
                   style={{
                     background: "#F8FAFC",
@@ -443,7 +446,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Plazo legal de 20 dias */}
+                {/* Plazo legal de 20 dias corridos segun el RF-04 */}
                 {report.estado !== "Resuelto" && (
                   <div
                     style={{
@@ -502,7 +505,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Respuesta formal emitida */}
+                {/* Respuesta oficial de la municipalidad si ya fue resuelto */}
                 {report.respuestaFormal && (
                   <div
                     style={{
@@ -528,7 +531,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Calificacion con bloqueo de una unica vez (RF-09) */}
+                {/* Esta seccion de estrellas solo se activa si el reclamo ya fue resuelto (RF-09: una sola vez) */}
                 {report.estado === "Resuelto" && (
                   <div
                     style={{
@@ -600,7 +603,7 @@ const ConsultaPublicaPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Historial de avances */}
+                {/* Linea de tiempo con el historial de avances para la trazabilidad (RNF-05) */}
                 <div
                   style={{
                     borderTop: "1px solid #F1F5F9",
@@ -662,7 +665,7 @@ const ConsultaPublicaPage: React.FC = () => {
           )}
         </div>
 
-        {/* Alerta para confirmar cierre de sesion */}
+        {/* Modal de confirmacion antes de salir para no perder la sesion por un toque accidental */}
         <IonAlert
           isOpen={alertaSalirAbierta}
           onDidDismiss={() => setAlertaSalirAbierta(false)}
@@ -689,7 +692,7 @@ const ConsultaPublicaPage: React.FC = () => {
         />
       </IonContent>
 
-      {/* Barra inferior visible solo en celulares */}
+      {/* Barra inferior fija solo para celulares (en PC se oculta) */}
       <IonFooter className="solo-movil">
         {isAuthenticated && user?.rol === "vecino" ? (
           <IonTabBar

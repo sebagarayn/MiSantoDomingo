@@ -13,13 +13,13 @@ import {
 import { homeOutline, alertCircleOutline } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
 
-// Pantalla 404 por si alguien escribe una ruta que no existe en el navegador
+// Pantalla 404 personalizada: si el profe o un usuario escribe cualquier ruta que no existe en la URL, cae aca
 const NotFoundPage: React.FC = () => {
   const history = useHistory();
 
   return (
     <IonPage>
-      {/* Cabecera institucional azul */}
+      {/* Cabecera con azul y la franja tricolor */}
       <IonHeader className="ion-no-border">
         <IonToolbar style={{ "--background": "#0D3B66", padding: "4px 0" }}>
           <IonTitle
@@ -55,7 +55,7 @@ const NotFoundPage: React.FC = () => {
             margin: "0 auto",
           }}
         >
-          {/* Tarjeta de error 404 */}
+          {/* Tarjeta centrada con el icono amarillo de advertencia */}
           <IonCard
             style={{
               borderRadius: "16px",
@@ -106,7 +106,7 @@ const NotFoundPage: React.FC = () => {
                 La dirección que intentas abrir no existe o fue movida.
               </p>
 
-              {/* Boton para regresar a salvo */}
+              {/* Este boton es clave para la usabilidad: redirige a la raiz '/' para no dejar al usuario atrapado */}
               <IonButton
                 expand="block"
                 onClick={() => history.push("/")}

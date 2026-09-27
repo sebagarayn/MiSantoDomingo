@@ -15,7 +15,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { authService } from "../../services/auth.service";
 
 const LoginPage: React.FC = () => {
-  // Datos del formulario
+  // Estados locales para capturar los datos del formulario y mostrar el modal si fallan las credenciales
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorModal, setErrorModal] = useState<string | null>(null);
@@ -23,20 +23,23 @@ const LoginPage: React.FC = () => {
   const history = useHistory();
   const { login } = useAuth();
 
-  // Envia el login y valida credenciales
+  // Esta funcion valida las credenciales contra nuestro mock de authService
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Buscamos si el correo existe en la lista de prueba
     const usuario = authService.login(email.trim().toLowerCase(), password);
 
+    // Si no lo encuentra, levantamos el modal con la advertencia en amarillo
     if (!usuario) {
       setErrorModal("Correo o usuario incorrecto, intentelo nuevamente.");
       return;
     }
 
+    // Si existe, guardamos la sesion en el contexto global (se sincroniza con localStorage)
     login(usuario.email, password, usuario.rol);
 
-    // Redireccion segun el rol del usuario
+    // Redirigimos al portal que le corresponde segun su rol
     if (usuario.rol === "admin") {
       history.push("/admin/inicio");
     } else {
@@ -57,6 +60,7 @@ const LoginPage: React.FC = () => {
             padding: "20px 10px",
           }}
         >
+          {/* Tarjeta central blanca de inicio de sesion */}
           <IonCard
             style={{
               width: "100%",
@@ -70,7 +74,7 @@ const LoginPage: React.FC = () => {
               padding: "0",
             }}
           >
-            {/* Franja superior tricolor */}
+            {/* Franja tricolor */}
             <div
               style={{
                 height: "5px",
@@ -81,7 +85,7 @@ const LoginPage: React.FC = () => {
             />
 
             <IonCardContent style={{ padding: "24px 20px" }}>
-              {/* Logo e identidad municipal */}
+              {/* Logo institucional y encabezado en mayusculas */}
               <div style={{ textAlign: "center", marginBottom: "24px" }}>
                 <img
                   src="/logo-santodomingo.png"
@@ -121,8 +125,9 @@ const LoginPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* Formulario */}
+              {/* Formulario de acceso */}
               <form onSubmit={handleLogin}>
+                {/* Campo correo */}
                 <div style={{ marginBottom: "14px" }}>
                   <label
                     style={{
@@ -154,6 +159,7 @@ const LoginPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Campo contrasena */}
                 <div style={{ marginBottom: "12px" }}>
                   <label
                     style={{
@@ -185,7 +191,7 @@ const LoginPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Enlace para recuperar clave */}
+                {/* Enlace provisorio de recuperacion (la logica real queda para la EP2) */}
                 <div style={{ textAlign: "right", marginBottom: "18px" }}>
                   <span
                     style={{
@@ -204,7 +210,7 @@ const LoginPage: React.FC = () => {
                   </span>
                 </div>
 
-                {/* Boton principal de acceso */}
+                {/* Boton principal con el azul */}
                 <IonButton
                   expand="block"
                   type="submit"
@@ -220,7 +226,7 @@ const LoginPage: React.FC = () => {
                   Iniciar Sesion
                 </IonButton>
 
-                {/* Boton para ir a registrarse */}
+                {/* Boton secundario para ir al formulario de registro */}
                 <IonButton
                   expand="block"
                   fill="outline"
@@ -238,7 +244,7 @@ const LoginPage: React.FC = () => {
                   Registrarse
                 </IonButton>
 
-                {/* Consulta rapida sin sesion */}
+                {/* Enlace directo para consultar reclamos sin iniciar sesion (cumple con el RF-03) */}
                 <div
                   style={{
                     textAlign: "center",
@@ -264,7 +270,7 @@ const LoginPage: React.FC = () => {
             </IonCardContent>
           </IonCard>
 
-          {/* Modal de error con icono amarillo institucional */}
+          {/* Modal de error si fallan las credenciales con icono amarillo de advertencia */}
           <IonModal
             isOpen={!!errorModal}
             onDidDismiss={() => setErrorModal(null)}
@@ -312,7 +318,7 @@ const LoginPage: React.FC = () => {
                 expand="block"
                 onClick={() => setErrorModal(null)}
                 style={{
-                  "--background": "#1E293B",
+                  "--background": "#0D3B66",
                   "--border-radius": "8px",
                   height: "40px",
                   fontWeight: 600,

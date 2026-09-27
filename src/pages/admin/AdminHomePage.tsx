@@ -35,7 +35,7 @@ import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
 import AdminSidebar from "../../components/AdminSidebar";
 
-// Unidades para el filtro de la tabla
+// Las 5 unidades para filtrar la tabla (incluyendo OIRS Central que es donde llegan primero los reclamos)
 const UNIDADES_FILTRO = [
   "OIRS Central",
   "Obras municipales",
@@ -44,7 +44,7 @@ const UNIDADES_FILTRO = [
   "Desarrollo comunitario",
 ];
 
-// Unidades de destino para derivar un reclamo
+// Las 4 unidades tecnicas a las que el funcionario puede derivar un reclamo
 const UNIDADES_DERIVACION = [
   "Obras municipales",
   "Salud",
@@ -52,7 +52,7 @@ const UNIDADES_DERIVACION = [
   "Desarrollo comunitario",
 ];
 
-// Categorias oficiales que definimos en el Figma
+// Las 6 categorias oficiales de Santo Domingo que definimos en el Figma
 const CATEGORIAS_OFICIALES = [
   "Alumbrado público",
   "Aseo y ornato",
@@ -66,18 +66,18 @@ const AdminHomePage: React.FC = () => {
   const history = useHistory();
   const { logout } = useAuth();
 
-  // Estados para datos y filtros
+  // Estados locales para guardar los reclamos y los filtros seleccionados
   const [reclamos, setReclamos] = useState<IReport[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("todos");
   const [filtroUnidad, setFiltroUnidad] = useState("todos");
 
-  // Reclamo seleccionado para ver detalle
+  // Reclamo seleccionado para abrir la ficha de detalle
   const [reclamoSeleccionado, setReclamoSeleccionado] =
     useState<IReport | null>(null);
   const [modalDetalleAbierto, setModalDetalleAbierto] = useState(false);
 
-  // Subflujos de derivacion y cierre formal
+  // Variables para controlar los pasos modales de derivacion y cierre formal
   const [pasoDerivacion, setPasoDerivacion] = useState<
     "none" | "elegir_unidad" | "motivo" | "exito"
   >("none");
@@ -89,11 +89,11 @@ const AdminHomePage: React.FC = () => {
   >("none");
   const [descripcionCierre, setDescripcionCierre] = useState("");
 
-  // Alertas y mensajes
+  // Alerta de seguridad y mensajes toast
   const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
 
-  // Carga los reclamos del mock al montar la vista
+  // Leemos todos los reclamos del servicio asincrono apenas arranca la pantalla
   const cargarDatos = async () => {
     const data = await reportService.obtenerReclamos();
     setReclamos(data);
@@ -103,7 +103,7 @@ const AdminHomePage: React.FC = () => {
     cargarDatos();
   }, []);
 
-  // Filtra por categoria, unidad o busqueda de texto
+  // Esta funcion filtra en tiempo real la tabla segun la categoria, unidad o texto que escriba el funcionario (RF-06)
   const reclamosFiltrados = reclamos.filter((r) => {
     const matchCat =
       filtroCategoria === "todos" || r.categoria === filtroCategoria;
@@ -117,7 +117,7 @@ const AdminHomePage: React.FC = () => {
     return matchCat && matchUni && matchTxt;
   });
 
-  // Abre el modal con la ficha del reclamo
+  // Abre el modal con todos los antecedentes del reclamo seleccionado
   const abrirDetalle = (r: IReport) => {
     setReclamoSeleccionado(r);
     setPasoDerivacion("none");
@@ -125,7 +125,7 @@ const AdminHomePage: React.FC = () => {
     setModalDetalleAbierto(true);
   };
 
-  // Guarda la derivacion en el servicio
+  // Guarda la derivacion en el mock y pasa a la pantalla de SUCCESS (RF-07)
   const handleConfirmarDerivacion = async () => {
     if (!reclamoSeleccionado || !unidadElegida || !motivoDerivacion.trim()) {
       setToastMsg("Debe ingresar el motivo de la derivación.");
@@ -147,7 +147,7 @@ const AdminHomePage: React.FC = () => {
     cargarDatos();
   };
 
-  // Guarda la respuesta formal y cierra el reclamo
+  // Guarda la respuesta formal del municipio, cambia el estado a Resuelto y pasa a SUCCESS (RF-08)
   const handleConfirmarCierre = async () => {
     if (!reclamoSeleccionado || !descripcionCierre.trim()) {
       setToastMsg("Debe ingresar la descripción formal del cierre.");
@@ -169,7 +169,7 @@ const AdminHomePage: React.FC = () => {
     cargarDatos();
   };
 
-  // Colores para los estados
+  // Asigna los colores semanticos a los badges de estado
   const getBadgeStyle = (estado: string) => {
     switch (estado) {
       case "Resuelto":
@@ -186,7 +186,7 @@ const AdminHomePage: React.FC = () => {
 
   return (
     <IonPage>
-      {/* Cabecera solo para celulares, en PC se oculta */}
+      {/* En celular mostramos esta cabecera azul; en PC se oculta porque la barra lateral toma el control */}
       <IonHeader className="ion-no-border ion-hide-md-up">
         <IonToolbar style={{ "--background": "#0D3B66", padding: "4px 0" }}>
           <IonTitle
@@ -226,7 +226,7 @@ const AdminHomePage: React.FC = () => {
       </IonHeader>
 
       <IonContent style={{ "--background": "#F8FAFC" }}>
-        {/* Contenedor Flex: barra lateral en PC y tabla a la derecha */}
+        {/* Contenedor Flex: en PC se muestra AdminSidebar a la izquierda y la tabla a la derecha */}
         <div style={{ display: "flex", minHeight: "100%" }}>
           <AdminSidebar />
 
@@ -239,7 +239,7 @@ const AdminHomePage: React.FC = () => {
               boxSizing: "border-box",
             }}
           >
-            {/* Titulo y barra de filtros */}
+            {/* Titulo y barra con buscador y filtros combinables */}
             <div
               style={{
                 display: "flex",
@@ -274,7 +274,7 @@ const AdminHomePage: React.FC = () => {
                   flexWrap: "wrap",
                 }}
               >
-                {/* Buscador de texto */}
+                {/* Buscador rapido por folio o texto */}
                 <div
                   style={{
                     width: "200px",
@@ -292,7 +292,7 @@ const AdminHomePage: React.FC = () => {
                   />
                 </div>
 
-                {/* Filtro de categorias oficiales */}
+                {/* Filtro por categoria oficial */}
                 <div
                   style={{
                     background: "#FFFFFF",
@@ -322,7 +322,7 @@ const AdminHomePage: React.FC = () => {
                   </IonSelect>
                 </div>
 
-                {/* Filtro de unidades sincronizadas */}
+                {/* Filtro por unidad municipal */}
                 <div
                   style={{
                     background: "#FFFFFF",
@@ -354,7 +354,7 @@ const AdminHomePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Tabla de reclamos */}
+            {/* Tabla con la lista de reclamos */}
             <IonCard
               style={{
                 borderRadius: "16px",
@@ -500,7 +500,7 @@ const AdminHomePage: React.FC = () => {
           </main>
         </div>
 
-        {/* Modal: Detalle del reclamo */}
+        {/* Modal: Ficha con el detalle completo del reclamo */}
         <IonModal
           isOpen={modalDetalleAbierto}
           onDidDismiss={() => setModalDetalleAbierto(false)}
@@ -541,6 +541,7 @@ const AdminHomePage: React.FC = () => {
             style={{ "--background": "#F8FAFC" }}
           >
             <div style={{ maxWidth: "640px", margin: "0 auto" }}>
+              {/* Tarjeta con los antecedentes del reclamo y botones de accion */}
               {pasoDerivacion === "none" &&
                 pasoCierre === "none" &&
                 reclamoSeleccionado && (
@@ -726,6 +727,7 @@ const AdminHomePage: React.FC = () => {
                           </span>
                         </div>
 
+                        {/* Muestra la respuesta si ya esta resuelto */}
                         {reclamoSeleccionado.respuestaFormal && (
                           <div
                             style={{
@@ -755,7 +757,7 @@ const AdminHomePage: React.FC = () => {
                       </IonCardContent>
                     </IonCard>
 
-                    {/* Acciones principales de gestion */}
+                    {/* Botones de accion para derivar o cerrar reclamo */}
                     {reclamoSeleccionado.estado !== "Resuelto" ? (
                       <div style={{ display: "flex", gap: "12px" }}>
                         <IonButton
@@ -809,7 +811,7 @@ const AdminHomePage: React.FC = () => {
                   </div>
                 )}
 
-              {/* Subflujo derivacion: Seleccionar unidad de destino */}
+              {/* Subflujo derivacion: 1. Seleccionar la unidad de destino */}
               {pasoDerivacion === "elegir_unidad" && (
                 <div style={{ textAlign: "center" }}>
                   <h3
@@ -879,7 +881,7 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* Subflujo derivacion: Redactar motivo */}
+              {/* Subflujo derivacion: 2. Redactar el motivo obligatorio */}
               {pasoDerivacion === "motivo" && (
                 <div>
                   <h3
@@ -950,7 +952,7 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* Success de la derivacion */}
+              {/* Pantalla SUCCESS de la derivacion */}
               {pasoDerivacion === "exito" && (
                 <div style={{ textAlign: "center", padding: "24px 10px" }}>
                   <IonIcon
@@ -994,7 +996,7 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* Subflujo cierre: Respuesta formal */}
+              {/* Subflujo cierre: Redactar respuesta formal obligatoria (RF-08) */}
               {pasoCierre === "descripcion" && (
                 <div>
                   <h3
@@ -1063,7 +1065,7 @@ const AdminHomePage: React.FC = () => {
                 </div>
               )}
 
-              {/* Success de cierre */}
+              {/* Pantalla SUCCESS del cierre formal */}
               {pasoCierre === "exito" && (
                 <div style={{ textAlign: "center", padding: "24px 10px" }}>
                   <IonIcon
@@ -1108,7 +1110,7 @@ const AdminHomePage: React.FC = () => {
           </IonContent>
         </IonModal>
 
-        {/* Alerta de confirmacion de salida */}
+        {/* Modal de confirmacion antes de cerrar sesion */}
         <IonAlert
           isOpen={alertaSalirAbierta}
           onDidDismiss={() => setAlertaSalirAbierta(false)}
@@ -1135,7 +1137,7 @@ const AdminHomePage: React.FC = () => {
         />
       </IonContent>
 
-      {/* Barra inferior visible solo en celular (Admin movil) */}
+      {/* Barra inferior de navegacion fija solo en celular */}
       <IonFooter className="ion-hide-md-up">
         <IonTabBar
           slot="bottom"
@@ -1167,7 +1169,7 @@ const AdminHomePage: React.FC = () => {
             </IonLabel>
           </IonTabButton>
 
-          {/* Pestana 3: Salir con alerta */}
+          {/* Pestana 3: Salir con confirmacion */}
           <IonTabButton tab="salir" onClick={() => setAlertaSalirAbierta(true)}>
             <IonIcon icon={logOutOutline} style={{ color: "#64748B" }} />
             <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>

@@ -54,7 +54,7 @@ import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
 import VecinoSidebar from "../../components/VecinoSidebar";
 
-// Categorias que aparecian en el Figma
+// Las 6 categorias oficiales del Figma movil
 const CATEGORIAS_FIGMA = [
   "Alumbrado público",
   "Aseo y ornato",
@@ -69,6 +69,7 @@ const VecinoHomePage: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
 
+  // Manejamos 3 vistas con este estado ('mis_reclamos', 'nuevo' y 'consulta') para no perder la barra lateral en PC
   const [vistaActiva, setVistaActiva] = useState<
     "mis_reclamos" | "nuevo" | "consulta"
   >("mis_reclamos");
@@ -78,17 +79,17 @@ const VecinoHomePage: React.FC = () => {
     null,
   );
 
-  // Detalle del reclamo seleccionado
+  // Detalle del reclamo seleccionado al presionar una tarjeta
   const [reclamoDetalle, setReclamoDetalle] = useState<IReport | null>(null);
   const [calificacionTemp, setCalificacionTemp] = useState<number>(0);
 
-  // Consulta por folio integrada
+  // Estados para la consulta por folio integrada
   const [folioConsulta, setFolioConsulta] = useState("");
   const [reporteConsulta, setReporteConsulta] = useState<IReport | null>(null);
   const [busquedaRealizada, setBusquedaRealizada] = useState(false);
   const [cargandoConsulta, setCargandoConsulta] = useState(false);
 
-  // Alertas
+  // Modales de alerta para salida y descarte de borrador
   const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
   const [alertaDescarteAbierta, setAlertaDescarteAbierta] = useState(false);
   const [destinoPendiente, setDestinoPendiente] = useState<
@@ -97,16 +98,18 @@ const VecinoHomePage: React.FC = () => {
 
   const [toastMsg, setToastMsg] = useState("");
 
-  // Formulario nuevo reclamo (RF-01)
+  // Variables del formulario para ingresar reclamo (RF-01)
   const [categoria, setCategoria] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [ubicacion, setUbicacion] = useState("");
   const [fotoSimulada, setFotoSimulada] = useState(false);
 
+  // Revisa si la vecina ya escribio algo en el formulario para activar la guardia preventiva
   const formularioTieneDatos = Boolean(
     categoria || descripcion.trim() || ubicacion.trim() || fotoSimulada,
   );
 
+  // Trae los reclamos del mock y filtra solo los que creo Maria Gonzalez
   const cargarReclamos = async () => {
     const data = await reportService.obtenerReclamos();
     setReclamos(
@@ -118,7 +121,7 @@ const VecinoHomePage: React.FC = () => {
     cargarReclamos();
   }, []);
 
-  // Lee el parametro si viene desde otra pantalla
+  // Si la persona venia navegando desde otra seccion con ?tab=nuevo, abrimos el formulario de una
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("tab") === "nuevo") {
@@ -126,7 +129,7 @@ const VecinoHomePage: React.FC = () => {
     }
   }, [location.search]);
 
-  // Guardia de navegacion inteligente
+  // Guardia de navegacion: si la persona escribio en el formulario y toca otra pestana, le preguntamos antes de borrar (RNF-04)
   const navegarConGuardia = (
     destino: "mis_reclamos" | "nuevo" | "consulta" | "salir",
   ) => {
@@ -149,6 +152,7 @@ const VecinoHomePage: React.FC = () => {
     ejecutarNavegacion(destino);
   };
 
+  // Si confirma el descarte, limpiamos el borrador y cambiamos de vista limpiamente
   const ejecutarNavegacion = (
     destino: "mis_reclamos" | "nuevo" | "consulta" | "salir",
   ) => {
@@ -170,7 +174,7 @@ const VecinoHomePage: React.FC = () => {
     }
   };
 
-  // Envia el nuevo reclamo al mock
+  // Envia el nuevo reclamo al servicio mock y lo agrega arriba de la lista reactiva
   const handleEnviarReclamo = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoria || !descripcion.trim() || !ubicacion.trim()) {
@@ -209,12 +213,13 @@ const VecinoHomePage: React.FC = () => {
     cargarReclamos();
   };
 
+  // Abre el modal con la informacion y seguimiento del reclamo
   const abrirDetalleReclamo = (r: IReport) => {
     setReclamoDetalle(r);
     setCalificacionTemp(r.calificacion || 0);
   };
 
-  // Califica desde el modal de detalle
+  // Califica la atencion desde el modal de detalle y refresca la vista
   const handleCalificarDesdeDetalle = async (puntuacion: number) => {
     if (!reclamoDetalle) return;
     setCalificacionTemp(puntuacion);
@@ -232,7 +237,7 @@ const VecinoHomePage: React.FC = () => {
     cargarReclamos();
   };
 
-  // Califica desde la seccion de consulta de folio
+  // Califica la atencion desde la seccion de consulta de folio
   const handleCalificarDesdeConsulta = async (puntuacion: number) => {
     if (!reporteConsulta) return;
     await reportService.calificarRespuesta(reporteConsulta.folio, {
@@ -247,7 +252,7 @@ const VecinoHomePage: React.FC = () => {
     cargarReclamos();
   };
 
-  // Buscador de folio integrado
+  // Busca el folio dentro de la vista integrada del vecino
   const handleBuscarFolioIntegrado = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!folioConsulta.trim()) return;
@@ -275,7 +280,7 @@ const VecinoHomePage: React.FC = () => {
 
   return (
     <IonPage>
-      {/* Barra superior en celular */}
+      {/* En celular mostramos esta barra superior; en PC se oculta porque la barra lateral toma el control */}
       <IonHeader className="ion-no-border ion-hide-md-up">
         <IonToolbar style={{ "--background": "#0D3B66", padding: "4px 0" }}>
           <IonTitle
@@ -305,6 +310,7 @@ const VecinoHomePage: React.FC = () => {
       </IonHeader>
 
       <IonContent style={{ "--background": "#F8FAFC" }}>
+        {/* Contenedor Flex: en PC se muestra la barra lateral VecinoSidebar a la izquierda y el contenido a la derecha */}
         <div style={{ display: "flex", minHeight: "100%" }}>
           <VecinoSidebar
             vistaActiva={vistaActiva}
@@ -320,7 +326,7 @@ const VecinoHomePage: React.FC = () => {
               boxSizing: "border-box",
             }}
           >
-            {/* VISTA 1: LISTADO DE MIS RECLAMOS */}
+            {/* VISTA 1: LISTADO DE MIS RECLAMOS                          */}
             {vistaActiva === "mis_reclamos" && (
               <div>
                 <div
@@ -523,7 +529,7 @@ const VecinoHomePage: React.FC = () => {
               </div>
             )}
 
-            {/* VISTA 2: FORMULARIO DE NUEVO RECLAMO */}
+            {/* VISTA 2: FORMULARIO DE NUEVO RECLAMO                      */}
             {vistaActiva === "nuevo" && (
               <div>
                 {!reclamoCreadoExito ? (
@@ -562,6 +568,7 @@ const VecinoHomePage: React.FC = () => {
                       </div>
 
                       <form onSubmit={handleEnviarReclamo}>
+                        {/* Selector de categorias oficiales */}
                         <div style={{ marginBottom: "14px" }}>
                           <label
                             style={{
@@ -597,6 +604,7 @@ const VecinoHomePage: React.FC = () => {
                           </IonItem>
                         </div>
 
+                        {/* Descripcion con contador de 500 caracteres maximo */}
                         <div style={{ marginBottom: "14px" }}>
                           <div
                             style={{
@@ -645,6 +653,7 @@ const VecinoHomePage: React.FC = () => {
                           </IonItem>
                         </div>
 
+                        {/* Campo direccion */}
                         <div style={{ marginBottom: "14px" }}>
                           <label
                             style={{
@@ -673,6 +682,7 @@ const VecinoHomePage: React.FC = () => {
                           </IonItem>
                         </div>
 
+                        {/* Adjunto de foto opcional (RF-01) */}
                         <div style={{ marginBottom: "22px" }}>
                           <label
                             style={{
@@ -717,6 +727,7 @@ const VecinoHomePage: React.FC = () => {
                           </IonButton>
                         </div>
 
+                        {/* Boton principal para enviar el reclamo */}
                         <IonButton
                           expand="block"
                           type="submit"
@@ -734,6 +745,7 @@ const VecinoHomePage: React.FC = () => {
                     </IonCardContent>
                   </IonCard>
                 ) : (
+                  /* Comprobante de confirmacion con el folio generado (RF-02) */
                   <div
                     className="ion-text-center"
                     style={{ padding: "20px 10px" }}
@@ -827,7 +839,7 @@ const VecinoHomePage: React.FC = () => {
               </div>
             )}
 
-            {/* VISTA 3: CONSULTAR FOLIO (CON ESTRELLAS INTERACTIVAS RF-09) */}
+            {/* VISTA 3: CONSULTAR FOLIO (CON ESTRELLAS INTERACTIVAS RF-09)*/}
             {vistaActiva === "consulta" && (
               <div>
                 <IonCard
@@ -908,7 +920,7 @@ const VecinoHomePage: React.FC = () => {
                   </IonCardContent>
                 </IonCard>
 
-                {/* Si no se encuentra */}
+                {/* Si no se encuentra el folio en el mock */}
                 {busquedaRealizada && !cargandoConsulta && !reporteConsulta && (
                   <IonCard
                     style={{
@@ -950,7 +962,7 @@ const VecinoHomePage: React.FC = () => {
                   </IonCard>
                 )}
 
-                {/* Resultado de la busqueda */}
+                {/* Ficha del reclamo consultado */}
                 {reporteConsulta && (
                   <IonCard
                     style={{
@@ -1093,6 +1105,7 @@ const VecinoHomePage: React.FC = () => {
                         </p>
                       </div>
 
+                      {/* Plazo legal de 20 dias (RF-04) */}
                       {reporteConsulta.estado !== "Resuelto" && (
                         <div
                           style={{
@@ -1159,7 +1172,7 @@ const VecinoHomePage: React.FC = () => {
                         </div>
                       )}
 
-                      {/* Calificacion en la consulta integrada (RF-09: una unica vez) */}
+                      {/* Calificacion en la consulta integrada bloqueada a una sola vez (RF-09) */}
                       {reporteConsulta.estado === "Resuelto" && (
                         <div
                           style={{

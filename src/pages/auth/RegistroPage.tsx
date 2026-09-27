@@ -14,7 +14,7 @@ import { useHistory } from "react-router-dom";
 import { alertCircleOutline } from "ionicons/icons";
 
 const RegistroPage: React.FC = () => {
-  // Variables locales del formulario
+  // Variables locales del formulario para capturar los datos y controlar las alertas
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -24,17 +24,17 @@ const RegistroPage: React.FC = () => {
 
   const history = useHistory();
 
-  // Valida cada campo por separado antes de simular el registro
+  // Validamos cada campo por separado para que la alerta le diga al usuario exactamente que le falto
   const handleRegistro = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Primero validar nombre completo
+    // 1. Revisamos que el nombre no venga vacio ni con puros espacios
     if (!nombre.trim()) {
       setErrorModal("Por favor ingrese su nombre completo.");
       return;
     }
 
-    // Validar correo y su formato
+    // 2. Revisamos el correo y exigimos que tenga '@' y un punto para que sea un formato valido
     if (!email.trim()) {
       setErrorModal("Por favor ingrese su correo electrónico.");
       return;
@@ -46,7 +46,7 @@ const RegistroPage: React.FC = () => {
       return;
     }
 
-    // Validar contrasena y largo minimo
+    // 3. Revisamos la contrasena y exigimos un largo minimo de 6 caracteres por seguridad
     if (!password.trim()) {
       setErrorModal("Por favor ingrese una contraseña.");
       return;
@@ -58,7 +58,7 @@ const RegistroPage: React.FC = () => {
       return;
     }
 
-    // Si pasa todas las validaciones simulamos el alta
+    // Si pasa todas las validaciones simulamos el alta con un toast y lo mandamos al login
     setToastMsg("Cuenta creada con éxito. Redirigiendo al inicio de sesión...");
     setTimeout(() => {
       history.push("/login");
@@ -78,6 +78,7 @@ const RegistroPage: React.FC = () => {
             padding: "20px 10px",
           }}
         >
+          {/* Tarjeta central blanca de registro */}
           <IonCard
             style={{
               width: "100%",
@@ -102,7 +103,7 @@ const RegistroPage: React.FC = () => {
             />
 
             <IonCardContent style={{ padding: "24px 20px" }}>
-              {/* Logo institucional */}
+              {/* Logo institucional y encabezado */}
               <div style={{ textAlign: "center", marginBottom: "22px" }}>
                 <img
                   src="/logo-santodomingo.png"
@@ -142,8 +143,9 @@ const RegistroPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* Formulario */}
+              {/* Formulario de registro */}
               <form onSubmit={handleRegistro}>
+                {/* Campo nombre completo */}
                 <div style={{ marginBottom: "12px" }}>
                   <label
                     style={{
@@ -173,6 +175,7 @@ const RegistroPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Campo correo electronico */}
                 <div style={{ marginBottom: "12px" }}>
                   <label
                     style={{
@@ -203,6 +206,7 @@ const RegistroPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Campo telefono: lo dejamos opcional para cumplir con no pedir datos innecesarios segun la pauta */}
                 <div style={{ marginBottom: "12px" }}>
                   <label
                     style={{
@@ -233,6 +237,7 @@ const RegistroPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Campo contrasena con largo minimo indicado */}
                 <div style={{ marginBottom: "18px" }}>
                   <label
                     style={{
@@ -263,7 +268,7 @@ const RegistroPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Boton crear cuenta */}
+                {/* Boton principal en azul */}
                 <IonButton
                   expand="block"
                   type="submit"
@@ -279,7 +284,7 @@ const RegistroPage: React.FC = () => {
                   Crear Cuenta
                 </IonButton>
 
-                {/* Enlace para volver */}
+                {/* Enlace para volver al login */}
                 <IonButton
                   expand="block"
                   fill="clear"
@@ -297,7 +302,7 @@ const RegistroPage: React.FC = () => {
             </IonCardContent>
           </IonCard>
 
-          {/* Modal con mensaje de error */}
+          {/* Modal con mensaje de error si falta algun campo obligatorio */}
           <IonModal
             isOpen={!!errorModal}
             onDidDismiss={() => setErrorModal(null)}

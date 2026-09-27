@@ -42,17 +42,21 @@ const Dashboard: React.FC = () => {
   const history = useHistory();
   const { logout } = useAuth();
 
+  // Estados locales para los reclamos, el periodo seleccionado y la alerta de salida
   const [reclamos, setReclamos] = useState<IReport[]>([]);
   const [periodo, setPeriodo] = useState("30dias");
   const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
 
+  // Leemos todos los reclamos del mock apenas arranca la vista para calcular las metricas
   useEffect(() => {
     reportService.obtenerReclamos().then(setReclamos);
   }, []);
 
+  // Calculo de los 3 KPIs en tiempo real a partir de los datos cargados (RF-10)
   const totalIngresados = reclamos.length;
   const resueltos = reclamos.filter((r) => r.estado === "Resuelto").length;
 
+  // Detecta reclamos con mas de 20 dias corridos sin resolver usando la funcion del servicio
   const vencidos = reclamos.filter(
     (r) =>
       r.estado !== "Resuelto" &&
@@ -62,6 +66,7 @@ const Dashboard: React.FC = () => {
   const tasaResolucion =
     totalIngresados > 0 ? Math.round((resueltos / totalIngresados) * 100) : 0;
 
+  // Agrupamos el conteo por categoria para dibujar las barras del grafico
   const categoriasConteo: { [key: string]: number } = {};
   reclamos.forEach((r) => {
     const cat = r.categoria || "Otros";
@@ -70,7 +75,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <IonPage>
-      {/* Cabecera para celular */}
+      {/* En celular mostramos esta cabecera azul chica; en PC se oculta porque el AdminSidebar toma el control */}
       <IonHeader className="ion-no-border ion-hide-md-up">
         <IonToolbar style={{ "--background": "#0D3B66", padding: "4px 0" }}>
           <IonTitle
@@ -110,6 +115,7 @@ const Dashboard: React.FC = () => {
       </IonHeader>
 
       <IonContent style={{ "--background": "#F8FAFC" }}>
+        {/* Contenedor Flex: en PC se muestra AdminSidebar a la izquierda y el dashboard a la derecha */}
         <div style={{ display: "flex", minHeight: "100%" }}>
           <AdminSidebar />
 
@@ -122,7 +128,7 @@ const Dashboard: React.FC = () => {
               boxSizing: "border-box",
             }}
           >
-            {/* Cabecera y selector de periodo */}
+            {/* Cabecera y selector de periodo temporal (RF-10) */}
             <div
               style={{
                 display: "flex",
@@ -149,7 +155,7 @@ const Dashboard: React.FC = () => {
                 </p>
               </div>
 
-              {/* Filtro de rango temporal */}
+              {/* Filtro de rango temporal para simular periodos en el dashboard */}
               <div
                 style={{
                   background: "#FFFFFF",
@@ -188,13 +194,13 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Tarjetas KPI superiores */}
+            {/* Las 3 tarjetas de KPIs principales que pide el RF-10 y el Figma de Vicente */}
             <IonGrid
               className="ion-no-padding"
               style={{ marginBottom: "20px" }}
             >
               <IonRow>
-                {/* KPI 1 */}
+                {/* KPI 1: Volumen total de reclamos ingresados */}
                 <IonCol size="12" sizeMd="4">
                   <IonCard
                     style={{
@@ -246,7 +252,7 @@ const Dashboard: React.FC = () => {
                   </IonCard>
                 </IonCol>
 
-                {/* KPI 2 */}
+                {/* KPI 2: Tiempo promedio de respuesta municipal */}
                 <IonCol size="12" sizeMd="4">
                   <IonCard
                     style={{
@@ -297,7 +303,7 @@ const Dashboard: React.FC = () => {
                   </IonCard>
                 </IonCol>
 
-                {/* KPI 3 */}
+                {/* KPI 3: Reclamos vencidos fuera de los 20 dias legales (se pinta en rojo si hay alertas) */}
                 <IonCol size="12" sizeMd="4">
                   <IonCard
                     style={{
@@ -354,7 +360,7 @@ const Dashboard: React.FC = () => {
               </IonRow>
             </IonGrid>
 
-            {/* Grafico de barras */}
+            {/* Grafico de barras con alturas calculadas en px para que se vea identico en cualquier navegador */}
             <IonCard
               style={{
                 borderRadius: "16px",
@@ -418,6 +424,7 @@ const Dashboard: React.FC = () => {
                     </p>
                   ) : (
                     Object.entries(categoriasConteo).map(([cat, count]) => {
+                      // Calculamos la altura en px entre 45px y 170px para que las barras no colapsen a 0 en flexbox
                       const alturaPx = Math.max(
                         45,
                         Math.min(
@@ -463,6 +470,7 @@ const Dashboard: React.FC = () => {
                   )}
                 </div>
 
+                {/* Etiquetas de categorias debajo de cada barra */}
                 <div
                   style={{
                     display: "flex",
@@ -490,7 +498,7 @@ const Dashboard: React.FC = () => {
           </main>
         </div>
 
-        {/* Alerta de salida */}
+        {/* Modal de confirmacion antes de cerrar sesion */}
         <IonAlert
           isOpen={alertaSalirAbierta}
           onDidDismiss={() => setAlertaSalirAbierta(false)}
@@ -510,7 +518,7 @@ const Dashboard: React.FC = () => {
         />
       </IonContent>
 
-      {/* Barra inferior solo para los celulares (Admin movil) */}
+      {/* Barra inferior fija solo para celulares (Admin movil) */}
       <IonFooter className="ion-hide-md-up">
         <IonTabBar
           slot="bottom"
@@ -542,7 +550,7 @@ const Dashboard: React.FC = () => {
             </IonLabel>
           </IonTabButton>
 
-          {/* Pestana 3: Salir */}
+          {/* Pestana 3: Salir con confirmacion */}
           <IonTabButton tab="salir" onClick={() => setAlertaSalirAbierta(true)}>
             <IonIcon icon={logOutOutline} style={{ color: "#64748B" }} />
             <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
