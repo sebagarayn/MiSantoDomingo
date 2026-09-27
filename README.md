@@ -11,17 +11,17 @@
 
 1. [Identificación de los integrantes del equipo y sus roles](#1-identificacion-de-los-integrantes-del-equipo-y-sus-roles)
 2. [Distribución de responsabilidades](#2-distribucion-de-responsabilidades)
-3. [Descripción general del sistema y problema que aborda](#3-descripcion-general-del-sistema-y-problema-que-aborda)
-4. [Caracterización de usuarios y proto-personas](#4-caracterizacion-de-usuarios-y-proto-personas)
+3. [Descripción general del sistema y problema que aborda](#3-descripción-general-del-sistema-y-problema-que-aborda)
+4. [Caracterización de usuarios y proto-personas](#4-caracterización-de-usuarios-y-proto-personas)
 5. [Requerimientos del sistema](#5-requerimientos-del-sistema)
-6. [Arquitectura de navegación y experiencia de usuario](#6-arquitectura-de-navegacion-y-experiencia-de-usuario)
+6. [Arquitectura de navegación y experiencia de usuario](#6-arquitectura-de-navegación-y-experiencia-de-usuario)
 7. [Prototipos UI/UX en Figma](#7-prototipos-uiux-en-figma)
-8. [Tecnologías y herramientas utilizadas](#8-tecnologias-y-herramientas-utilizadas)
+8. [Tecnologías y herramientas utilizadas](#8-tecnologías-y-herramientas-utilizadas)
 9. [Estructura del Proyecto](#9-estructura-del-proyecto)
-10. [Instrucciones de instalación y configuración](#10-instrucciones-de-instalacion-y-configuracion)
-11. [Instrucciones de ejecución y uso](#11-instrucciones-de-ejecucion-y-uso)
-12. [Imágenes de la aplicación en ejecución](#12-imagenes-de-la-aplicacion-en-ejecucion)
-13. [Bibliografía y uso de IA](#13-bibliografia-y-uso-de-ia)
+10. [Instrucciones de instalación y configuración](#10-instrucciones-de-instalación-y-configuración)
+11. [Instrucciones de ejecución y uso](#11-instrucciones-de-ejecución-y-uso)
+12. [Imágenes de la aplicación en ejecución](#12-imagenes-de-la-aplicación-en-ejecución)
+13. [Bibliografía y uso de IA](#13-bibliografía-y-uso-de-ia)
 
 ---
 
@@ -490,7 +490,7 @@ npm run build
 
 ---
 
-### 13. Bibliografía y uso de IA
+## 13. Bibliografía y uso de IA
 
 - **BIBLIOGRAFÍA**
 
