@@ -178,7 +178,7 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 
 **RF-09 Calificación Ciudadana Única** : El sistema deberá permitir al vecino evaluar la solución municipal en una escala de 1 a 5 estrellas, bloqueando la votación tras el primer envío para asegurar que se vote una única vez por reclamo resuelto.
 
-**RF-10 Dashboard de Indicadores KPI** : El sistema deberá desplegar un panel de métricas en tiempo real con el volumen total de solicitudes, el tiempo promedio de respuesta comunal, el recuento de casos vencidos y un gráfico de barras por categoría con filtro por período.
+**RF-10 Dashboard de Indicadores KPI**: El sistema deberá desplegar un panel de métricas con el volumen total de solicitudes ingresadas, el recuento de casos vencidos fuera del plazo legal de 20 días y un gráfico de barras comparativo del volumen por categoría de reclamo.
 
 **Para la Entrega 2:**
 
@@ -199,6 +199,10 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 **RNF-06 (Adaptabilidad Responsiva)**: La aplicación debe ofrecer una experiencia adaptada según el dispositivo: barra de navegación inferior en dispositivos móviles y menú lateral colapsable en escritorio.
 
 **RNF-07 (Rendimiento)**: La aplicación deberá garantizar un tiempo de respuesta inferior a 3 segundos en la renderización de listas de reclamos y filtrado dinámico en dispositivos móviles y navegadores web estándar.
+
+### 5.3. Justificación del formulario de registro
+
+Se solicita nombre y correo para la identificación única del vecino y futura recuperación de clave. El teléfono se incluye como campo opcional anticipando la integración con notificaciones (EP2) para avisos de cuadrillas municipales. Se evita solicitar datos sensibles como RUT o dirección exacta en el registro para respetar la privacidad y minimizar la fricción de ingreso (RNF-01).
 
 ---
 
