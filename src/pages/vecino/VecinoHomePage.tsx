@@ -109,12 +109,10 @@ const VecinoHomePage: React.FC = () => {
     categoria || descripcion.trim() || ubicacion.trim() || fotoSimulada,
   );
 
-  // Trae los reclamos del mock y filtra solo los que creo Maria Gonzalez
+  // Carga estrictamente los reclamos del vecino conectado para cumplir privacidad (RNF-03)
   const cargarReclamos = async () => {
     const data = await reportService.obtenerReclamos();
-    setReclamos(
-      data.filter((r) => r.creadorId === user?.id || r.origen === "usuario"),
-    );
+    setReclamos(data.filter((r) => r.creadorId === user?.id));
   };
 
   useEffect(() => {

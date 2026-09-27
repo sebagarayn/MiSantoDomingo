@@ -180,7 +180,9 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 
 **RF-10 Dashboard de Indicadores KPI** : El sistema deberá desplegar un panel de métricas en tiempo real con el volumen total de solicitudes, el tiempo promedio de respuesta comunal, el recuento de casos vencidos y un gráfico de barras por categoría con filtro por período.
 
-**RF-11 Reportes Periódicos de Gestión**: El sistema deberá permitir consolidar el porcentaje de resolución de reclamos dentro del plazo legal y desglosar el volumen mensual para auditoría municipal.
+**Para la Entrega 2:**
+
+**RF-11**: La funcionalidad de exportación y descarga de reportes periódicos en formatos PDF/CSV (RF-11) se integrará formalmente una vez conectado el servidor y la base de datos relacional.
 
 ### 5.2. Requerimientos no funcionales (RNF)
 
@@ -195,6 +197,8 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 **RNF-05 (Trazabilidad)**: Toda actualización de estado debe registrar fecha, hora y responsable de la acción de forma inmutable en el historial.
 
 **RNF-06 (Adaptabilidad Responsiva)**: La aplicación debe ofrecer una experiencia adaptada según el dispositivo: barra de navegación inferior en dispositivos móviles y menú lateral colapsable en escritorio.
+
+**RNF-07 (Rendimiento)**: La aplicación deberá garantizar un tiempo de respuesta inferior a 3 segundos en la renderización de listas de reclamos y filtrado dinámico en dispositivos móviles y navegadores web estándar.
 
 ---
 
@@ -427,3 +431,26 @@ No usa credenciales, es la opción de consultar sin cuenta, lleva directamente a
 ```bash
 npm run build
 ```
+
+---
+
+## 12. Imagenes de la aplicación en ejecución
+
+### 12.1. Versión Web (Admin)
+
+<p align="center">
+  <img src="public/captura-admin-tabla.png" alt="Bandeja OIRS Escritorio" width="85%" />
+</p>
+<p align="center">
+  <img src="public/captura-admin-dashboard.png" alt="Dashboard de Métricas" width="85%" />
+</p>
+
+### 12.2. Versión Móvil (Vecino)
+
+<p align="center">
+  <img src="public/captura-vecino-home.png" alt="Mis Reclamos Móvil" width="280" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="public/captura-vecino-formulario.png" alt="Formulario de Ingreso" width="280" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="public/captura-vecino-consulta.png" alt="Consulta por Folio" width="280" />
+</p>
