@@ -458,3 +458,15 @@ npm run build
   &nbsp;&nbsp;&nbsp;&nbsp;
   <img src="public/captura-vecino-consulta.png" alt="Consulta por Folio" width="280" />
 </p>
+
+---
+
+### 13. Bibliografía y uso de IA
+
+- **BIBLIOGRAFÍA**
+
+https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606
+
+- **USO DE IA**
+
+En el desarrollo de este trabajo se utilizó inteligencia artificial como una herramienta de apoyo: orientación en el diseño del código y su estructura, auditoría del código y clarificación de conceptos. Todo el código fue analizado, adaptado y validado por los autores.
