@@ -11,6 +11,7 @@ import {
 } from "ionicons/icons";
 import { useAuth } from "../hooks/useAuth";
 
+// Props que recibe la barra: sabe que vista esta activa para pintar el boton azul y usa onNavegar para cambiar de pantalla
 interface VecinoSidebarProps {
   vistaActiva: "mis_reclamos" | "nuevo" | "consulta";
   onNavegar: (destino: "mis_reclamos" | "nuevo" | "consulta" | "salir") => void;
@@ -21,6 +22,8 @@ const VecinoSidebar: React.FC<VecinoSidebarProps> = ({
   onNavegar,
 }) => {
   const { user } = useAuth();
+
+  // Controla si la barra lateral esta expandida (260px) o encogida a modo iconos (72px)
   const [colapsado, setColapsado] = useState(false);
 
   return (
@@ -40,7 +43,7 @@ const VecinoSidebar: React.FC<VecinoSidebarProps> = ({
         overflow: "hidden",
       }}
     >
-      {/* Cabecera con logo y boton para colapsar */}
+      {/* Cabecera del panel: si la barra esta abierta mostramos el logo y el texto, si se achica dejamos solo la flecha */}
       <div>
         <div
           style={{
@@ -79,7 +82,7 @@ const VecinoSidebar: React.FC<VecinoSidebarProps> = ({
             </div>
           )}
 
-          {/* Boton para contraer o expandir */}
+          {/* Este boton con la flechita achica la barra para darle mas espacio a la lista de reclamos en la pantalla del computador */}
           <button
             type="button"
             onClick={() => setColapsado(!colapsado)}
@@ -107,7 +110,7 @@ const VecinoSidebar: React.FC<VecinoSidebarProps> = ({
           </button>
         </div>
 
-        {/* Franja tricolor */}
+        {/* Franja tricolor de Santo Domingo */}
         <div
           style={{
             height: "4px",
@@ -117,7 +120,7 @@ const VecinoSidebar: React.FC<VecinoSidebarProps> = ({
           }}
         />
 
-        {/* Botones de navegacion del vecino */}
+        {/* Botones de navegacion: al presionar llamamos a onNavegar para que VecinoHomePage cambie de vista sin recargar la pagina */}
         <nav
           style={{
             padding: "20px 10px",
@@ -189,7 +192,7 @@ const VecinoSidebar: React.FC<VecinoSidebarProps> = ({
             )}
           </button>
 
-          {/* Opcion 3: Consultar por Folio */}
+          {/* Opcion 3: Consultar por Folio (mantiene la barra lateral fija a la izquierda sin sacarnos de la pantalla) */}
           <button
             type="button"
             onClick={() => onNavegar("consulta")}
@@ -223,7 +226,7 @@ const VecinoSidebar: React.FC<VecinoSidebarProps> = ({
         </nav>
       </div>
 
-      {/* Zona inferior: Perfil del vecino y Cerrar Sesion */}
+      {/* Zona inferior: mostramos el perfil de la vecina María González y el boton para cerrar sesion */}
       <div
         style={{
           padding: colapsado ? "12px 8px" : "16px",

@@ -1,6 +1,6 @@
 import { IUser } from "../types";
 
-// Cuentas de prueba
+// Acá dejamos listos los dos usuarios de prueba iniciales: la vecina María y el funcionario Felipe
 export const usuariosPrueba: IUser[] = [
   {
     id: "usr-vecino-1",
@@ -18,7 +18,7 @@ export const usuariosPrueba: IUser[] = [
   },
 ];
 
-// Valida si el correo existe en el arreglo de prueba
+// Esta función simula el login buscando si el correo existe en la lista de prueba.
 export const login = (email: string, _password?: string): IUser | null => {
   const usuario = usuariosPrueba.find(
     (u) => u.email.toLowerCase() === email.trim().toLowerCase(),
@@ -26,7 +26,7 @@ export const login = (email: string, _password?: string): IUser | null => {
   return usuario || null;
 };
 
-// Exportamos como objeto y por defecto para que sea comodo importarlo
+// Exportamos tanto el objeto agrupado como la función suelta para que sea fácil llamarlo desde cualquier pantalla sin errores de importación
 export const authService = {
   usuariosPrueba,
   login,

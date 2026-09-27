@@ -1,13 +1,16 @@
 import React from "react";
-// Componentes estructurales de Ionic y el enrutador para React
 import { IonApp, setupIonicReact } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
-// El estado global de sesion y el mapa de rutas
+// Acá traemos el proveedor de sesión global y el archivo central donde configuramos las rutas
 import { AuthProvider } from "./contexts/AuthContext";
 import AppRoutes from "./routes/AppRoutes";
 
-// Estilos base y utilidades CSS obligatorias de Ionic (Inclueyendo display que es para ocultar en PC/movil)
+/* 
+Estilos base que pide Ionic para que funcione bien.
+Aca agregue el display.css porque es fundamental porque de ahí sacamos las clases ion-hide-md-up y ion-hide-md-down 
+para ocultar o mostrar cosas según si estamos en PC o en celular (por lo de los dos perfiles)
+*/
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
 import "@ionic/react/css/structure.css";
@@ -19,13 +22,12 @@ import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 
-// Paleta de colores principales que usamos (azul, verde y amarillo)
+// Acá cargamos la paleta de colores (azul, verde y amarillo)
 import "./theme/variables.css";
 
-// Para inicializar la configuracion de Ionic en React
+// Esta función es obligatoria llamarla al inicio para arrancar el framework de Ionic en React
 setupIonicReact();
 
-// Esto es para conectar el router de Ionic, el proveedor de sesion y nuestras rutas
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>

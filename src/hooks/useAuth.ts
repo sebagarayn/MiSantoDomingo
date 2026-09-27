@@ -1,17 +1,17 @@
 import { useContext } from "react";
 import { AuthContext, AuthContextType } from "../contexts/AuthContext";
 
-// Hook personalizado para acceder a la sesion desde cualquier componente
+// Este custom hook lo armamos para no tener que importar useContext(AuthContext) a mano en cada pantalla
 export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
+  const datosSesion = useContext(AuthContext);
 
-  // Si alguien intenta usar useAuth fuera del AuthProvider, avisa del error al tiro
-  if (context === undefined) {
+  // Si alguien del grupo intenta usar useAuth en una vista fuera del AuthProvider, tiramos el error al tiro
+  if (datosSesion === undefined) {
     throw new Error(
       "useAuth debe usarse obligatoriamente dentro de un AuthProvider",
     );
   }
 
-  // Retorna { user, isAuthenticated, login, logout }
-  return context;
+  // Retorna las variables listas para desestructurar: { user, isAuthenticated, login, logout }
+  return datosSesion;
 };

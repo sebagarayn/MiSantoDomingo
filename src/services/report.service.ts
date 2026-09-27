@@ -5,10 +5,13 @@ import {
   IRatingInput,
 } from "../types";
 
-// Clave para guardar los reclamos en el localStorage del navegador
+// Le pusimos v2 a la clave para resetear la memoria de las pruebas anteriores y que las estrellas partan limpias en cero
 const STORAGE_KEY = "msd_mock_reports_v2";
 
-// Reclamos de prueba iniciales
+// Estos son los 3 reclamos con los que arranca el sistema para Santo Domingo:
+// 1. Uno pendiente que llega primero a OIRS Central
+// 2. Uno derivado a Desarrollo Comunitario
+// 3. Uno resuelto asignado a la vecina María para que el evaluador pueda probar la calificación de 5 estrellas
 const RECLAMOS_INICIALES: IReport[] = [
   {
     folio: "SD-2026-000101",
@@ -18,7 +21,7 @@ const RECLAMOS_INICIALES: IReport[] = [
     ubicacion: "Calle Los Aromos 450, Santo Domingo",
     estado: "Pendiente",
     fechaIngreso: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    unidadAsignada: "OIRS Central", // Entra primero a la mesa central
+    unidadAsignada: "OIRS Central", // Todo reclamo nuevo llega primero a la mesa de entrada OIRS
     origen: "usuario",
     creadorId: "usr-vecino-1",
     historial: [
@@ -37,7 +40,7 @@ const RECLAMOS_INICIALES: IReport[] = [
     ubicacion: "Av. Santa María con Las Lilas",
     estado: "Derivado",
     fechaIngreso: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-    unidadAsignada: "Desarrollo comunitario", // Ya asignado a unidad de apoyo
+    unidadAsignada: "Desarrollo comunitario", // Ya asignado a cuadrilla técnica
     origen: "usuario",
     creadorId: "usr-vecino-1",
     historial: [
@@ -64,8 +67,8 @@ const RECLAMOS_INICIALES: IReport[] = [
     fechaIngreso: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
     unidadAsignada: "Obras municipales",
     origen: "usuario",
-    creadorId: "usr-vecino-1", // Asignado a Maria Gonzalez para poder probar la calificacion
-    calificacion: undefined, // Arranca sin nota para probar las estrellas interactivas
+    creadorId: "usr-vecino-1", // Asignado a la vecina María para que aparezca en su lista
+    calificacion: undefined, // Arranca en cero para que el profesor o nosotros podamos probar las estrellas
     respuestaFormal:
       "Se ejecutaron obras de bacheo asfaltico en frio el dia 12 del presente mes por equipo de emergencia.",
     historial: [
@@ -84,7 +87,7 @@ const RECLAMOS_INICIALES: IReport[] = [
 ];
 
 class ReportService {
-  // Lee los reclamos guardados en el navegador o carga la lista inicial
+  // Esta función lee el localStorage: si no hay nada carga la semilla de arriba, y si hay datos viejos les arregla las categorías y unidades
   private getStorage(): IReport[] {
     try {
       const datosGuardados = localStorage.getItem(STORAGE_KEY);
@@ -94,9 +97,9 @@ class ReportService {
       }
       const listaReclamos: IReport[] = JSON.parse(datosGuardados);
 
-      // Normaliza unidades o categorias viejas que hayan quedado en cache
+      // Normalizamos cualquier dato viejo que haya quedado en caché para que coincida exactamente con los filtros del Figma
       const reclamosActualizados = listaReclamos.map((reclamo) => {
-        // Asegura que el resuelto pertenezca a la vecina Maria y arranque limpio de estrellas
+        // Aseguramos que el reclamo resuelto sea de María y esté listo para calificar
         if (reclamo.folio === "SD-2026-000042") {
           reclamo.creadorId = "usr-vecino-1";
           reclamo.origen = "usuario";
@@ -105,7 +108,7 @@ class ReportService {
           reclamo.unidadAsignada = "Obras municipales";
         }
 
-        // Corrige nombres de categorias para calzar con el filtro
+        // Dejamos los nombres oficiales de categorías
         if (
           reclamo.categoria.includes("Luminarias") ||
           reclamo.categoria.includes("Alumbrado")
@@ -124,7 +127,7 @@ class ReportService {
           reclamo.categoria = "Calles y veredas";
         }
 
-        // Corrige nombres de unidades
+        // Dejamos los nombres oficiales de unidades municipales
         if (
           !reclamo.unidadAsignada ||
           reclamo.unidadAsignada === "OIRS Central"
@@ -153,12 +156,12 @@ class ReportService {
     }
   }
 
-  // Guarda la lista actualizada en el localStorage
+  // Guarda la lista en el almacenamiento local
   private setStorage(datos: IReport[]): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
   }
 
-  // Calcula si quedan dias o si se paso del plazo legal de 20 dias (RF-04)
+  // Acá calculamos los 20 días legales del RF-04: si la diferencia da negativo marcamos vencido en true para pintar la alerta roja
   public calcularDiasRestantes(fechaIngresoStr: string): {
     diasRestantes: number;
     vencido: boolean;
@@ -176,14 +179,14 @@ class ReportService {
     };
   }
 
-  // Retorna todos los reclamos con Promise para simular API asincrona
+  // Retornamos los reclamos con un Promise y setTimeout de 100ms para simular que consultamos un backend real (así en la EP2 el cambio es directo)
   public async obtenerReclamos(): Promise<IReport[]> {
     return new Promise((resolve) => {
       setTimeout(() => resolve(this.getStorage()), 100);
     });
   }
 
-  // Busca un reclamo por su folio alfanumerico (RF-03)
+  // Busca el reclamo por folio ignorando mayúsculas o minúsculas para que el vecino no tenga problemas al tipear (RF-03)
   public async obtenerReclamoPorFolio(folio: string): Promise<IReport | null> {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -195,7 +198,7 @@ class ReportService {
     });
   }
 
-  // Genera un folio unico tipo SD-2026-XXXXXX y guarda el nuevo reclamo (RF-01 y RF-02)
+  // Genera un folio único aleatorio tipo SD-2026-XXXXXX y guarda el nuevo reclamo (RF-01 y RF-02)
   public async crearReclamo(
     input: ICreateReportInput,
     creadorId?: string,
@@ -218,7 +221,7 @@ class ReportService {
           fotoUrl: input.fotoUrl,
           estado: "Pendiente",
           fechaIngreso: fechaActual,
-          unidadAsignada: "OIRS Central", // Entra primero a mesa central
+          unidadAsignada: "OIRS Central", // Ingresa a mesa de entrada
           origen: tipoOrigen,
           creadorId: idCreador,
           historial: [
@@ -238,7 +241,7 @@ class ReportService {
     });
   }
 
-  // Permite derivar (RF-07) o cerrar formalmente con respuesta municipal (RF-08)
+  // Permite al funcionario derivar a otra unidad (RF-07) o cerrar con respuesta formal (RF-08) dejando registro inmutable en el historial (RNF-05)
   public async actualizarEstado(
     folio: string,
     input: IUpdateReportStatusInput,
@@ -272,7 +275,7 @@ class ReportService {
     });
   }
 
-  // Guarda la calificacion de 1 a 5 estrellas dada por el vecino (RF-09)
+  // Guarda la calificación de 1 a 5 estrellas dada por el vecino cumpliendo con el RF-09
   public async calificarRespuesta(
     folio: string,
     rating: IRatingInput,

@@ -1,9 +1,7 @@
-// INTERFACES Y TIPOS DE DATOS
-
-// Roles del sistema (Vecino y funcionario municipal (admin))
+// Acá definimos los dos roles que nos pide la pauta, el vecino que reporta y el funcionario municipal (admin)
 export type UserRole = "vecino" | "admin";
 
-// Estados por los que puede pasar un reclamo durante su ciclo de atencion
+// Los 5 estados por los que va pasando el reclamo según el flujo de la municipalidad
 export type ReportStatus =
   | "Pendiente"
   | "En Revisión"
@@ -11,10 +9,10 @@ export type ReportStatus =
   | "Resuelto"
   | "Rechazado";
 
-// Origen del reclamo: puede ser anonimo si se hace en el portal publico o con cuenta vecinal
+// El origen nos sirve para diferenciar si el vecino entró con su cuenta o si hizo la consulta anónima sin sesión
 export type ReportOrigin = "publico" | "usuario";
 
-// Estructura del usuario en sesion
+// Estructura del usuario para saber quién está conectado y qué permisos tiene en las rutas
 export interface IUser {
   id: string;
   nombre: string;
@@ -23,32 +21,32 @@ export interface IUser {
   fechaRegistro?: string;
 }
 
-// Historial de trazabilidad de cada cambio de estado (RNF-05)
+// Este tipo es clave para cumplir con la trazabilidad (RNF-05): guarda la fecha y quién hizo cada cambio de estado
 export interface IStatusHistory {
   estado: ReportStatus;
-  fecha: string; // Utiliza el formato ISO 8601
+  fecha: string; // Formato de fecha ISO estándar
   observacion?: string;
   responsableId?: string;
 }
 
-// Entidad principal de un reclamo municipal
+// Esta es la entidad central del proyecto: reúne todos los datos del reclamo, su estado y su resolución
 export interface IReport {
-  folio: string; // Codigo unico (Por ejemplo SD-2026-000101)
+  folio: string; // Código único alfanumérico generado automáticamente (RF-02)
   categoria: string;
   descripcion: string;
   ubicacion: string;
   fotoUrl?: string;
   estado: ReportStatus;
   fechaIngreso: string;
-  unidadAsignada?: string; // Unidad municipal responsable
+  unidadAsignada?: string; // Cuadrilla o dirección técnica municipal a cargo
   historial: IStatusHistory[];
-  respuestaFormal?: string; // Respuesta oficial emitida al resolver
-  calificacion?: number; // Evaluacion de 1 a 5 estrellas (RF-09)
+  respuestaFormal?: string; // Respuesta oficial obligatoria que deja el funcionario al resolver (RF-08)
+  calificacion?: number; // Nota de 1 a 5 estrellas que le pone el vecino a la solución (RF-09)
   creadorId?: string;
   origen: ReportOrigin;
 }
 
-// Datos que se envian al crear un nuevo reclamo (RF-01)
+// Lo que captura el formulario de ingreso cuando el vecino envía una nueva solicitud (RF-01)
 export interface ICreateReportInput {
   categoria: string;
   descripcion: string;
@@ -58,7 +56,7 @@ export interface ICreateReportInput {
   creadorId?: string;
 }
 
-// Datos que usa el funcionario para derivar (RF-07) o cerrar (RF-08)
+// Lo que envía el funcionario cuando traspasa el reclamo a otra unidad (RF-07) o cuando lo cierra formalmente (RF-08)
 export interface IUpdateReportStatusInput {
   estado: ReportStatus;
   observacion?: string;
@@ -66,15 +64,15 @@ export interface IUpdateReportStatusInput {
   responsableId: string;
 }
 
-// Datos para calificar una respuesta municipal resuelta (RF-09)
+// Los datos que se mandan al evaluar la respuesta municipal (RF-09)
 export interface IRatingInput {
-  calificacion: number; // Escala 1 a 5
+  calificacion: number; // Escala del 1 al 5
   comentario?: string;
 }
 
-// ESTRUCTURAS BASE PARA LA ENTREGA 2 (BACKEND + JWT)
+// ESTO ES PARA LA ENTREGA 2
 
-// Estructura estandar de respuesta del backend
+// Estructura estándar para cuando conectemos las respuestas del backend
 export interface IApiResponse<T> {
   success: boolean;
   message: string;
@@ -82,7 +80,7 @@ export interface IApiResponse<T> {
   errors?: string[];
 }
 
-// Estructura de sesion con token JWT
+// Modelo de sesión con token JWT para cuando tengamos la base de datos real
 export interface IAuthSession {
   token: string;
   user: IUser;

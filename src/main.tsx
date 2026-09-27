@@ -2,13 +2,13 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 
-// Busca el div con id "root" que dejamos en el index.html
+// Acá buscamos el div 'root' que dejamos en el index.html para montar la app
 const container = document.getElementById("root");
 
-// Inicializa el root de React 18 usando createRoot
+// Usamos createRoot que es la forma oficial de React 18
 const root = createRoot(container!);
 
-// Monta toda la aplicacion envuelta en StrictMode para buenas practicas
+// Renderizamos la app dentro de StrictMode para que React nos avise si hay errores o dependencias deprecadas en desarrollo
 root.render(
   <React.StrictMode>
     <App />

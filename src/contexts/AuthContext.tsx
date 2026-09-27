@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { IUser, UserRole } from "../types";
 
-// Contrato con las variables y funciones que compartimos a toda la app
+// Acá definimos lo que va a compartir el contexto a cualquier pantalla que lo consulte
 export interface AuthContextType {
   user: IUser | null;
   isAuthenticated: boolean;
@@ -13,16 +13,17 @@ export interface AuthContextType {
   logout: () => void;
 }
 
-// Creamos el contexto vacio
+// Creamos el contexto vacío antes de inicializarlo con el proveedor
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
 
-// Proveedor que envuelve toda la aplicacion en App.tsx
+// Este proveedor envuelve toda la aplicación en App.tsx para que la sesión sea global
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // Al partir lee si habia una sesion guardada en el navegador para que no se caiga con F5 (lo de la persistencia)
+  // Acá revisamos el localStorage apenas arranca la app: si el profe o ayudante recarga con F5,
+  // rescatamos el usuario guardado para que no se le cierre la sesión (esto cubre la persistencia de la pauta)
   const [user, setUser] = useState<IUser | null>(() => {
     try {
       const sesionGuardada = localStorage.getItem("msd_session_user");
@@ -32,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   });
 
-  // Mantiene sincronizado el localStorage cuando alguien inicia o cierra sesion
+  // Cada vez que cambia el usuario lo dejamos sincronizado en el localStorage al tiro, o lo borramos si cerró sesión
   useEffect(() => {
     if (user) {
       localStorage.setItem("msd_session_user", JSON.stringify(user));
@@ -41,13 +42,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [user]);
 
-  // Simula el login asignando el nombre y rol segun el usuario de prueba
-  const login = (email: string, param2?: string, param3?: UserRole) => {
+  // Esta función simula el login: determina el rol según el correo y le asigna el nombre oficial de nuestras proto-personas
+  const login = (
+    email: string,
+    passwordOrRol?: string,
+    rolOpcional?: UserRole,
+  ) => {
     let rol: UserRole = "vecino";
-    if (param3) {
-      rol = param3;
-    } else if (param2 === "admin" || param2 === "vecino") {
-      rol = param2 as UserRole;
+    if (rolOpcional) {
+      rol = rolOpcional;
+    } else if (passwordOrRol === "admin" || passwordOrRol === "vecino") {
+      rol = passwordOrRol as UserRole;
     } else if (email.includes("admin")) {
       rol = "admin";
     }
@@ -65,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setUser(nuevoUsuario);
   };
 
-  // Limpia la sesion actual
+  // Cuando la persona presiona salir, limpiamos el estado y el useEffect se encarga de borrar el localStorage
   const logout = () => {
     setUser(null);
   };

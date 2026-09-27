@@ -16,9 +16,11 @@ const AdminSidebar: React.FC = () => {
   const location = useLocation();
   const { logout, user } = useAuth();
 
+  // Controla si la barra esta abierta (260px) o encogida en modo iconos (72px)
   const [colapsado, setColapsado] = useState(false);
   const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
 
+  // Funcion chica para saber en que pantalla estamos y pintar el boton azul
   const esRutaActiva = (ruta: string) => location.pathname === ruta;
 
   return (
@@ -39,7 +41,7 @@ const AdminSidebar: React.FC = () => {
           overflow: "hidden",
         }}
       >
-        {/* Cabecera del sidebar */}
+        {/* Cabecera: si el panel se achica, ocultamos el texto largo para que no se deforme el logo */}
         <div>
           <div
             style={{
@@ -78,7 +80,7 @@ const AdminSidebar: React.FC = () => {
               </div>
             )}
 
-            {/* Boton para colapsar */}
+            {/* Este boton con la flechita permite contraer o expandir la barra para ganar espacio de trabajo */}
             <button
               type="button"
               onClick={() => setColapsado(!colapsado)}
@@ -106,6 +108,7 @@ const AdminSidebar: React.FC = () => {
             </button>
           </div>
 
+          {/* Franja tricolor */}
           <div
             style={{
               height: "4px",
@@ -115,7 +118,7 @@ const AdminSidebar: React.FC = () => {
             }}
           />
 
-          {/* Enlaces de navegacion */}
+          {/* Botones de navegacion: si la ruta coincide con la actual, se pinta en azul */}
           <nav
             style={{
               padding: "20px 10px",
@@ -192,7 +195,7 @@ const AdminSidebar: React.FC = () => {
           </nav>
         </div>
 
-        {/* Zona inferior con confirmacion de salida */}
+        {/* Zona inferior: mostramos el perfil del funcionario Felipe y el boton para cerrar sesion */}
         <div
           style={{
             padding: colapsado ? "12px 8px" : "16px",
@@ -278,7 +281,7 @@ const AdminSidebar: React.FC = () => {
         </div>
       </aside>
 
-      {/* Alerta de confirmacion de salida */}
+      {/* Alerta de confirmacion para no salir por accidente si se presiona el boton sin querer */}
       <IonAlert
         isOpen={alertaSalirAbierta}
         onDidDismiss={() => setAlertaSalirAbierta(false)}

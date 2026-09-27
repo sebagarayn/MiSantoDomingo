@@ -2,13 +2,15 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <!-- Titulo que se ve en la pestana del navegador -->
+    <!-- Acá cambiamos el título para que la pestaña del navegador muestre el nombre del proyecto y no 'Ionic App' por defecto -->
     <title>MiSantoDomingo - Municipalidad de Santo Domingo</title>
 
     <base href="/" />
 
-    <!-- Configuracion de pantalla para que en celulares se vea como una app nativa -->
+    <!-- Forzamos modo claro para que no nos cambie los colores del municipio si el usuario tiene el celu en modo oscuro -->
     <meta name="color-scheme" content="light" />
+
+    <!-- Este bloque de viewport viene de la plantilla de Ionic; es mejor no tocarlo porque si no, en celulares se deforma el zoom y se rompen las barras fijas -->
     <meta
       name="viewport"
       content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
@@ -16,17 +18,17 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
 
-    <!-- Icono de la municipalidad para la pestana y manifest de PWA -->
+    <!-- Enlazamos el logo oficial que dejamos en la carpeta public/ para que el favicon se vea como escudo municipal -->
     <link rel="manifest" href="/manifest.json" />
     <link rel="shortcut icon" type="image/png" href="/logo-santodomingo.png" />
 
-    <!-- Compatibilidad para guardar como app en pantalla de inicio de iPhone (No se si se usara, pero ahi lo dejo igual)-->
+    <!-- Esto venía en el starter para guardar la app en la pantalla de inicio de iPhone; lo dejamos por si el profe lo prueba como PWA -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MiSantoDomingo" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   </head>
   <body>
-    <!-- Aca es donde React monta toda la aplicacion -->
+    <!-- En este div con id 'root' es donde React monta todo el código que armamos desde main.tsx -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

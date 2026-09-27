@@ -22,6 +22,7 @@ import {
   clipboardOutline,
 } from "ionicons/icons";
 
+// Importamos todas las pantallas de nuestra carpeta pages
 import LoginPage from "../pages/auth/LoginPage";
 import RegistroPage from "../pages/auth/RegistroPage";
 import ConsultaPublicaPage from "../pages/public/ConsultaPublicaPage";
@@ -29,15 +30,18 @@ import VecinoHomePage from "../pages/vecino/VecinoHomePage";
 import AdminHomePage from "../pages/admin/AdminHomePage";
 import Dashboard from "../pages/admin/Dashboard";
 import NotFoundPage from "../pages/NotFoundPage";
+
+// Traemos el componente que protege rutas y el hook de sesion
 import ProtectedRoute from "../components/ProtectedRoute";
 import { useAuth } from "../hooks/useAuth";
 
 const AppRoutes: React.FC = () => {
+  // Leemos si hay alguien conectado y que rol tiene para armar el menu dinamicamente
   const { isAuthenticated, user, logout } = useAuth();
 
   return (
     <>
-      {/* Menu lateral de la app */}
+      {/* Este menu lateral desplegable cumple con el componente IonMenu obligatorio que pide la pauta */}
       <IonMenu contentId="main-content" type="overlay">
         <IonHeader className="ion-no-border">
           <IonToolbar style={{ "--background": "#0D3B66", padding: "6px 0" }}>
@@ -52,6 +56,7 @@ const AppRoutes: React.FC = () => {
               SANTO DOMINGO
             </IonTitle>
           </IonToolbar>
+          {/* Franja tricolor institucional */}
           <div
             style={{
               height: "4px",
@@ -64,7 +69,7 @@ const AppRoutes: React.FC = () => {
 
         <IonContent style={{ "--background": "#FFFFFF" }}>
           <IonList lines="full" style={{ padding: "8px 0" }}>
-            {/* Opcion publica de consulta */}
+            {/* Opcion publica para que cualquiera consulte un folio */}
             <IonMenuToggle autoHide={false}>
               <IonItem
                 routerLink="/consulta"
@@ -80,7 +85,7 @@ const AppRoutes: React.FC = () => {
               </IonItem>
             </IonMenuToggle>
 
-            {/* Opciones exclusivas del vecino */}
+            {/* Opciones que solo se muestran si el usuario conectado es vecino */}
             {isAuthenticated && user?.rol === "vecino" && (
               <IonMenuToggle autoHide={false}>
                 <IonItem
@@ -98,7 +103,7 @@ const AppRoutes: React.FC = () => {
               </IonMenuToggle>
             )}
 
-            {/* Opciones exclusivas del funcionario */}
+            {/* Opciones que solo se muestran si el usuario conectado es funcionario (admin) */}
             {isAuthenticated && user?.rol === "admin" && (
               <>
                 <IonMenuToggle autoHide={false}>
@@ -132,7 +137,7 @@ const AppRoutes: React.FC = () => {
               </>
             )}
 
-            {/* Enlace para entrar o salir segun si hay sesion iniciada */}
+            {/* Si esta logueado mostramos el boton rojo para salir, si no mostramos iniciar sesion */}
             {isAuthenticated ? (
               <IonMenuToggle autoHide={false}>
                 <IonItem
@@ -171,15 +176,15 @@ const AppRoutes: React.FC = () => {
         </IonContent>
       </IonMenu>
 
-      {/* Salida de rutas envuelta en IonRouterOutlet para que pueda soportar transiciones nativas */}
+      {/* IonRouterOutlet es obligatorio en Ionic para que maneje bien las animaciones y el historial de vistas */}
       <IonRouterOutlet id="main-content">
         <Switch>
-          {/* Rutas Publicas */}
+          {/* 1. Rutas Publicas: cualquiera puede entrar */}
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/registro" component={RegistroPage} />
           <Route exact path="/consulta" component={ConsultaPublicaPage} />
 
-          {/* Rutas Protegidas del Vecino */}
+          {/* 2. Rutas Privadas del Vecino: protegidas con rol 'vecino' */}
           <ProtectedRoute
             exact
             path="/app/inicio"
@@ -187,7 +192,7 @@ const AppRoutes: React.FC = () => {
             roles={["vecino"]}
           />
 
-          {/* Rutas Protegidas del Funcionario (Admin) */}
+          {/* 3. Rutas Privadas del Funcionario: protegidas con rol 'admin' */}
           <ProtectedRoute
             exact
             path="/admin/inicio"
@@ -201,12 +206,12 @@ const AppRoutes: React.FC = () => {
             roles={["admin"]}
           />
 
-          {/* Redireccion automatica de la raiz al login */}
+          {/* 4. Si alguien entra a la raiz '/', lo mandamos al login por defecto */}
           <Route exact path="/">
             <Redirect to="/login" />
           </Route>
 
-          {/* Pagina de error si la ruta no existe */}
+          {/* 5. Si escriben una URL que no existe, cae en nuestra pantalla 404 personalizada */}
           <Route component={NotFoundPage} />
         </Switch>
       </IonRouterOutlet>
