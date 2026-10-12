@@ -1,7 +1,0 @@
-{
-  "name": "MiSantoDomingo",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "react-vite"
-}
