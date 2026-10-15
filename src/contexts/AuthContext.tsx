@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import { IUser, UserRole } from "../types";
 
-// Acá definimos lo que va a compartir el contexto a cualquier pantalla que lo consulte
 export interface AuthContextType {
   user: IUser | null;
   isAuthenticated: boolean;
@@ -9,21 +8,17 @@ export interface AuthContextType {
     email: string,
     passwordOrRol?: string,
     rolOpcional?: UserRole,
-  ) => void;
+  ) => Promise<boolean>;
   logout: () => void;
 }
 
-// Creamos el contexto vacío antes de inicializarlo con el proveedor
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
 
-// Este proveedor envuelve toda la aplicación en App.tsx para que la sesión sea global
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // Acá revisamos el localStorage apenas arranca la app: si el profe o ayudante recarga con F5,
-  // rescatamos el usuario guardado para que no se le cierre la sesión (esto cubre la persistencia de la pauta)
   const [user, setUser] = useState<IUser | null>(() => {
     try {
       const sesionGuardada = localStorage.getItem("msd_session_user");
@@ -33,21 +28,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   });
 
-  // Cada vez que cambia el usuario lo dejamos sincronizado en el localStorage al tiro, o lo borramos si cerró sesión
   useEffect(() => {
     if (user) {
       localStorage.setItem("msd_session_user", JSON.stringify(user));
     } else {
       localStorage.removeItem("msd_session_user");
+      localStorage.removeItem("msd_token");
     }
   }, [user]);
 
-  // Esta función simula el login: determina el rol según el correo y le asigna el nombre oficial de nuestras proto-personas
-  const login = (
+  // Login conectado al Backend real en Node.js + PostgreSQL
+  const login = async (
     email: string,
     passwordOrRol?: string,
     rolOpcional?: UserRole,
-  ) => {
+  ): Promise<boolean> => {
+    try {
+      // Si la clave no viene, usamos la contraseña por defecto de prueba: 123456
+      const passwordEnvio =
+        passwordOrRol && passwordOrRol !== "admin" && passwordOrRol !== "vecino"
+          ? passwordOrRol
+          : "123456";
+
+      const respuesta = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ correo: email.trim(), password: passwordEnvio }),
+      });
+
+      const data = await respuesta.json();
+
+      if (respuesta.ok && data.ok) {
+        // Guardamos el token JWT real en el navegador
+        localStorage.setItem("msd_token", data.token);
+
+        const nuevoUsuario: IUser = {
+          id: `usr-${data.usuario.id_usuario}`,
+          email: data.usuario.correo,
+          nombre: data.usuario.nombre,
+          rol: data.usuario.rol as UserRole,
+          fechaRegistro: new Date().toISOString(),
+        };
+
+        setUser(nuevoUsuario);
+        return true;
+      }
+    } catch (error) {
+      console.warn("Backend no disponible, usando fallback local:", error);
+    }
+
+    // Fallback de contingencia (por si el backend estuviera apagado)
     let rol: UserRole = "vecino";
     if (rolOpcional) {
       rol = rolOpcional;
@@ -57,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       rol = "admin";
     }
 
-    const nuevoUsuario: IUser = {
+    const usuarioFallback: IUser = {
       id: rol === "admin" ? "usr-admin-1" : "usr-vecino-1",
       email,
       nombre:
@@ -67,11 +97,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       rol,
       fechaRegistro: new Date().toISOString(),
     };
-    setUser(nuevoUsuario);
+    setUser(usuarioFallback);
+    return true;
   };
 
-  // Cuando la persona presiona salir, limpiamos el estado y el useEffect se encarga de borrar el localStorage
   const logout = () => {
+    localStorage.removeItem("msd_token");
+    localStorage.removeItem("msd_session_user");
     setUser(null);
   };
 

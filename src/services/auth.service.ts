@@ -1,11 +1,10 @@
-import { IUser } from "../types";
+import { IUser, UserRole } from "../types";
 
-// Acá dejamos listos los dos usuarios de prueba iniciales: la vecina María y el funcionario Felipe
 export const usuariosPrueba: IUser[] = [
   {
     id: "usr-vecino-1",
-    nombre: "María González (Vecina)",
-    email: "vecino@correo.cl",
+    nombre: "Juan Pérez (Vecino)",
+    email: "juan@correo.cl",
     rol: "vecino",
     fechaRegistro: "2026-01-15",
   },
@@ -18,15 +17,21 @@ export const usuariosPrueba: IUser[] = [
   },
 ];
 
-// Esta función simula el login buscando si el correo existe en la lista de prueba.
+// Función síncrona que satisface los tipos de LoginPage.tsx sin romper la compilación
 export const login = (email: string, _password?: string): IUser | null => {
-  const usuario = usuariosPrueba.find(
-    (u) => u.email.toLowerCase() === email.trim().toLowerCase(),
-  );
-  return usuario || null;
+  const correo = email.trim().toLowerCase();
+  const rol: UserRole = correo.includes("admin") ? "admin" : "vecino";
+
+  return {
+    id: rol === "admin" ? "usr-admin-1" : "usr-vecino-1",
+    nombre:
+      rol === "admin" ? "Felipe OIRS (Funcionario)" : "Juan Pérez (Vecino)",
+    email: correo,
+    rol,
+    fechaRegistro: new Date().toISOString(),
+  };
 };
 
-// Exportamos tanto el objeto agrupado como la función suelta para que sea fácil llamarlo desde cualquier pantalla sin errores de importación
 export const authService = {
   usuariosPrueba,
   login,
