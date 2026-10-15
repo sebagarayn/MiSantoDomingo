@@ -365,9 +365,17 @@ const AdminHomePage: React.FC = () => {
                 margin: "0",
               }}
             >
-              <div style={{ overflowX: "auto" }}>
+              <div
+                style={{
+                  width: "100%",
+                  maxWidth: "100%",
+                  overflowX: "auto",
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
                 <table
                   style={{
+                    minWidth: "620px",
                     width: "100%",
                     borderCollapse: "collapse",
                     textAlign: "left",
