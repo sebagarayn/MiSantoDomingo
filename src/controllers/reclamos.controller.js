@@ -100,12 +100,11 @@ export const listarReclamos = async (req, res) => {
   try {
     let consulta = `
       SELECT 
-        r.id_reclamo, r.folio, r.descripcion, r.ubicacion, r.foto_url,
+        r.id_reclamo, r.id_usuario, r.folio, r.descripcion, r.ubicacion, r.foto_url,
         r.estado, r.fecha_ingreso, r.respuesta_formal,
         c.nombre AS categoria,
         u.nombre AS unidad_asignada,
         usr.nombre AS nombre_vecino,
-        -- Calculo de dias transcurridos y restantes frente al plazo legal de 20 dias
         GREATEST(0, 20 - FLOOR(EXTRACT(EPOCH FROM (NOW() - r.fecha_ingreso)) / 86400)::INTEGER) AS dias_restantes,
         (EXTRACT(EPOCH FROM (NOW() - r.fecha_ingreso)) / 86400 > 20) AS vencido
       FROM reclamos r
@@ -260,12 +259,10 @@ export const obtenerDetalleReclamo = async (req, res) => {
 
     // Seguridad: Si es vecino, solo puede ver su propio reclamo
     if (rol === "vecino" && reclamo.id_usuario !== id_usuario) {
-      return res
-        .status(403)
-        .json({
-          ok: false,
-          mensaje: "No tienes permiso para ver este reclamo",
-        });
+      return res.status(403).json({
+        ok: false,
+        mensaje: "No tienes permiso para ver este reclamo",
+      });
     }
 
     const historialRes = await pool.query(
@@ -440,12 +437,10 @@ export const cancelarReclamo = async (req, res) => {
     // Solo el creador o un admin pueden anular
     if (rol === "vecino" && reclamo.id_usuario !== id_usuario) {
       await cliente.query("ROLLBACK");
-      return res
-        .status(403)
-        .json({
-          ok: false,
-          mensaje: "No tienes permiso para cancelar este reclamo",
-        });
+      return res.status(403).json({
+        ok: false,
+        mensaje: "No tienes permiso para cancelar este reclamo",
+      });
     }
 
     // Solo se permite anular si aun esta en estado Pendiente
@@ -517,12 +512,10 @@ export const calificarReclamo = async (req, res) => {
     const reclamo = reclamoRes.rows[0];
 
     if (reclamo.id_usuario !== id_usuario) {
-      return res
-        .status(403)
-        .json({
-          ok: false,
-          mensaje: "Solo quien ingreso el reclamo puede calificarlo",
-        });
+      return res.status(403).json({
+        ok: false,
+        mensaje: "Solo quien ingreso el reclamo puede calificarlo",
+      });
     }
 
     if (reclamo.estado !== "Resuelto") {
