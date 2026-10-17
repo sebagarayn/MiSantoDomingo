@@ -424,7 +424,8 @@ Una vez iniciado, la API queda disponible en:
 ## 14. Pruebas funcionales
  
 ### 14.1. Herramienta utilizada
-
+Postman (versión de escritorio), usada para probar los endpoints de la API REST
+contra el servidor local en `http://localhost:3000`.
 
 <!-- Postman o Insomnia -->
 
@@ -433,7 +434,7 @@ Una vez iniciado, la API queda disponible en:
 
  
 ```
-ruta/de/la/coleccion.json
+pruebas/MiSantoDomingo.postman_collection.json
 ```
 
 ### 14.3. Evidencia
