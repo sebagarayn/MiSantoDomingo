@@ -1,0 +1,158 @@
+{
+  "info": {
+    "_postman_id": "212952a8-fdd3-4eb3-b33a-9fc6bc284f3a",
+    "name": "MiSantoDomingo API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "59027277",
+    "_collection_link": "https://go.postman.co/collection/59027277-212952a8-fdd3-4eb3-b33a-9fc6bc284f3a?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Get",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/health",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Post",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"correo\": \"juan@correo.cl\", \"password\": \"123456\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Getcategorias",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/categorias",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "categorias"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get reclamos",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <pega_aqui_el_token>"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/reclamos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "reclamos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get folio",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/reclamos/folio/SD-2026-000101",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "reclamos",
+            "folio",
+            "SD-2026-000101"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Post clavemala",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"correo\": \"juan@correo.cl\", \"password\": \"estanoesunaclave\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
