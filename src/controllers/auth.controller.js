@@ -2,7 +2,10 @@ import pool from "../config/db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "clave_secreta_para_el_ramo_2026";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("Falta la variable de entorno JWT_SECRET en el archivo .env");
+}
 
 // Registro de nuevos vecinos en la plataforma
 export const registrarVecino = async (req, res) => {
