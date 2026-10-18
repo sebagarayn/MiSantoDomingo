@@ -92,7 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       email,
       nombre:
         rol === "admin"
-          ? "Felipe OIRS (Funcionario)"
+          ? "Felipe Pérez (Funcionario)"
           : "María González (Vecina)",
       rol,
       fechaRegistro: new Date().toISOString(),
