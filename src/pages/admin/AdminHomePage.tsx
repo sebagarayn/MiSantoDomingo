@@ -138,7 +138,7 @@ const AdminHomePage: React.FC = () => {
         estado: "Derivado",
         unidadAsignada: unidadElegida,
         observacion: motivoDerivacion,
-        responsableId: "Felipe OIRS",
+        responsableId: "Felipe Pérez",
       },
     );
 
@@ -159,7 +159,7 @@ const AdminHomePage: React.FC = () => {
       {
         estado: "Resuelto",
         observacion: "Reclamo resuelto formalmente.",
-        responsableId: "Felipe OIRS",
+        responsableId: "Felipe Pérez",
       },
       descripcionCierre,
     );

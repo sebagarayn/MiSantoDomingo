@@ -145,7 +145,7 @@ Nota: los perfiles a continuación son proto-personas construidas mediante inves
 ### 4.3.B. Proto-persona 2 — Funcionario municipal
 
 - **Tipo de usuario o rol:** Funcionario municipal / Administrador OIRS
-- **Nombre ficticio y edad:** Felipe OIRS, 32 años, encargado de atención y derivación.
+- **Nombre ficticio y edad:** Felipe Perez, 32 años, encargado de atención y derivación.
 - **Nivel estimado de experiencia tecnológica:** **Medio-alto.** Manejo avanzado de computador, ofimática y plataformas de gestión documental.
 - **Características generales:** Funcionario público responsable de canalizar las demandas ciudadanas hacia las cuadrillas técnicas.
 - **Necesidad principal:** Priorizar un volumen alto de solicitudes y derivar casos entre unidades municipales sin perder el historial ni duplicar folios.
