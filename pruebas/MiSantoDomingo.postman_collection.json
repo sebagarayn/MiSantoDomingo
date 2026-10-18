@@ -15,14 +15,9 @@
         "url": {
           "raw": "http://localhost:3000/api/health",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
+          "host": ["localhost"],
           "port": "3000",
-          "path": [
-            "api",
-            "health"
-          ]
+          "path": ["api", "health"]
         }
       },
       "response": []
@@ -34,7 +29,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{ \"correo\": \"juan@correo.cl\", \"password\": \"123456\" }",
+          "raw": "{ \"correo\": \"vecino@correo.cl\", \"password\": \"123456\" }",
           "options": {
             "raw": {
               "language": "json"
@@ -44,15 +39,9 @@
         "url": {
           "raw": "http://localhost:3000/api/auth/login",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
+          "host": ["localhost"],
           "port": "3000",
-          "path": [
-            "api",
-            "auth",
-            "login"
-          ]
+          "path": ["api", "auth", "login"]
         }
       },
       "response": []
@@ -65,14 +54,9 @@
         "url": {
           "raw": "http://localhost:3000/api/categorias",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
+          "host": ["localhost"],
           "port": "3000",
-          "path": [
-            "api",
-            "categorias"
-          ]
+          "path": ["api", "categorias"]
         }
       },
       "response": []
@@ -90,14 +74,9 @@
         "url": {
           "raw": "http://localhost:3000/api/reclamos",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
+          "host": ["localhost"],
           "port": "3000",
-          "path": [
-            "api",
-            "reclamos"
-          ]
+          "path": ["api", "reclamos"]
         }
       },
       "response": []
@@ -110,16 +89,9 @@
         "url": {
           "raw": "http://localhost:3000/api/reclamos/folio/SD-2026-000101",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
+          "host": ["localhost"],
           "port": "3000",
-          "path": [
-            "api",
-            "reclamos",
-            "folio",
-            "SD-2026-000101"
-          ]
+          "path": ["api", "reclamos", "folio", "SD-2026-000101"]
         }
       },
       "response": []
@@ -131,7 +103,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{ \"correo\": \"juan@correo.cl\", \"password\": \"estanoesunaclave\" }",
+          "raw": "{ \"correo\": \"vecino@correo.cl\", \"password\": \"estanoesunaclave\" }",
           "options": {
             "raw": {
               "language": "json"
@@ -141,15 +113,9 @@
         "url": {
           "raw": "http://localhost:3000/api/auth/login",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
+          "host": ["localhost"],
           "port": "3000",
-          "path": [
-            "api",
-            "auth",
-            "login"
-          ]
+          "path": ["api", "auth", "login"]
         }
       },
       "response": []
