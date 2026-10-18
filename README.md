@@ -85,10 +85,24 @@ Entregables:
 ### 3.2. Problema o necesidad que aborda
 
 
+Tiempos de respuesta prolongados o falta de soluciones efectivas a los reclamos y
+solicitudes que los ciudadanos ingresan al municipio, generando frustración.
+
+
 ### 3.3. Objetivos del proyecto
 
 
+- Disponer de un canal ciudadano digital accesible para ingresar reclamos en menos de 3 minutos con obtención inmediata de comprobante único de folio.
+- Garantizar la trazabilidad completa del ciclo de vida del reclamo tanto para el vecino como para los funcionarios municipales.
+- Proporcionar al municipio una herramienta administrativa para medir tiempos de respuesta frente al plazo legal de 20 días y priorizar la gestión mediante indicadores KPI.
+
+
 ### 3.4. Objetivos específicos del backend
+
+
+-
+-
+-
 
 
 ## 4. Principales funcionalidades
@@ -97,14 +111,15 @@ Entregables:
 
 ### 4.1. Rol Vecino/Vecina
  
-- 
+-
+
 ### 4.2. Rol Funcionario municipal (OIRS)
  
-- 
+-
+
 ### 4.3. Acceso público (sin sesión)
  
 - 
-
 
 ---
 
@@ -157,16 +172,35 @@ MiSantoDomingo/
 ## 7. Base de Datos
 
 
-### 7.1. Motor Utilizado
+### 7.1. Creación de la base
 
 
-### 7.2. Modelo relacional
+Crear en PostgreSQL (pgAdmin) una base de datos llamada `misantodomingo_db`
 
 
-<!-- El Modelo Relacional -->
+### 7.2. Scripts SQL y orden de ejecución
+
+Los scripts están en la carpeta `database/` y **deben ejecutarse en este orden**
+(Query Tool sobre `misantodomingo_db`, abrir el archivo y presionar F5):
+ 
+| Orden | Archivo | Qué hace |
+| :---- | :------ | :------- |
+| 1 | `schema.sql` | Crea las tablas, restricciones y los catálogos (6 categorías y 5 unidades). No incluye usuarios. |
+| 2 | `01_usuarios_prueba.sql` | Crea las cuentas de demostración (vecino y funcionario OIRS). |
+| 3 | `02_datos_prueba.sql` | Carga 3 reclamos de prueba con su historial. |
+ 
+el `schema.sql` solo crea la estructura
+y los catálogos, pero ningún usuario. Sin usuarios no se puede iniciar sesión ni probar
+las rutas protegidas
+
+el `02_datos_prueba.sql` falla porque sus reclamos referencian a los
+usuarios con id 1 y 2 (llaves foráneas). Este script deja la base lista solo con scripts
+SQL, sin registrar usuarios a mano por la API. Las contraseñas se almacenan hasheadas con
+bcrypt (no en texto plano).
 
 
-### 7.3. Descripción de tablas
+### 7.3. Datos de prueba (`02_datos_prueba.sql`)
+
 
 
 | Tabla | Descripción | Clave primaria | Claves foráneas |
