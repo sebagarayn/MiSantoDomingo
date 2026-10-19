@@ -106,14 +106,29 @@ export const listarReclamos = async (req, res) => {
         u.nombre AS unidad_asignada,
         usr.nombre AS nombre_vecino,
         GREATEST(0, 20 - FLOOR(EXTRACT(EPOCH FROM (NOW() - r.fecha_ingreso)) / 86400)::INTEGER) AS dias_restantes,
-        (EXTRACT(EPOCH FROM (NOW() - r.fecha_ingreso)) / 86400 > 20) AS vencido
+        (EXTRACT(EPOCH FROM (NOW() - r.fecha_ingreso)) / 86400 > 20) AS vencido,
+        -- Subconsulta para traer toda la trazabilidad historica con motivos de derivacion (RF-05)
+        (
+          SELECT json_agg(
+            json_build_object(
+              'estado', h.estado,
+              'fecha', h.fecha,
+              'observacion', h.observacion,
+              'unidad_destino', u_dest.nombre,
+              'nombre_responsable', usr_h.nombre
+            ) ORDER BY h.fecha ASC
+          )
+          FROM historial_reclamos h
+          JOIN usuarios usr_h ON h.id_usuario = usr_h.id_usuario
+          LEFT JOIN unidades u_dest ON h.id_unidad_destino = u_dest.id_unidad
+          WHERE h.id_reclamo = r.id_reclamo
+        ) AS historial
       FROM reclamos r
       JOIN categorias c ON r.id_categoria = c.id_categoria
       JOIN unidades u ON r.id_unidad_asignada = u.id_unidad
       JOIN usuarios usr ON r.id_usuario = usr.id_usuario
       WHERE 1=1
     `;
-
     const valores = [];
     let contador = 1;
 
