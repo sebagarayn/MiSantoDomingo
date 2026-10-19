@@ -221,7 +221,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_token>"
+            "value": "Bearer <pega_aqui_el_tokenvecino>"
           }
         ],
         "body": {
@@ -362,7 +362,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_token>"
+            "value": "Bearer <pega_aqui_el_tokenadmin>"
           }
         ],
         "body": {
