@@ -154,7 +154,7 @@ El funcionario municipal encargado de la OIRS puede acceder a los reclamos ingre
 
 - **RF-07. Derivación de reclamos**: Permite derivar un reclamo a otra unidad municipal para que sea gestionado por el área correspondiente. Para realizar la derivación es obligatorio indicar la unidad de destino y un motivo de la derivación.
 
-- **RF-08. Gestión y cierre de reclamos: Permite actualizar el estado de un reclamo durante su gestión y marcarlo como **"Resuelto"**, siempre que se ingrese una respuesta formal.
+- **RF-08. Gestión y cierre de reclamos**: Permite actualizar el estado de un reclamo durante su gestión y marcarlo como **"Resuelto"**, siempre que se ingrese una respuesta formal.
 
 ### 4.3. Acceso público (sin sesión)
  
@@ -229,7 +229,7 @@ MiSantoDomingo/
 
 ### 6.2. Diagrama de arquitectura
 
-<!-- El diagrama de arquitectura-->
+
 
 ---
 
@@ -250,90 +250,164 @@ Los scripts están en la carpeta `database/` y **deben ejecutarse en este orden*
 | 2     | `01_usuarios_prueba.sql` | Crea las cuentas de demostración (vecino y funcionario OIRS).                                    |
 | 3     | `02_datos_prueba.sql`    | Carga 3 reclamos de prueba con su historial.                                                     |
 
-el `schema.sql` solo crea la estructura
+**Justificación de `01_usuarios_prueba.sql`:** el `schema.sql` solo crea la estructura
 y los catálogos, pero ningún usuario. Sin usuarios no se puede iniciar sesión ni probar
-las rutas protegidas
-
-el `02_datos_prueba.sql` falla porque sus reclamos referencian a los
+las rutas protegidas, y `02_datos_prueba.sql` falla porque sus reclamos referencian a los
 usuarios con id 1 y 2 (llaves foráneas). Este script deja la base lista solo con scripts
 SQL, sin registrar usuarios a mano por la API. Las contraseñas se almacenan hasheadas con
 bcrypt (no en texto plano).
 
 ### 7.3. Datos de prueba (`02_datos_prueba.sql`)
 
+Permite validar en vivo los casos borde del sistema:
+ 
+| Folio | Estado | Antigüedad | Caso que valida |
+| :---- | :----- | :--------- | :-------------- |
+| `SD-2026-000101` | Pendiente | 3 días | Reclamo reciente dentro de plazo |
+| `SD-2026-000088` | Derivado | 26 días | Plazo legal de 20 días vencido y derivación a unidad |
+| `SD-2026-000042` | Resuelto | 15 días | Reclamo con respuesta formal, listo para probar la calificación de 1 a 5 estrellas |
+ 
+Cada reclamo incluye su registro en `historial_reclamos`.
+
+### 7.4. Verificación
+
+Ejecutar en el Query Tool:
+ 
+```sql
+SELECT folio, estado,
+       CURRENT_DATE - fecha_ingreso::date AS dias_transcurridos
+FROM reclamos
+ORDER BY fecha_ingreso;
+```
+Deben aparecer 3 reclamos (26, 15 y 3 días).
+
+### 7.5. Modelo relacional
+
+```mermaid
+erDiagram
+    USUARIOS ||--o{ RECLAMOS : ingresa
+    CATEGORIAS ||--o{ RECLAMOS : clasifica
+    UNIDADES ||--o{ RECLAMOS : "tiene asignado"
+    RECLAMOS ||--o{ HISTORIAL_RECLAMOS : registra
+    USUARIOS ||--o{ HISTORIAL_RECLAMOS : realiza
+    UNIDADES |o--o{ HISTORIAL_RECLAMOS : "destino de derivacion"
+    RECLAMOS ||--o| CALIFICACIONES : recibe
+ 
+    USUARIOS {
+        int id_usuario PK
+        string nombre
+        string correo UK
+        string password_hash
+        string telefono
+        string rol
+        timestamptz fecha_registro
+    }
+    CATEGORIAS {
+        int id_categoria PK
+        string nombre UK
+    }
+    UNIDADES {
+        int id_unidad PK
+        string nombre UK
+    }
+    RECLAMOS {
+        int id_reclamo PK
+        string folio UK
+        int id_usuario FK
+        int id_categoria FK
+        int id_unidad_asignada FK
+        string descripcion
+        string ubicacion
+        string foto_url
+        string estado
+        timestamptz fecha_ingreso
+        string respuesta_formal
+    }
+    HISTORIAL_RECLAMOS {
+        int id_historial PK
+        int id_reclamo FK
+        int id_usuario FK
+        int id_unidad_destino FK
+        string estado
+        string observacion
+        timestamptz fecha
+    }
+    CALIFICACIONES {
+        int id_calificacion PK
+        int id_reclamo FK
+        smallint puntaje
+        string comentario
+        timestamptz fecha
+    }
+```
+
+### 7.6. Descripción de tablas
+
 | Tabla | Descripción | Clave primaria | Claves foráneas |
-| ----- | ----------- | -------------- | --------------- |
-|       |             |                |                 |
-|       |             |                |                 |
-
-### 7.4. Restricciones e integridad
-
-<!-- Lo que vimos en taller de BD ---- NOT NULL, UNIQUE, CHECK, ON DELETE, / ON UPDATE -->
-
-### 7.5. Archivo `.sql`
-
-El script que crea la base de datos, las tablas, atributos, claves primarias, claves foreanas y relaciones se encuentra en:
-
-```
-ruta/del/archivo.sql
-```
-
-Para ejecutarlo:
-
-```bash
+|---|---|---|---|
+| `usuarios` | Cuentas de vecinos y funcionarios OIRS | `id_usuario` | — |
+| `categorias` | Catálogo de categorías de reclamo | `id_categoria` | — |
+| `unidades` | Catálogo de unidades municipales | `id_unidad` | — |
+| `reclamos` | Reclamos ingresados por los vecinos | `id_reclamo` | `id_usuario` → `usuarios`; `id_categoria` → `categorias`; `id_unidad_asignada` → `unidades` |
+| `historial_reclamos` | Trazabilidad de cada cambio de estado y derivación (inmutable) | `id_historial` | `id_reclamo` → `reclamos`; `id_usuario` → `usuarios`; `id_unidad_destino` → `unidades` (opcional) |
+| `calificaciones` | Calificación de 1 a 5 de un reclamo resuelto (voto único) | `id_calificacion` | `id_reclamo` → `reclamos` (único) |
 
 
-```
+### 7.7. Restricciones e integridad
 
-### 7.6. Datos iniciales o de prueba
+| Tipo | Detalle |
+|---|---|
+| Claves primarias | Identificadores autogenerados (`GENERATED ALWAYS AS IDENTITY`) en todas las tablas |
+| `NOT NULL` | Campos esenciales de cada tabla (nombre, correo, hash, folio, descripción, ubicación, estado, etc.) |
+| `UNIQUE` | `usuarios.correo`, `reclamos.folio`, nombres de `categorias` y `unidades`, y `calificaciones.id_reclamo` (garantiza el voto único) |
+| `CHECK` de dominio | `rol` solo `vecino` o `admin`; `estado` solo `Pendiente`, `En Revisión`, `Derivado`, `Resuelto` o `Rechazado`; `puntaje` entre 1 y 5; textos obligatorios sin espacios vacíos |
+| `CHECK` de negocio | `resuelto_con_respuesta` (un reclamo resuelto exige respuesta formal); `derivacion_completa` (una derivación exige unidad de destino y observación); `destino_solo_derivacion` (solo las derivaciones llevan unidad de destino); `correo_normalizado` (correo en minúsculas y con formato válido) |
+| Claves foráneas | Todas con `ON DELETE RESTRICT`: no se puede borrar un registro referenciado. No se define `ON UPDATE` (se usa el comportamiento por defecto, `NO ACTION`) |
+| Trigger | `historial_inmutable` impide modificar o eliminar filas de `historial_reclamos` |
+| Índices | Por usuario, categoría y unidad en `reclamos`, y por reclamo y fecha en `historial_reclamos` |
+ 
+> **Aviso:** si las cuentas de demostración ya se crearon registrándolas por la API
+> (`POST /api/auth/registro`), no ejecutar `01_usuarios_prueba.sql`, porque los
+> correos ya existen y daría error de duplicado. Ese script es para bases nuevas.
+ 
+---
 
-<!-- Aqui van los datos iniciales o de prueba del INSERT -->
 
 ## 8. Instrucciones de instalación y configuración
 
 ### 8.1. Requisitos previos
 
--Node.js: Versión 18.x o superior recomendada.
+- Node.js: versión 18.11 o superior
+- npm: versión 9.x o superior.
+- PostgreSQL y pgAdmin instalados.
+- Git: instalado en el sistema operativo.
 
-- Motor de base de datos:
-  -npm: Versión 9.x o superior.
-  -Git: Instalado en el sistema operativo.
 
 ### 8.2. Pasos de instalación
 
-1. Clonar el repositorio:
+**1. Clonar el repositorio**
 
 ```bash
    git clone https://github.com/sebagarayn/MiSantoDomingo.git
 ```
-
-2. Entrar al directorio del proyecto:
+ 
+**2. Entrar al directorio del proyecto**
 
 ```bash
    cd MiSantoDomingo
 ```
-
-3. Cambiar a la rama backend:
+ 
+**3. Cambiar a la rama backend**
 
 ```bash
    git checkout backend
 ```
-
-4. Instalar dependencias:
-
-```bash
-
-```
-
-5. Crear la base de datos con el archivo `.sql`:
+ 
+**4. Instalar las dependencias**
 
 ```bash
-
+   npm install
 ```
-
-6. Configurar las variables de entorno (ver sección 9).
-
----
 
 ## 9. Variables de entorno
 
