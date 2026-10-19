@@ -107,7 +107,9 @@ export const listarReclamos = async (req, res) => {
         usr.nombre AS nombre_vecino,
         GREATEST(0, 20 - FLOOR(EXTRACT(EPOCH FROM (NOW() - r.fecha_ingreso)) / 86400)::INTEGER) AS dias_restantes,
         (EXTRACT(EPOCH FROM (NOW() - r.fecha_ingreso)) / 86400 > 20) AS vencido,
-        -- Subconsulta para traer toda la trazabilidad historica con motivos de derivacion (RF-05)
+        -- Trae el puntaje de calificacion si existe (RF-09)
+        (SELECT puntaje FROM calificaciones WHERE id_reclamo = r.id_reclamo LIMIT 1) AS calificacion,
+        -- Trae la trazabilidad historica (RF-05)
         (
           SELECT json_agg(
             json_build_object(
