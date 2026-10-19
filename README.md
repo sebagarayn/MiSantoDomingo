@@ -539,28 +539,39 @@ Para configurar el entorno local, se debe copiar la plantilla de ejemplo:
 ---
 
 ## 10. Instrucciones de ejecución y uso
-
+ 
 ### 10.1. Levantar el servidor
-
+ 
+En la terminal de Visual Studio Code, dentro de la carpeta `MiSantoDomingo`:
+ 
 ```bash
-
+npm run dev     # desarrollo, con reinicio automático
+npm start       # producción
 ```
-
-Una vez iniciado, la API queda disponible en:
-
-```
-
-```
-
-### 10.2. Cuentas de prueba
-
-Cuentas de demostración sembradas mediante `database/01_usuarios_prueba.sql` y alineadas directamente con las proto-personas definidas para el proyecto:
-
-| Rol                          | Nombre         | Correo Electrónico | Contraseña | Permisos y Capacidades                                                                                                                |
-| :--------------------------- | :------------- | :----------------- | :--------- | :------------------------------------------------------------------------------------------------------------------------------------ |
-| **Vecina (Ciudadana)**       | María González | `vecino@correo.cl` | `123456`   | Ingresar reclamos, consultar "Mis Reclamos", calificar con estrellas casos resueltos y cancelar reclamos propios en estado Pendiente. |
-| **Funcionario OIRS (Admin)** | Felipe Pérez   | `admin@correo.cl`  | `123456`   | Acceso a bandeja general tabular, filtros combinados, derivación a unidades técnicas y cierre formal con respuesta oficial.           |
-
+ 
+El servidor queda en `http://localhost:3000` y, al iniciar, confirma la conexión con
+PostgreSQL en la consola. En modo `dev` el servidor se reinicia solo al detectar
+cambios en archivos; si una petición falla con `ECONNRESET` justo en ese momento, basta
+reenviarla.
+ 
+### 10.2. Cuentas de demostración
+ 
+Cuentas creadas con `database/01_usuarios_prueba.sql` y alineadas con las proto-personas definidas para el proyecto:
+ 
+| Rol | Nombre | Correo electrónico | Contraseña | Permisos y capacidades |
+| :-- | :----- | :----------------- | :--------- | :--------------------- |
+| **Vecina (ciudadana)** | Maria Gonzalez | `vecino@correo.cl` | `123456` | Ingresar reclamos, consultar "Mis Reclamos", calificar con estrellas casos resueltos y cancelar reclamos propios en estado Pendiente. |
+| **Funcionario OIRS (admin)** | Felipe Perez | `admin@correo.cl` | `123456` | Bandeja general con filtros combinados, derivación a unidades técnicas y cierre formal con respuesta oficial. |
+ 
+### 10.3. Uso de la API
+ 
+1. Iniciar sesión: `POST /api/auth/login` con body JSON `{ "correo": "vecino@correo.cl", "password": "123456" }`. Devuelve un token JWT.
+2. Para rutas protegidas, enviar el header `Authorization: Bearer <token>` (el token expira a las 8 horas).
+3. Ejemplos rápidos:
+   - Público (sin token): `GET /api/reclamos/folio/SD-2026-000101`
+   - Con token: `GET /api/reclamos`
+   - Calificar un reclamo resuelto (solo su dueño): `POST /api/reclamos/:id/calificacion`
+     con body `{ "puntaje": 5 }`. La calificación es de voto único.
 ---
 
 ## 11. Documentación de la API REST
