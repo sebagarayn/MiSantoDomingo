@@ -133,7 +133,7 @@
       "response": []
     },
     {
-      "name": "Post clavemala",
+      "name": "Login clave erronea",
       "request": {
         "method": "POST",
         "header": [],
@@ -251,7 +251,7 @@
       "response": []
     },
     {
-      "name": "Usuario prueba",
+      "name": "Registro usuario nuevo",
       "request": {
         "method": "POST",
         "header": [],
@@ -281,7 +281,7 @@
       "response": []
     },
     {
-      "name": "Registro Dup.",
+      "name": "Registro correo duplicado.",
       "request": {
         "method": "POST",
         "header": [],
@@ -311,7 +311,7 @@
       "response": []
     },
     {
-      "name": "ReclamoP",
+      "name": "Crear reclamo",
       "request": {
         "method": "POST",
         "header": [
