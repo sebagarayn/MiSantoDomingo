@@ -86,20 +86,37 @@ const ConsultaPublicaPage: React.FC = () => {
     setLoading(false);
   };
 
-  // Envia la calificacion de 1 a 5 estrellas al mock y actualiza la tarjeta al tiro para bloquear los botones (RF-09)
+  // Envia la calificacion de 1 a 5 estrellas protegiendo contra usuarios sin sesion
   const handleCalificar = async (puntuacion: number) => {
     if (!report) return;
-    setCalificacionTemp(puntuacion);
-    await reportService.calificarRespuesta(report.folio, {
-      calificacion: puntuacion,
-    });
-    setToastMsg(`Calificación registrada: ${puntuacion} de 5 estrellas.`);
 
-    // Refrescamos el reclamo para que la interfaz sepa que ya tiene calificacion guardada
-    const actualizado = await reportService.obtenerReclamoPorFolio(
-      report.folio,
-    );
-    setReport(actualizado);
+    // 1. Verificamos si la persona tiene sesion iniciada en el navegador
+    const token = localStorage.getItem("msd_token");
+    if (!token) {
+      setToastMsg(
+        "Solo el vecino autor del reclamo puede calificar. Inicia sesión con tu cuenta para evaluar.",
+      );
+      return;
+    }
+
+    try {
+      setCalificacionTemp(puntuacion);
+      await reportService.calificarRespuesta(report.folio, {
+        calificacion: puntuacion,
+      });
+      setToastMsg(`Calificación registrada: ${puntuacion} de 5 estrellas.`);
+
+      // Refrescamos el reclamo para que la interfaz muestre las estrellas fijas
+      const actualizado = await reportService.obtenerReclamoPorFolio(
+        report.folio,
+      );
+      setReport(actualizado);
+    } catch (error: any) {
+      setToastMsg(
+        error.message ||
+          "No tienes permiso para calificar este reclamo (debes ser el creador).",
+      );
+    }
   };
 
   // Asigna los colores limpios de la paleta segun el estado del reclamo
