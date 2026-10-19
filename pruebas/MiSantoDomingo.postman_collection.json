@@ -15,9 +15,14 @@
         "url": {
           "raw": "http://localhost:3000/api/health",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "3000",
-          "path": ["api", "health"]
+          "path": [
+            "api",
+            "health"
+          ]
         }
       },
       "response": []
@@ -39,9 +44,45 @@
         "url": {
           "raw": "http://localhost:3000/api/auth/login",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "3000",
-          "path": ["api", "auth", "login"]
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "   { \"correo\": \"admin@correo.cl\", \"password\": \"123456\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
         }
       },
       "response": []
@@ -54,9 +95,14 @@
         "url": {
           "raw": "http://localhost:3000/api/categorias",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "3000",
-          "path": ["api", "categorias"]
+          "path": [
+            "api",
+            "categorias"
+          ]
         }
       },
       "response": []
@@ -74,24 +120,14 @@
         "url": {
           "raw": "http://localhost:3000/api/reclamos",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "3000",
-          "path": ["api", "reclamos"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Get folio",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3000/api/reclamos/folio/SD-2026-000101",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "reclamos", "folio", "SD-2026-000101"]
+          "path": [
+            "api",
+            "reclamos"
+          ]
         }
       },
       "response": []
@@ -103,7 +139,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{ \"correo\": \"vecino@correo.cl\", \"password\": \"estanoesunaclave\" }",
+          "raw": "{ \"correo\": \"vecino@correo.cl\", \"password\": \"clave_erronea\" }",
           "options": {
             "raw": {
               "language": "json"
@@ -113,12 +149,341 @@
         "url": {
           "raw": "http://localhost:3000/api/auth/login",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "3000",
-          "path": ["api", "auth", "login"]
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
         }
       },
       "response": []
+    },
+    {
+      "name": "Post sin contraseña",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "   { \"correo\": \"vecino@correo.cl\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get folio",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/reclamos/folio/SD-2026-999999",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "reclamos",
+            "folio",
+            "SD-2026-999999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Patch",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <pega_aqui_el_token>"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "    { \"nuevo_estado\": \"Resuelto\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/reclamos/1/estado",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "reclamos",
+            "1",
+            "estado"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Usuario prueba",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"nombre\": \"Usuario Prueba\", \"correo\": \"prueba@correo.cl\", \"password\": \"123456\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/registro",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "auth",
+            "registro"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Registro Dup.",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "    { \"nombre\": \"Usuario Prueba\", \"correo\": \"prueba@correo.cl\", \"password\": \"123456\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/registro",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "auth",
+            "registro"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ReclamoP",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer_token_142z}}"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "id_categoria",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "descripcion",
+              "value": "Reclamo de prueba",
+              "type": "text"
+            },
+            {
+              "key": "ubicacion",
+              "value": "Calle Los Aromos 100",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/reclamos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "reclamos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cambio Estado",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <pega_aqui_el_token>"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"nuevo_estado\": \"Derivado\", \"id_unidad_destino\": 2, \"observacion\": \"Corresponde a Obras municipales\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/reclamos/1/estado",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "reclamos",
+            "1",
+            "estado"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <pega_aqui_el_token>"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/reclamos/4",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "reclamos",
+            "4"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <pega_aqui_el_token>"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/reclamos/9999",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "reclamos",
+            "9999"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "secret": true
+    },
+    {
+      "key": "tokenAdmin",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_142z",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_13q0",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_11c5",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_0zrr",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_1bax",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_0zb1",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_0gok",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_15bg",
+      "secret": true
     }
   ]
 }
