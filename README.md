@@ -99,6 +99,7 @@ Entregables:
 Tiempos de respuesta prolongados o falta de soluciones efectivas a los reclamos y
 solicitudes que los ciudadanos ingresan al municipio, generando frustración.
 
+> La justificación completa del problema y la caracterización de usuarios se encuentra en el README de la rama `frontend`.
 
 ### 3.3. Objetivos del proyecto
 
@@ -197,13 +198,15 @@ El backend sigue una arquitectura en capas. Cada petición pasa por `app.js` (CO
 
 
 ```
-MiSantoDomingo/                 
+MiSantoDomingo/                 # rama backend
 ├── database/
+│   ├── 00_crear_base.sql       # Crea la base de datos misantodomingo_db
 │   ├── schema.sql              # Tablas, restricciones, índices, trigger y catálogos
 │   ├── 01_usuarios_prueba.sql  # Cuentas de demostración
 │   └── 02_datos_prueba.sql     # Reclamos de prueba con historial
 ├── pruebas/
-│   └── MiSantoDomingo.postman_collection.json
+│   ├── MiSantoDomingo.postman_collection.json
+│   └── capturas/               # Evidencia de las pruebas en Postman 
 ├── src/
 │   ├── config/
 │   │   └── db.js               # Pool de conexiones a PostgreSQL
@@ -223,6 +226,8 @@ MiSantoDomingo/
 ├── .env.example                # Plantilla de variables de entorno
 ├── .gitignore
 ├── package.json
+├── package-lock.json
+├── README.md
 └── server.js                   # Punto de entrada: levanta el servidor y verifica la BD
 ```
 
@@ -230,6 +235,15 @@ MiSantoDomingo/
 ### 6.2. Diagrama de arquitectura
 
 
+```mermaid
+flowchart LR
+    C["Cliente<br/>Ionic + React / Postman"] --> A["app.js<br/>CORS y JSON"]
+    A --> R["Rutas<br/>/api/auth, /api/reclamos, /api"]
+    R --> M["Middlewares<br/>verificarToken, soloAdmin, upload"]
+    M --> K["Controladores<br/>auth, catalogos, reclamos"]
+    K --> P[("PostgreSQL<br/>misantodomingo_db")]
+    K --> U["uploads/<br/>fotografías"]
+```
 
 ---
 
@@ -237,25 +251,25 @@ MiSantoDomingo/
 
 ### 7.1. Creación de la base
 
-Crear en PostgreSQL (pgAdmin) una base de datos llamada `misantodomingo_db`
+La base de datos se llama `misantodomingo_db`. Se crea ejecutando el script `database/00_crear_base.sql` conectado a la base `postgres` (Query Tool sobre `postgres`, abrir el archivo y presionar F5). También se puede crear a mano en pgAdmin: clic derecho sobre **Databases** → **Create** → **Database...** y escribir `misantodomingo_db`.
 
 ### 7.2. Scripts SQL y orden de ejecución
 
-Los scripts están en la carpeta `database/` y **deben ejecutarse en este orden**
-(Query Tool sobre `misantodomingo_db`, abrir el archivo y presionar F5):
+Los scripts están en la carpeta `database/` y **deben ejecutarse en este orden**. El primero se ejecuta sobre la base `postgres`; los otros tres, sobre `misantodomingo_db` (Query Tool, abrir el archivo y presionar F5):
 
-| Orden | Archivo                  | Qué hace                                                                                         |
-| :---- | :----------------------- | :----------------------------------------------------------------------------------------------- |
-| 1     | `schema.sql`             | Crea las tablas, restricciones y los catálogos (6 categorías y 5 unidades). No incluye usuarios. |
-| 2     | `01_usuarios_prueba.sql` | Crea las cuentas de demostración (vecino y funcionario OIRS).                                    |
-| 3     | `02_datos_prueba.sql`    | Carga 3 reclamos de prueba con su historial.                                                     |
-
+| Orden | Archivo | Qué hace |
+| :---- | :------ | :------- |
+| 1 | `00_crear_base.sql` | Crea la base de datos `misantodomingo_db`. |
+| 2 | `schema.sql` | Crea las tablas, restricciones y los catálogos (6 categorías y 5 unidades). No incluye usuarios. |
+| 3 | `01_usuarios_prueba.sql` | Crea las cuentas de demostración (vecino y funcionario OIRS). |
+| 4 | `02_datos_prueba.sql` | Carga 3 reclamos de prueba con su historial. |
+ 
 **Justificación de `01_usuarios_prueba.sql`:** el `schema.sql` solo crea la estructura
 y los catálogos, pero ningún usuario. Sin usuarios no se puede iniciar sesión ni probar
 las rutas protegidas, y `02_datos_prueba.sql` falla porque sus reclamos referencian a los
 usuarios con id 1 y 2 (llaves foráneas). Este script deja la base lista solo con scripts
 SQL, sin registrar usuarios a mano por la API. Las contraseñas se almacenan hasheadas con
-bcrypt (no en texto plano).
+bcrypt.
 
 ### 7.3. Datos de prueba (`02_datos_prueba.sql`)
 
@@ -352,7 +366,6 @@ erDiagram
 | `historial_reclamos` | Trazabilidad de cada cambio de estado y derivación (inmutable) | `id_historial` | `id_reclamo` → `reclamos`; `id_usuario` → `usuarios`; `id_unidad_destino` → `unidades` (opcional) |
 | `calificaciones` | Calificación de 1 a 5 de un reclamo resuelto (voto único) | `id_calificacion` | `id_reclamo` → `reclamos` (único) |
 
-
 ### 7.7. Restricciones e integridad
 
 | Tipo | Detalle |
@@ -377,37 +390,124 @@ erDiagram
 
 ### 8.1. Requisitos previos
 
-- Node.js: versión 18.11 o superior
-- npm: versión 9.x o superior.
-- PostgreSQL y pgAdmin instalados.
-- Git: instalado en el sistema operativo.
+- **Node.js:** versión 18.11 o superior.
+- **npm:** versión 9.x o superior.
+- **PostgreSQL y pgAdmin:** instalados y con el servicio de PostgreSQL en ejecución.
+- **Git:** instalado en el sistema operativo.
+- **Postman** (opcional): para probar los endpoints.
 
 
 ### 8.2. Pasos de instalación
 
-**1. Clonar el repositorio**
+**En Visual studio**:
+
+**Paso 1. Clonar el repositorio**
 
 ```bash
    git clone https://github.com/sebagarayn/MiSantoDomingo.git
 ```
  
-**2. Entrar al directorio del proyecto**
+**Paso 2. Entrar al directorio del proyecto**
 
 ```bash
    cd MiSantoDomingo
 ```
  
-**3. Cambiar a la rama backend**
+**Paso 3. Cambiar a la rama backend**
 
 ```bash
    git checkout backend
 ```
  
-**4. Instalar las dependencias**
+**Paso 4. Instalar las dependencias**
 
 ```bash
    npm install
 ```
+
+**Paso 5. Crear la base de datos** *(pgAdmin 4)*
+ 
+1. Conectarse al servidor de PostgreSQL (ícono del elefante).
+2. Clic derecho sobre la base **postgres** → **Query Tool**.
+3. Abrir el archivo `database/00_crear_base.sql` (ícono de carpeta, **Open File**) y presionar **F5**. Crea la base `misantodomingo_db`.
+4. Actualizar el árbol (clic derecho sobre **Databases** → **Refresh**) y comprobar que aparece `misantodomingo_db`.
+Si no encuentras el archivo, se puede crear la base a mano: clic derecho sobre **Databases** → **Create** → **Database...**, escribir exactamente `misantodomingo_db` y presionar **Save**.
+ 
+**Paso 6. Crear las tablas y cargar los datos** *(pgAdmin 4)*
+ 
+Este paso se hace dentro de la base recién creada. Se abren y ejecutan **uno por uno** los tres archivos de la carpeta `database/`, en este orden:
+ 
+| Orden | Archivo | Qué hace |
+| :---- | :------ | :------- |
+| 1 | `schema.sql` | Crea las tablas, restricciones y los catálogos (6 categorías y 5 unidades). No incluye usuarios. |
+| 2 | `01_usuarios_prueba.sql` | Crea las cuentas de demostración (vecino y funcionario OIRS). |
+| 3 | `02_datos_prueba.sql` | Carga 3 reclamos de prueba con su historial. |
+ 
+1. En el árbol de pgAdmin, abrir **Databases** y hacer clic derecho sobre **`misantodomingo_db`** (la que acabas de crear, no `postgres`) → **Query Tool**.
+2. En la barra de la ventana del Query Tool, presionar el ícono de carpeta (**Open File**).
+3. Buscar la carpeta `MiSantoDomingo/database/`, abrir `schema.sql` y presionar **F5**. Debe aparecer el mensaje *Query returned successfully*.
+4. Repetir los pasos 2 y 3 con `01_usuarios_prueba.sql` y después con `02_datos_prueba.sql`.
+Si no sabes dónde quedó la carpeta del proyecto: en Visual Studio Code, clic derecho sobre la carpeta `database` → **Reveal in File Explorer**; o en la terminal, dentro de `MiSantoDomingo`, ejecutar `pwd` para ver la ruta.
+ 
+> **Importante:** el orden no se puede alterar, porque `02_datos_prueba.sql` necesita las cuentas creadas por `01_usuarios_prueba.sql`. Si las cuentas de demostración ya se crearon registrándolas por la API (`POST /api/auth/registro`), no ejecutar `01_usuarios_prueba.sql`, porque los correos ya existen y daría error de duplicado.
+ 
+Para comprobar que todo se cargó bien, en el mismo Query Tool abrir una pestaña nueva y ejecutar con **F5**:
+ 
+```sql
+SELECT folio, estado,
+       CURRENT_DATE - fecha_ingreso::date AS dias_transcurridos
+FROM reclamos
+ORDER BY fecha_ingreso;
+```
+ 
+Deben aparecer 3 reclamos (26, 15 y 3 días).
+ 
+**Paso 7. Crear el archivo de variables de entorno** *(Terminal, dentro de la carpeta `MiSantoDomingo`)*
+ 
+Hay que crear una copia del archivo `.env.example` con el nombre `.env`. En la terminal, estando dentro de `MiSantoDomingo`:
+ 
+- En Windows (PowerShell o terminal de Visual Studio Code):
+```powershell
+  Copy-Item .env.example .env
+```
+ 
+- En Linux / macOS:
+```bash
+  cp .env.example .env
+```
+ 
+También se puede hacer a mano en Visual Studio Code: clic derecho sobre `.env.example` → **Copy**, clic derecho en un espacio vacío del panel → **Paste**, y renombrar la copia a `.env`.
+ 
+**Paso 8. Completar el archivo `.env`** *(Visual Studio Code o editor de texto)*
+ 
+Abrir la carpeta `MiSantoDomingo` en Visual Studio Code (**File → Open Folder...**), abrir el archivo `.env` y dejarlo así, cambiando solo `PGPASSWORD`
+ 
+```env
+PORT=3000
+PGHOST=localhost
+PGPORT=5432
+PGDATABASE=misantodomingo_db
+PGUSER=postgres
+PGPASSWORD=tu_contraseña_de_postgres
+JWT_SECRET=una_cadena_larga_y_aleatoria
+```
+ 
+- `PGPASSWORD`: la contraseña que configuraste al instalar PostgreSQL.
+- `JWT_SECRET`: obligatoria. Si falta, el servidor no inicia y muestra un mensaje en la terminal.
+- El archivo `.env` está en `.gitignore`: no se sube al repositorio.
+Guardar el archivo (Ctrl + S).
+ 
+**Paso 9. Comprobar la instalación** *(Terminal y navegador)*
+ 
+En la terminal, dentro de `MiSantoDomingo`:
+ 
+```bash
+npm run dev
+```
+ 
+En la terminal debe aparecer la confirmación de la conexión con PostgreSQL, y el servidor queda disponible en `http://localhost:3000`. En el navegador, abrir `http://localhost:3000/api/health`: debe responder con un JSON de estado correcto.
+ 
+---
 
 ## 9. Variables de entorno
 
