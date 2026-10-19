@@ -8,7 +8,7 @@
   },
   "item": [
     {
-      "name": "Get",
+      "name": "Health check",
       "request": {
         "method": "GET",
         "header": [],
@@ -28,7 +28,7 @@
       "response": []
     },
     {
-      "name": "Post",
+      "name": "Login vecino",
       "request": {
         "method": "POST",
         "header": [],
@@ -58,7 +58,7 @@
       "response": []
     },
     {
-      "name": "New Request",
+      "name": "Login admin",
       "request": {
         "method": "POST",
         "header": [],
@@ -88,7 +88,7 @@
       "response": []
     },
     {
-      "name": "Getcategorias",
+      "name": "Listar categorias",
       "request": {
         "method": "GET",
         "header": [],
@@ -108,7 +108,7 @@
       "response": []
     },
     {
-      "name": "Get reclamos",
+      "name": "Listar reclamos con token",
       "request": {
         "method": "GET",
         "header": [
@@ -193,7 +193,7 @@
       "response": []
     },
     {
-      "name": "Get folio",
+      "name": "Folio inexistente",
       "request": {
         "method": "GET",
         "header": [],
@@ -215,7 +215,7 @@
       "response": []
     },
     {
-      "name": "Patch",
+      "name": "Cambio de estado sin ser admin",
       "request": {
         "method": "PATCH",
         "header": [
@@ -317,7 +317,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "{{bearer_token_142z}}"
+            "value": "Bearer <token_vecino>"
           }
         ],
         "body": {
@@ -356,7 +356,7 @@
       "response": []
     },
     {
-      "name": "Cambio Estado",
+      "name": "Derivar reclamo como admin",
       "request": {
         "method": "PATCH",
         "header": [
@@ -392,7 +392,7 @@
       "response": []
     },
     {
-      "name": "Delete",
+      "name": "Cancelar reclamo propio",
       "request": {
         "method": "DELETE",
         "header": [
@@ -418,7 +418,7 @@
       "response": []
     },
     {
-      "name": "Delete",
+      "name": "Cancelar reclamo inexistente",
       "request": {
         "method": "DELETE",
         "header": [
