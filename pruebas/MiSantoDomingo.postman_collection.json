@@ -444,46 +444,5 @@
       "response": []
     }
   ],
-  "variable": [
-    {
-      "key": "token",
-      "secret": true
-    },
-    {
-      "key": "tokenAdmin",
-      "secret": true
-    },
-    {
-      "key": "bearer_token_142z",
-      "secret": true
-    },
-    {
-      "key": "json_web_token_13q0",
-      "secret": true
-    },
-    {
-      "key": "bearer_token_11c5",
-      "secret": true
-    },
-    {
-      "key": "json_web_token_0zrr",
-      "secret": true
-    },
-    {
-      "key": "bearer_token_1bax",
-      "secret": true
-    },
-    {
-      "key": "json_web_token_0zb1",
-      "secret": true
-    },
-    {
-      "key": "bearer_token_0gok",
-      "secret": true
-    },
-    {
-      "key": "json_web_token_15bg",
-      "secret": true
-    }
-  ]
+  "variable": []
 }
