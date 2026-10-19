@@ -24,7 +24,8 @@ const LoginPage: React.FC = () => {
   const { login } = useAuth();
 
   // Esta funcion valida las credenciales contra nuestro mock de authService
-  const handleLogin = (e: React.FormEvent) => {
+  // Le agregamos async a la funcion
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Buscamos si el correo existe en la lista de prueba
@@ -36,10 +37,9 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    // Si existe, guardamos la sesion en el contexto global (se sincroniza con localStorage)
-    login(usuario.email, password, usuario.rol);
+    await login(usuario.email, password, usuario.rol);
 
-    // Redirigimos al portal que le corresponde segun su rol
+    // Recien cuando el backend confirma la sesion, cambiamos de pantalla
     if (usuario.rol === "admin") {
       history.push("/admin/inicio");
     } else {

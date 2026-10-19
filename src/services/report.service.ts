@@ -31,13 +31,15 @@ const MAPA_UNIDADES: Record<string, number> = {
 
 // Convierte el registro de PostgreSQL al formato IReport que espera tu interfaz
 const mapearDesdeDB = (r: any): IReport => {
-  // Obtenemos el id del usuario que tiene la sesion abierta actualmente
+  // Obtenemos el usuario de la sesion actual
   const sesionStr = localStorage.getItem("msd_session_user");
   const usuarioActual = sesionStr ? JSON.parse(sesionStr) : null;
-  const idCreador = r.id_usuario
-    ? `usr-${r.id_usuario}`
-    : usuarioActual
-      ? usuarioActual.id
+
+  // Usamos el id de la sesion para que pase el filtro de "Mis Reclamos" sin importar el formato
+  const idCreador = usuarioActual
+    ? usuarioActual.id
+    : r.id_usuario
+      ? `usr-${r.id_usuario}`
       : "usr-vecino-1";
 
   return {
