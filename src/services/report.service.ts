@@ -58,7 +58,11 @@ const mapearDesdeDB = (r: any): IReport => {
     origen: "usuario",
     creadorId: idCreador,
     respuestaFormal: r.respuesta_formal || undefined,
-    calificacion: r.calificacion ? r.calificacion.puntaje : undefined,
+    calificacion: r.calificacion
+      ? typeof r.calificacion === "object"
+        ? r.calificacion.puntaje
+        : r.calificacion
+      : undefined,
     historial:
       r.historial && r.historial.length > 0
         ? r.historial.map(
@@ -227,7 +231,7 @@ class ReportService {
   // 5. Calificacion ciudadana de 1 a 5 estrellas (RF-09)
   public async calificarRespuesta(
     folio: string,
-    rating: IRatingInput,
+    rating: IRatingInput | any,
   ): Promise<IReport> {
     const resFolio = await fetch(
       `${API_BASE}/reclamos/folio/${encodeURIComponent(folio.trim())}`,
@@ -237,13 +241,19 @@ class ReportService {
 
     const id_reclamo = dataFolio.reclamo.id_reclamo;
 
+    // Detectamos si viene como .calificacion, .puntaje o el numero suelto
+    const valorPuntaje =
+      typeof rating === "object"
+        ? rating.calificacion || rating.puntaje || 5
+        : rating;
+
     const resCalif = await fetch(
       `${API_BASE}/reclamos/${id_reclamo}/calificacion`,
       {
         method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify({
-          puntaje: rating.calificacion,
+          puntaje: valorPuntaje,
         }),
       },
     );
@@ -255,8 +265,32 @@ class ReportService {
       );
     }
 
+    // Refrescamos y retornamos el reclamo con su calificacion guardada
     const reclamoActualizado = await this.obtenerReclamoPorFolio(folio);
     return reclamoActualizado!;
+  }
+
+  // 6. Cancelar reclamo propio en estado Pendiente
+  public async cancelarReclamo(folio: string): Promise<IReport> {
+    const resFolio = await fetch(
+      `${API_BASE}/reclamos/folio/${encodeURIComponent(folio.trim())}`,
+    );
+    const dataFolio = await resFolio.json();
+    if (!resFolio.ok || !dataFolio.ok) throw new Error("Reclamo no encontrado");
+
+    const id_reclamo = dataFolio.reclamo.id_reclamo;
+
+    const resDelete = await fetch(`${API_BASE}/reclamos/${id_reclamo}`, {
+      method: "DELETE",
+      headers: this.getHeaders(),
+    });
+
+    const dataDelete = await resDelete.json();
+    if (!resDelete.ok) {
+      throw new Error(dataDelete.mensaje || "Error al cancelar el reclamo");
+    }
+
+    return (await this.obtenerReclamoPorFolio(folio))!;
   }
 }
 

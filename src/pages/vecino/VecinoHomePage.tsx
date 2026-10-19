@@ -235,6 +235,21 @@ const VecinoHomePage: React.FC = () => {
     cargarReclamos();
   };
 
+  // Cancela un reclamo pendiente usando el verbo DELETE
+  const handleCancelarReclamo = async () => {
+    if (!reclamoDetalle) return;
+    if (window.confirm("¿Estás seguro de que deseas anular este reclamo?")) {
+      try {
+        await reportService.cancelarReclamo(reclamoDetalle.folio);
+        setToastMsg("Reclamo cancelado exitosamente.");
+        setReclamoDetalle(null); // <-- AQUÍ: Debe ser setReclamoDetalle(null)
+        cargarReclamos();
+      } catch (error: any) {
+        setToastMsg(error.message || "Error al cancelar el reclamo.");
+      }
+    }
+  };
+
   // Califica la atencion desde la seccion de consulta de folio
   const handleCalificarDesdeConsulta = async (puntuacion: number) => {
     if (!reporteConsulta) return;
@@ -263,16 +278,20 @@ const VecinoHomePage: React.FC = () => {
   };
 
   const getBadgeStyle = (estado: string) => {
-    switch (estado) {
-      case "Resuelto":
-        return { background: "#DCFCE7", color: "#15803D" };
-      case "Derivado":
-        return { background: "#E0F2FE", color: "#0369A1" };
-      case "En Revisión":
-        return { background: "#F1F5F9", color: "#334155" };
-      case "Pendiente":
+    const est = (estado || "").toLowerCase().trim();
+    switch (est) {
+      case "resuelto":
+        return { background: "#DCFCE7", color: "#15803D" }; // Verde
+      case "rechazado":
+        return { background: "#FEE2E2", color: "#DC2626" }; // Rojo
+      case "derivado":
+        return { background: "#E0F2FE", color: "#0369A1" }; // Azul
+      case "en revisión":
+      case "en revision":
+        return { background: "#F1F5F9", color: "#334155" }; // Gris
+      case "pendiente":
       default:
-        return { background: "#FEF3C7", color: "#B45309" };
+        return { background: "#FEF3C7", color: "#B45309" }; // Amarillo
     }
   };
 
@@ -400,8 +419,8 @@ const VecinoHomePage: React.FC = () => {
                   reclamos.map((r) => {
                     const { diasRestantes, vencido } =
                       reportService.calcularDiasRestantes(r.fechaIngreso);
-                    const enProceso =
-                      r.estado !== "Resuelto" && r.estado !== "Rechazado";
+                    const esCerrado =
+                      r.estado === "Resuelto" || r.estado === "Rechazado";
 
                     return (
                       <IonCard
@@ -434,10 +453,10 @@ const VecinoHomePage: React.FC = () => {
                               #{r.folio}
                             </strong>
 
+                            {/* Badge con el estado y color real sincronizado */}
                             <span
                               style={{
-                                background: enProceso ? "#FEF3C7" : "#DCFCE7",
-                                color: enProceso ? "#B45309" : "#15803D",
+                                ...getBadgeStyle(r.estado),
                                 fontSize: "11px",
                                 fontWeight: 700,
                                 padding: "3px 8px",
@@ -445,7 +464,7 @@ const VecinoHomePage: React.FC = () => {
                                 textTransform: "uppercase",
                               }}
                             >
-                              {enProceso ? "EN PROCESO" : r.estado}
+                              {r.estado}
                             </span>
                           </div>
 
@@ -498,7 +517,8 @@ const VecinoHomePage: React.FC = () => {
                               </span>
                             </div>
 
-                            {enProceso ? (
+                            {/* Pie de tarjeta segun estado */}
+                            {!esCerrado ? (
                               <div
                                 style={{
                                   display: "flex",
@@ -509,13 +529,23 @@ const VecinoHomePage: React.FC = () => {
                                 }}
                               >
                                 <IonIcon icon={timeOutline} />
-                                <span>{diasRestantes} dias restantes</span>
+                                <span>
+                                  {vencido
+                                    ? `Vencido (${diasRestantes}d)`
+                                    : `${diasRestantes} dias restantes`}
+                                </span>
                               </div>
-                            ) : (
+                            ) : r.estado === "Resuelto" ? (
                               <span
                                 style={{ color: "#15803D", fontWeight: 700 }}
                               >
                                 Resuelto (Ver solución)
+                              </span>
+                            ) : (
+                              <span
+                                style={{ color: "#DC2626", fontWeight: 700 }}
+                              >
+                                Cancelado / Rechazado
                               </span>
                             )}
                           </div>
@@ -1392,14 +1422,7 @@ const VecinoHomePage: React.FC = () => {
                       </h2>
                       <span
                         style={{
-                          background:
-                            reclamoDetalle.estado === "Resuelto"
-                              ? "#DCFCE7"
-                              : "#FEF3C7",
-                          color:
-                            reclamoDetalle.estado === "Resuelto"
-                              ? "#15803D"
-                              : "#B45309",
+                          ...getBadgeStyle(reclamoDetalle.estado),
                           fontSize: "11px",
                           fontWeight: 700,
                           padding: "3px 8px",
@@ -1708,6 +1731,27 @@ const VecinoHomePage: React.FC = () => {
                       </IonList>
                     </div>
 
+                    {/* Boton para anular reclamo si aun esta Pendiente (Verbo DELETE) */}
+                    {reclamoDetalle.estado === "Pendiente" && (
+                      <IonButton
+                        expand="block"
+                        fill="outline"
+                        color="danger"
+                        style={{
+                          "--border-color": "#DC2626",
+                          "--color": "#DC2626",
+                          "--border-radius": "8px",
+                          height: "42px",
+                          fontWeight: 600,
+                          fontSize: "13px",
+                          marginTop: "16px",
+                        }}
+                        onClick={handleCancelarReclamo}
+                      >
+                        Anular este reclamo
+                      </IonButton>
+                    )}
+
                     <IonButton
                       expand="block"
                       fill="outline"
@@ -1718,7 +1762,7 @@ const VecinoHomePage: React.FC = () => {
                         "--border-radius": "8px",
                         height: "42px",
                         fontWeight: 600,
-                        marginTop: "16px",
+                        marginTop: "10px",
                       }}
                     >
                       Volver a mis reclamos
