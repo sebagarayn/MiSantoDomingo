@@ -7,8 +7,8 @@
 
 ---
 
-## Índice
 
+## Índice
 1. [Identificación de los integrantes del equipo y sus roles](#1-identificación-de-los-integrantes-del-equipo-y-sus-roles)
 2. [Distribución de responsabilidades](#2-distribución-de-responsabilidades)
 3. [Descripción general del sistema y problema que aborda](#3-descripción-general-del-sistema-y-problema-que-aborda)
@@ -28,121 +28,208 @@
 17. [Enlaces](#17-enlaces)
 18. [Bibliografía y uso de IA](#18-bibliografía-y-uso-de-ia)
 
+
 ---
+
 
 ## 1. Identificación de los integrantes del equipo y sus roles
 
-**Sebastian Garay** -
+**Sebastian Garay** - Arquitectura de Software, Desarrollo Frontend y Control de Calidad
 
-**Benjamín Lazcano** -
+**Benjamín Lazcano** - Líder de Requerimientos, Investigación y Documentación UX
 
-**Vicente Olguin** -
+**Vicente Olguin** - Diseño UI/UX y Prototipado Manual Figma (Versión Escritorio / Web)
 
-**Ignacio Maureira** -
+**Ignacio Maureira** - Diseño UI/UX y Prototipado Manual Figma (Versión Móvil)
 
 ---
+
 
 ## 2. Distribución de responsabilidades
 
 ### 2.1. Sebastián Garay
 
-Responsabilidad:
+Responsabilidad: 
 
 Entregables:
 
 ### 2.2. Benjamin Lazcano
 
-Responsabilidad:
+Responsabilidad: 
 
-Entregables:
+Entregables: 
 
 ### 2.3. Vicente Olguin
 
-Responsabilidad:
+Responsabilidad: 
 
-Entregables:
+Entregables: 
 
 ### 2.4. Ignacio Maureira
 
-Responsabilidad:
+Responsabilidad: 
 
-Entregables:
+Entregables: 
+
 
 ---
+
 
 ## 3. Descripción general del sistema y problema que aborda
 
 ### 3.1. Descripción general del sistema
 
-<!-- Que hace el backend -->
+**API REST** desarrollada con **Node.js**, **Express** y **PostgreSQL** que da soporte a la plataforma MiSantoDomingo. Este sistema reemplaza los servicios **MOCK** del frontend por datos reales y se encarga de:  
+
+- **Registro e inicio de sesión**: Permite a los vecinos crear una cuenta e ingresar a la plataforma mediante un token **JWT**, que identifica el rol como vecino o admin.
+
+- **Gestión de reclamos**: Permite ingresar reclamos con una fotografía opcional, generar un folio único para cada reclamo, actualizar el estado del reclamo, derivar el reclamo entre unidades municipales, registrar una respuesta formal al cerrar los reclamos y gestionar la cancelación de los reclamos.
+
+- **Control de plazos**: Calcula el tiempo restante del plazo legal de 20 días para responder los reclamos e identifica los reclamos que ya se encuentran vencidos.
+
+- **Historial de cambios**: Registra las modificaciones de estado de cada reclamo manteniendo la trazabilidad de la gestión.
+
+- **Calificación ciudadana**: Permite que los usuarios califiquen la atención que recibieron en una escala de puntuación de 1 a 5 estrellas, evitando que un mismo usuario vote más de una vez.
+
+
 
 ### 3.2. Problema o necesidad que aborda
+
 
 Tiempos de respuesta prolongados o falta de soluciones efectivas a los reclamos y
 solicitudes que los ciudadanos ingresan al municipio, generando frustración.
 
+
 ### 3.3. Objetivos del proyecto
 
+
 - Disponer de un canal ciudadano digital accesible para ingresar reclamos en menos de 3 minutos con obtención inmediata de comprobante único de folio.
+  
 - Garantizar la trazabilidad completa del ciclo de vida del reclamo tanto para el vecino como para los funcionarios municipales.
-- Proporcionar al municipio una herramienta administrativa para medir tiempos de respuesta frente al plazo legal de 20 días y priorizar la gestión mediante indicadores KPI.
+  
+- Proporcionar al municipio una herramienta administrativa para medir tiempos de respuesta frente al plazo legal de 20 días y priorizar la gestión mediante indicadores **KPI**.
+
 
 ### 3.4. Objetivos específicos del backend
 
--
--
--
+
+- Exponer la **API REST** con operaciones **GET**, **POST**, **PATCH** y **DELETE** sobre una base de datos relacional **PostgreSQL**, con respuestas **JSON** consistentes y códigos **HTTP** adecuados.
+
+- Autenticar y autorizar a vecinos y funcionarios mediante **JWT**, restringiendo las acciones de gestión al rol administrador.
+
+- Garantizar la integridad y trazabilidad de los datos mediante restricciones en la base datos, transacciones y un historial inmutable.
+
 
 ## 4. Principales funcionalidades
 
-<!-- Funcionalidades que implementa el backend, por rol. Referenciar los RF del frontend desde el RF-01 al RF-11-->
+<!-- -->
 
 ### 4.1. Rol Vecino/Vecina
 
--
+Los vecinos y vecinas pueden utilizar la plataforma para ingresar reclamos, consultar su estado y hacer seguimiento de su resolución. Las funcionalidades disponibles para este rol son las siguientes:
+ 
+-  **Registro e inicio de sesión**: Permite crear una cuenta e ingresar a la plataforma. Al crearse una cuenta, el sistema automáticamente le asignara el rol de vecino.
+
+-  **RF-01. Ingreso de reclamos**: Permite ingresar un reclamo indicando la categoría, descripción y ubicación, además de poder adjuntar una fotografía de forma opcional. Se aceptan imágenes en formato **JPEG**, **PNG** o **WebP**, con un tamaño máximo de 5 MB.
+
+-  **RF-02. Generación de Folio**: Al ingresar un reclamo, el sistema genera un folio único con el formato SD-AAAA-XXXXXX, que permite identificarlo y consultarlo posteriormente.
+
+- **RF-04. Seguimiento de plazos**: Permite conocer los días restantes del plazo legal de 20 días para la resolución del reclamo y verificar si este se encuentra vencido.
+
+- **RF-05. Consulta de reclamos**: Permite revisar el listado de reclamos ingresados por el propio usuario, acceder al detalle de cada uno y consultar el historial de cambios del reclamo.
+
+- **RF-09. Calificación del servicio**: Permite calificar con una puntuación de 1 a 5 estrellas a un reclamo que haya sido resuelto. **SOLO** la persona que ingresó el reclamo puede calificar y se admite solamente un voto.
+
+- **Cancelación de reclamos**: Permite al vecino/vecina cancelar un reclamo propio mientras este reclamo se encuentre en el estado **"Pendiente"** cambiando el estado a **"Rechazado"**.
 
 ### 4.2. Rol Funcionario municipal (OIRS)
 
--
+El funcionario municipal encargado de la OIRS puede acceder a los reclamos ingresados por los vecinos y gestionar su seguimiento hasta su resolución. Para ello, cuenta con las siguientes funcionalidades:
+ 
+- **Inicio de sesión**: Permite ingresar a la plataforma con una cuenta que tenga asignado el rol admin.
+
+- **RF-05. Consulta del historial**: Permite revisar el historial completo de cada reclamo, incluyendo los cambios realizados y el responsable de cada acción, lo que le facilita al administrador el seguimiento de su gestión.
+
+- **RF-06. Consulta y filtrado de reclamos**: Permite visualizar todos los reclamos registrados en el sistema y filtrarlos por estado, categoría o unidad municipal. También permite buscar casos específicos mediante su folio o descripción.
+
+- **RF-07. Derivación de reclamos**: Permite derivar un reclamo a otra unidad municipal para que sea gestionado por el área correspondiente. Para realizar la derivación es obligatorio indicar la unidad de destino y un motivo de la derivación.
+
+- **RF-08. Gestión y cierre de reclamos**: Permite actualizar el estado de un reclamo durante su gestión y marcarlo como **"Resuelto"**, siempre que se ingrese una respuesta formal.
 
 ### 4.3. Acceso público (sin sesión)
+ 
+- **RF-03. Consulta pública de reclamos**: Permite consultar un reclamo ingresando su número de folio. La información disponible incluye el estado actual del reclamo, la unidad municipal asignada, el plazo de respuesta, el historial de cambios y la calificación registrada.
 
--
+- **Consulta de catálogos**: Permite acceder a los listados de categorías de reclamos y las unidades municipales que se encuentran disponibles actualmente en la plataforma.
+
+- **Verificación del servidor**: Permite comprobar si el **backend** se encuentra operativo mediante el endpoint (`/api/health`).
 
 ---
 
 ## 5. Tecnologías y herramientas utilizadas
 
-| Categoría                | Tecnología   | Versión |
-| ------------------------ | ------------ | ------- |
-| Lenguaje / Runtime       |              |         |
-| Framework backend        |              |         |
-| Base de datos relacional |              |         |
-| ORM (opcional)           |              |         |
-| Autenticación            |              |         |
-| Hash de contraseñas      |              |         |
-| Validación de datos      |              |         |
-| Pruebas de API           |              |         |
-| Control de versiones     | Git y GitHub |         |
-
+ 
+| Categoría | Tecnología | Versión |
+|---|---|---|
+| Lenguaje / Runtime | Node.js (módulos ES) | 18.11 o superior |
+| Framework backend | Express | 4.19.2 |
+| Base de datos relacional | PostgreSQL (administrada con pgAdmin) | |
+| Acceso a datos | `pg` (consultas SQL parametrizadas, sin ORM) | 8.12.0 |
+| Autenticación | JSON Web Token (`jsonwebtoken`) | 9.0.2 |
+| Hash de contraseñas | `bcryptjs` | 2.4.3 |
+| Carga de archivos | `multer` | 1.4.5-lts.1 |
+| CORS | `cors` | 2.8.5 |
+| Variables de entorno | `dotenv` | 16.4.5 |
+| Validación de datos | Validaciones manuales en los controladores y restricciones `CHECK` en la base de datos | |
+| Pruebas de API | Postman (escritorio) | |
+| Control de versiones | Git y GitHub | |
+ 
 ---
+
 
 ## 6. Arquitectura y estructura del backend
 
-<!-- Explicacion sobre la separacion de las rutas, controladores, servicios-->
+
+El backend sigue una arquitectura en capas. Cada petición pasa por `app.js` (CORS y lectura de JSON), las **rutas** (`routes/`) que definen los endpoints, los **middlewares** (`middlewares/`) que verifican el JWT, el rol y la carga de archivos, y los **controladores** (`controllers/`), que contienen la lógica de negocio y ejecutan las consultas SQL sobre PostgreSQL a través de un pool de conexiones (`config/db.js`). Las operaciones que modifican varias tablas se ejecutan dentro de transacciones.
+
 
 ### 6.1. Estructura del proyecto
 
+
 ```
-MiSantoDomingo/
-├──
-├──
-└──
+MiSantoDomingo/                 
+├── database/
+│   ├── schema.sql              # Tablas, restricciones, índices, trigger y catálogos
+│   ├── 01_usuarios_prueba.sql  # Cuentas de demostración
+│   └── 02_datos_prueba.sql     # Reclamos de prueba con historial
+├── pruebas/
+│   └── MiSantoDomingo.postman_collection.json
+├── src/
+│   ├── config/
+│   │   └── db.js               # Pool de conexiones a PostgreSQL
+│   ├── controllers/
+│   │   ├── auth.controller.js      # Registro, login y perfil
+│   │   ├── catalogos.controller.js # Categorías y unidades
+│   │   └── reclamos.controller.js  # Ciclo de vida de los reclamos
+│   ├── middlewares/
+│   │   ├── auth.middleware.js      # verificarToken y soloAdmin
+│   │   └── upload.middleware.js    # Carga de fotografías (Multer)
+│   ├── routes/
+│   │   ├── auth.routes.js
+│   │   ├── catalogos.routes.js
+│   │   └── reclamos.routes.js
+│   └── app.js                  # Configuración de Express y montaje de rutas
+├── uploads/                    # Fotografías subidas (se crea sola; ignorada por Git)
+├── .env.example                # Plantilla de variables de entorno
+├── .gitignore
+├── package.json
+└── server.js                   # Punto de entrada: levanta el servidor y verifica la BD
 ```
+
 
 ### 6.2. Diagrama de arquitectura
 
-<!-- El diagrama de arquitectura-->
+
 
 ---
 
@@ -163,90 +250,164 @@ Los scripts están en la carpeta `database/` y **deben ejecutarse en este orden*
 | 2     | `01_usuarios_prueba.sql` | Crea las cuentas de demostración (vecino y funcionario OIRS).                                    |
 | 3     | `02_datos_prueba.sql`    | Carga 3 reclamos de prueba con su historial.                                                     |
 
-el `schema.sql` solo crea la estructura
+**Justificación de `01_usuarios_prueba.sql`:** el `schema.sql` solo crea la estructura
 y los catálogos, pero ningún usuario. Sin usuarios no se puede iniciar sesión ni probar
-las rutas protegidas
-
-el `02_datos_prueba.sql` falla porque sus reclamos referencian a los
+las rutas protegidas, y `02_datos_prueba.sql` falla porque sus reclamos referencian a los
 usuarios con id 1 y 2 (llaves foráneas). Este script deja la base lista solo con scripts
 SQL, sin registrar usuarios a mano por la API. Las contraseñas se almacenan hasheadas con
 bcrypt (no en texto plano).
 
 ### 7.3. Datos de prueba (`02_datos_prueba.sql`)
 
+Permite validar en vivo los casos borde del sistema:
+ 
+| Folio | Estado | Antigüedad | Caso que valida |
+| :---- | :----- | :--------- | :-------------- |
+| `SD-2026-000101` | Pendiente | 3 días | Reclamo reciente dentro de plazo |
+| `SD-2026-000088` | Derivado | 26 días | Plazo legal de 20 días vencido y derivación a unidad |
+| `SD-2026-000042` | Resuelto | 15 días | Reclamo con respuesta formal, listo para probar la calificación de 1 a 5 estrellas |
+ 
+Cada reclamo incluye su registro en `historial_reclamos`.
+
+### 7.4. Verificación
+
+Ejecutar en el Query Tool:
+ 
+```sql
+SELECT folio, estado,
+       CURRENT_DATE - fecha_ingreso::date AS dias_transcurridos
+FROM reclamos
+ORDER BY fecha_ingreso;
+```
+Deben aparecer 3 reclamos (26, 15 y 3 días).
+
+### 7.5. Modelo relacional
+
+```mermaid
+erDiagram
+    USUARIOS ||--o{ RECLAMOS : ingresa
+    CATEGORIAS ||--o{ RECLAMOS : clasifica
+    UNIDADES ||--o{ RECLAMOS : "tiene asignado"
+    RECLAMOS ||--o{ HISTORIAL_RECLAMOS : registra
+    USUARIOS ||--o{ HISTORIAL_RECLAMOS : realiza
+    UNIDADES |o--o{ HISTORIAL_RECLAMOS : "destino de derivacion"
+    RECLAMOS ||--o| CALIFICACIONES : recibe
+ 
+    USUARIOS {
+        int id_usuario PK
+        string nombre
+        string correo UK
+        string password_hash
+        string telefono
+        string rol
+        timestamptz fecha_registro
+    }
+    CATEGORIAS {
+        int id_categoria PK
+        string nombre UK
+    }
+    UNIDADES {
+        int id_unidad PK
+        string nombre UK
+    }
+    RECLAMOS {
+        int id_reclamo PK
+        string folio UK
+        int id_usuario FK
+        int id_categoria FK
+        int id_unidad_asignada FK
+        string descripcion
+        string ubicacion
+        string foto_url
+        string estado
+        timestamptz fecha_ingreso
+        string respuesta_formal
+    }
+    HISTORIAL_RECLAMOS {
+        int id_historial PK
+        int id_reclamo FK
+        int id_usuario FK
+        int id_unidad_destino FK
+        string estado
+        string observacion
+        timestamptz fecha
+    }
+    CALIFICACIONES {
+        int id_calificacion PK
+        int id_reclamo FK
+        smallint puntaje
+        string comentario
+        timestamptz fecha
+    }
+```
+
+### 7.6. Descripción de tablas
+
 | Tabla | Descripción | Clave primaria | Claves foráneas |
-| ----- | ----------- | -------------- | --------------- |
-|       |             |                |                 |
-|       |             |                |                 |
-
-### 7.4. Restricciones e integridad
-
-<!-- Lo que vimos en taller de BD ---- NOT NULL, UNIQUE, CHECK, ON DELETE, / ON UPDATE -->
-
-### 7.5. Archivo `.sql`
-
-El script que crea la base de datos, las tablas, atributos, claves primarias, claves foreanas y relaciones se encuentra en:
-
-```
-ruta/del/archivo.sql
-```
-
-Para ejecutarlo:
-
-```bash
+|---|---|---|---|
+| `usuarios` | Cuentas de vecinos y funcionarios OIRS | `id_usuario` | — |
+| `categorias` | Catálogo de categorías de reclamo | `id_categoria` | — |
+| `unidades` | Catálogo de unidades municipales | `id_unidad` | — |
+| `reclamos` | Reclamos ingresados por los vecinos | `id_reclamo` | `id_usuario` → `usuarios`; `id_categoria` → `categorias`; `id_unidad_asignada` → `unidades` |
+| `historial_reclamos` | Trazabilidad de cada cambio de estado y derivación (inmutable) | `id_historial` | `id_reclamo` → `reclamos`; `id_usuario` → `usuarios`; `id_unidad_destino` → `unidades` (opcional) |
+| `calificaciones` | Calificación de 1 a 5 de un reclamo resuelto (voto único) | `id_calificacion` | `id_reclamo` → `reclamos` (único) |
 
 
-```
+### 7.7. Restricciones e integridad
 
-### 7.6. Datos iniciales o de prueba
+| Tipo | Detalle |
+|---|---|
+| Claves primarias | Identificadores autogenerados (`GENERATED ALWAYS AS IDENTITY`) en todas las tablas |
+| `NOT NULL` | Campos esenciales de cada tabla (nombre, correo, hash, folio, descripción, ubicación, estado, etc.) |
+| `UNIQUE` | `usuarios.correo`, `reclamos.folio`, nombres de `categorias` y `unidades`, y `calificaciones.id_reclamo` (garantiza el voto único) |
+| `CHECK` de dominio | `rol` solo `vecino` o `admin`; `estado` solo `Pendiente`, `En Revisión`, `Derivado`, `Resuelto` o `Rechazado`; `puntaje` entre 1 y 5; textos obligatorios sin espacios vacíos |
+| `CHECK` de negocio | `resuelto_con_respuesta` (un reclamo resuelto exige respuesta formal); `derivacion_completa` (una derivación exige unidad de destino y observación); `destino_solo_derivacion` (solo las derivaciones llevan unidad de destino); `correo_normalizado` (correo en minúsculas y con formato válido) |
+| Claves foráneas | Todas con `ON DELETE RESTRICT`: no se puede borrar un registro referenciado. No se define `ON UPDATE` (se usa el comportamiento por defecto, `NO ACTION`) |
+| Trigger | `historial_inmutable` impide modificar o eliminar filas de `historial_reclamos` |
+| Índices | Por usuario, categoría y unidad en `reclamos`, y por reclamo y fecha en `historial_reclamos` |
+ 
+> **Aviso:** si las cuentas de demostración ya se crearon registrándolas por la API
+> (`POST /api/auth/registro`), no ejecutar `01_usuarios_prueba.sql`, porque los
+> correos ya existen y daría error de duplicado. Ese script es para bases nuevas.
+ 
+---
 
-<!-- Aqui van los datos iniciales o de prueba del INSERT -->
 
 ## 8. Instrucciones de instalación y configuración
 
 ### 8.1. Requisitos previos
 
--Node.js: Versión 18.x o superior recomendada.
+- Node.js: versión 18.11 o superior
+- npm: versión 9.x o superior.
+- PostgreSQL y pgAdmin instalados.
+- Git: instalado en el sistema operativo.
 
-- Motor de base de datos:
-  -npm: Versión 9.x o superior.
-  -Git: Instalado en el sistema operativo.
 
 ### 8.2. Pasos de instalación
 
-1. Clonar el repositorio:
+**1. Clonar el repositorio**
 
 ```bash
    git clone https://github.com/sebagarayn/MiSantoDomingo.git
 ```
-
-2. Entrar al directorio del proyecto:
+ 
+**2. Entrar al directorio del proyecto**
 
 ```bash
    cd MiSantoDomingo
 ```
-
-3. Cambiar a la rama backend:
+ 
+**3. Cambiar a la rama backend**
 
 ```bash
    git checkout backend
 ```
-
-4. Instalar dependencias:
-
-```bash
-
-```
-
-5. Crear la base de datos con el archivo `.sql`:
+ 
+**4. Instalar las dependencias**
 
 ```bash
-
+   npm install
 ```
-
-6. Configurar las variables de entorno (ver sección 9).
-
----
 
 ## 9. Variables de entorno
 
