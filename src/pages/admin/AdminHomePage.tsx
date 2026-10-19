@@ -762,6 +762,118 @@ const AdminHomePage: React.FC = () => {
                             </p>
                           </div>
                         )}
+
+                        {/* Historial de Trazabilidad y Derivaciones (RF-05) */}
+                        {reclamoSeleccionado.historial &&
+                          reclamoSeleccionado.historial.length > 0 && (
+                            <div
+                              style={{
+                                marginTop: "18px",
+                                borderTop: "1px solid #E2E8F0",
+                                paddingTop: "14px",
+                              }}
+                            >
+                              <small
+                                style={{
+                                  color: "#64748B",
+                                  textTransform: "uppercase",
+                                  fontSize: "11px",
+                                  fontWeight: 700,
+                                  display: "block",
+                                  marginBottom: "8px",
+                                }}
+                              >
+                                Historial de Avances y Trazabilidad (RF-05)
+                              </small>
+
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "8px",
+                                }}
+                              >
+                                {reclamoSeleccionado.historial.map((h, idx) => (
+                                  <div
+                                    key={idx}
+                                    style={{
+                                      background: "#F8FAFC",
+                                      border: "1px solid #E2E8F0",
+                                      borderRadius: "8px",
+                                      padding: "10px 12px",
+                                      borderLeft: `4px solid ${
+                                        h.estado === "Resuelto"
+                                          ? "#15803D"
+                                          : h.estado === "Derivado"
+                                            ? "#0284C7"
+                                            : "#D97706"
+                                      }`,
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        marginBottom: "4px",
+                                      }}
+                                    >
+                                      <span
+                                        style={{
+                                          fontWeight: 700,
+                                          fontSize: "12px",
+                                          color: "#0D3B66",
+                                        }}
+                                      >
+                                        {h.estado}
+                                      </span>
+                                      <span
+                                        style={{
+                                          fontSize: "11px",
+                                          color: "#64748B",
+                                        }}
+                                      >
+                                        {new Date(h.fecha).toLocaleDateString()}{" "}
+                                        {new Date(h.fecha).toLocaleTimeString(
+                                          [],
+                                          {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                          },
+                                        )}
+                                      </span>
+                                    </div>
+
+                                    {h.observacion && (
+                                      <p
+                                        style={{
+                                          margin: "2px 0 0 0",
+                                          fontSize: "12px",
+                                          color: "#334155",
+                                        }}
+                                      >
+                                        {h.observacion}
+                                      </p>
+                                    )}
+
+                                    {h.responsableId && (
+                                      <small
+                                        style={{
+                                          color: "#64748B",
+                                          fontSize: "11px",
+                                          marginTop: "4px",
+                                          display: "block",
+                                        }}
+                                      >
+                                        Responsable / Destino:{" "}
+                                        <strong>{h.responsableId}</strong>
+                                      </small>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                       </IonCardContent>
                     </IonCard>
 
