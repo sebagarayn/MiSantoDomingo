@@ -848,7 +848,7 @@ Los tokens emitidos cuentan con una validez estricta de **8 horas** (`expiresIn:
 ## 13. Seguridad y validaciones
 
 | Medida                                       | Implementación técnica en el sistema                                                                                                                                                                               |
-| :------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| :------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |  
 | **Hash de contraseñas con bcrypt**           | Cifrado con `bcryptjs` y 10 rondas de salt antes de insertar en la base de datos. Ninguna contraseña se almacena ni viaja en texto plano.                                                                          |
 | **Validación de entradas**                   | Sanitización de cadenas (`btrim()`), validación de longitud mínima de clave ($\ge$ 6 caracteres) y validación de tipos numéricos.                                                                                  |
 | **Prevención de inyección SQL**              | 100% de las consultas a PostgreSQL utilizan consultas parametrizadas con marcadores de posición (`$1, $2, $3...`) mediante `pg.Pool`.                                                                              |
@@ -897,13 +897,21 @@ Cómo ejecutarla:
 1. Dejar la base lista (`00_crear_base.sql` → `schema.sql` → `01_usuarios_prueba.sql` → `02_datos_prueba.sql`) y el servidor corriendo.
 2. En Postman: Import → seleccionar `pruebas/MiSantoDomingo.postman_collection.json`.
 3. Ejecutar los logins (peticiones 2 y 3) y copiar cada token.
-4. En las peticiones protegidas, reemplazar el marcador del header `Authorization` (`Bearer <pega_aqui_el_token>`) por el token correspondiente: el del vecino en las peticiones 5, 9, 12, 14 y 15, y el del administrador en la 13.
+4. En las peticiones protegidas, reemplazar el marcador que está después de `Bearer ` en el header `Authorization` por el token correspondiente. Los marcadores no son todos iguales:
+   | Petición | Marcador que se reemplaza | Token que va |
+   | :------- | :------------------------ | :----------- |
+   | 5 | `<pega_aqui_el_token>` | Vecino |
+   | 9 | `<pega_aqui_el_tokenvecino>` | Vecino |
+   | 12 | `<token_vecino>` | Vecino |
+   | 13 | `<pega_aqui_el_tokenadmin>` | Administrador |
+   | 14 y 15 | `<pega_aqui_el_token>` | Vecino |
 5. Ejecutar las peticiones en orden y comparar con los resultados esperados.
 Consideraciones para repetir las pruebas:
  
 - La petición 11 depende de la 10: el correo `prueba@correo.cl` debe haberse registrado antes. Si se repite la petición 10, responde 409 porque el correo ya existe.
 - La petición 14 cancela el reclamo con id 4, que es el que crea la petición 12 en una base recién cargada con los 3 reclamos de prueba. Por eso la 12 debe ejecutarse antes.
 - La petición 13 deriva el reclamo con id 1, que debe seguir abierto.
+  
 Por seguridad, la colección no incluye ningún token real guardado.
 
 ### 14.3. Evidencia
@@ -973,13 +981,30 @@ Capturas de Postman con los códigos HTTP obtenidos. Están en la carpeta `prueb
 ---
 
 ## 15. Integración frontend y backend
-
-- **Cliente HTTP utilizado (fetch / Axios):**
-- **Manejo de JWT (almacenamiento e interceptores):**
-- **Manejo de errores y sesiones:**
-- **Flujos principales funcionando con datos reales:**
-- **Servicios mock reemplazados (`auth.service.ts`, `report.service.ts`):**
-
+ 
+El frontend (rama `frontend`, Ionic + React + TypeScript) consume esta API desde `http://localhost:3000/api`. La API admite peticiones desde el navegador porque el servidor tiene CORS habilitado.
+ 
+- **Cliente HTTP utilizado (fetch / Axios):** `fetch` nativo del navegador. No se usa Axios.
+- **Manejo de JWT (almacenamiento e interceptores):** al iniciar sesión, `AuthContext` llama a `POST /api/auth/login` y guarda el token en `localStorage["msd_token"]` y los datos del usuario en `localStorage["msd_session_user"]`. No se usan interceptores: el token se adjunta manualmente en la cabecera `Authorization: Bearer <token>` de cada petición protegida, mediante el método `getHeaders()` de `src/services/report.service.ts`. Al cerrar sesión se eliminan ambas claves.
+- **Manejo de errores y sesiones:** cuando la API responde con error, los servicios de reclamos lanzan una excepción con el campo `mensaje` que entrega el backend (por ejemplo, "Reclamo no encontrado"). Las rutas privadas del frontend (`ProtectedRoute`) redirigen a `/login` si no hay sesión o si el rol del usuario no tiene permiso, y muestran un aviso en pantalla. La sesión se mantiene al recargar la página, porque se restaura desde `localStorage`.
+- **Flujos principales funcionando con datos reales:** todas las operaciones de `src/services/report.service.ts` usan la API:
+| Operación en el frontend | Endpoint del backend |
+| :----------------------- | :------------------- |
+| Iniciar sesión | `POST /api/auth/login` |
+| Listar reclamos ("Mis Reclamos" y bandeja del funcionario) | `GET /api/reclamos` |
+| Consulta pública por folio | `GET /api/reclamos/folio/:folio` |
+| Ingresar un reclamo | `POST /api/reclamos` |
+| Derivar o cerrar un reclamo (funcionario) | `PATCH /api/reclamos/:id/estado` |
+| Calificar un reclamo resuelto | `POST /api/reclamos/:id/calificacion` |
+| Cancelar un reclamo propio | `DELETE /api/reclamos/:id` |
+ 
+- **Servicios mock reemplazados (`auth.service.ts`, `report.service.ts`):** `report.service.ts` ya no usa datos simulados: toda su lógica pasa por la API. El cálculo de los 20 días del plazo legal (RF-04) se hace en el cliente a partir de la fecha de ingreso. El dashboard de indicadores se calcula en el frontend a partir del listado de reclamos que entrega `GET /api/reclamos`.
+### 15.1. Cómo probar el frontend y el backend juntos
+ 
+1. Dejar el backend corriendo siguiendo la sección 8 (`npm run dev`, servidor en `http://localhost:3000`).
+2. En otra carpeta, clonar el repositorio, cambiar a la rama `frontend`, instalar las dependencias con `npm install` y ejecutar `npm run dev`. El frontend queda en la URL que muestra la terminal (por defecto `http://localhost:5173`).
+3. Iniciar sesión con las cuentas de la sección 10.2: `vecino@correo.cl` o `admin@correo.cl`, con contraseña `123456`.
+   
 ---
 
 ## 16. Gestión del proyecto y evidencia de contribuciones
