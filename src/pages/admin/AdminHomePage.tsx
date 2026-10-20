@@ -783,7 +783,7 @@ const AdminHomePage: React.FC = () => {
                                   marginBottom: "8px",
                                 }}
                               >
-                                Historial de Avances y Trazabilidad (RF-05)
+                                Historial de Avances y Trazabilidad 
                               </small>
 
                               <div

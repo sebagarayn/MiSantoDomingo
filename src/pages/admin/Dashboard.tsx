@@ -151,7 +151,7 @@ const Dashboard: React.FC = () => {
                   Métricas de Gestión OIRS
                 </h1>
                 <p style={{ margin: 0, fontSize: "13px", color: "#64748B" }}>
-                  Monitoreo de cumplimiento de plazos y volumen comunal (RF-10)
+                  Monitoreo de cumplimiento de plazos y volumen comunal
                 </p>
               </div>
 
