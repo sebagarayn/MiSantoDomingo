@@ -12,7 +12,6 @@ import {
 import { useHistory } from "react-router-dom";
 import { alertCircleOutline } from "ionicons/icons";
 import { useAuth } from "../../hooks/useAuth";
-import { authService } from "../../services/auth.service";
 
 const LoginPage: React.FC = () => {
   // Estados locales para capturar los datos del formulario y mostrar el modal si fallan las credenciales
@@ -26,26 +25,23 @@ const LoginPage: React.FC = () => {
   // Esta funcion valida las credenciales contra nuestro mock de authService
   // Le agregamos async a la funcion
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // Buscamos si el correo existe en la lista de prueba
-    const usuario = authService.login(email.trim().toLowerCase(), password);
+  try {
+    
+    // Login real: el rol viene de la base de datos, no del texto del correo
+    const usuario = await login(email, password);
+    history.push(usuario.rol === "admin" ? "/admin/inicio" : "/app/inicio");
+  } catch (error) {
+    setErrorModal(
+      error instanceof Error
+        ? error.message
+        : "No se pudo iniciar sesión, inténtelo nuevamente.",
+    );
+  }
+};
 
-    // Si no lo encuentra, levantamos el modal con la advertencia en amarillo
-    if (!usuario) {
-      setErrorModal("Correo o usuario incorrecto, intentelo nuevamente.");
-      return;
-    }
-
-    await login(usuario.email, password, usuario.rol);
-
-    // Recien cuando el backend confirma la sesion, cambiamos de pantalla
-    if (usuario.rol === "admin") {
-      history.push("/admin/inicio");
-    } else {
-      history.push("/app/inicio");
-    }
-  };
+    
 
   return (
     <IonPage>

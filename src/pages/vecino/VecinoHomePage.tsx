@@ -180,7 +180,7 @@ const VecinoHomePage: React.FC = () => {
       return;
     }
 
-    const idUsuario = user?.id || "usr-vecino-1";
+    const idUsuario = user?.id;   
 
     const nuevo = await reportService.crearReclamo(
       {

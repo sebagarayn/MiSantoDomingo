@@ -12,6 +12,7 @@ import {
 } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { alertCircleOutline } from "ionicons/icons";
+import { authService } from "../../services/auth.service";
 
 const RegistroPage: React.FC = () => {
   // Variables locales del formulario para capturar los datos y controlar las alertas
@@ -25,7 +26,7 @@ const RegistroPage: React.FC = () => {
   const history = useHistory();
 
   // Validamos cada campo por separado para que la alerta le diga al usuario exactamente que le falto
-  const handleRegistro = (e: React.FormEvent) => {
+  const handleRegistro = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // 1. Revisamos que el nombre no venga vacio ni con puros espacios
@@ -58,11 +59,26 @@ const RegistroPage: React.FC = () => {
       return;
     }
 
-    // Si pasa todas las validaciones simulamos el alta con un toast y lo mandamos al login
-    setToastMsg("Cuenta creada con éxito. Redirigiendo al inicio de sesión...");
-    setTimeout(() => {
-      history.push("/login");
-    }, 1500);
+    // Si pasa todas las validaciones, enviamos el alta al backend (se guarda en PostgreSQL)
+    try {
+      await authService.registrar({
+        nombre,
+        correo: email,
+        password,
+        telefono,
+      });
+      setToastMsg(
+        "Cuenta creada con éxito. Redirigiendo al inicio de sesión...",
+      );
+      setTimeout(() => {
+        history.push("/login");
+      }, 1500);
+    } catch (error) {
+      // Ej: 409 "Ya existe una cuenta registrada con este correo"
+      setErrorModal(
+        error instanceof Error ? error.message : "No se pudo crear la cuenta.",
+      );
+    }
   };
 
   return (

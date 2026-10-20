@@ -1,14 +1,11 @@
 import React, { createContext, useState, useEffect } from "react";
-import { IUser, UserRole } from "../types";
+import { IUser } from "../types";
+import { authService } from "../services/auth.service";
 
 export interface AuthContextType {
   user: IUser | null;
   isAuthenticated: boolean;
-  login: (
-    email: string,
-    passwordOrRol?: string,
-    rolOpcional?: UserRole,
-  ) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<IUser>;
   logout: () => void;
 }
 
@@ -37,68 +34,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [user]);
 
-  // Login conectado al Backend real en Node.js + PostgreSQL
-  const login = async (
-    email: string,
-    passwordOrRol?: string,
-    rolOpcional?: UserRole,
-  ): Promise<boolean> => {
+  // Login real: si falla, lanza el error y NO inicia sesion
+  const login = async (email: string, password: string): Promise<IUser> => {
     try {
-      // Si la clave no viene, usamos la contraseña por defecto de prueba: 123456
-      const passwordEnvio =
-        passwordOrRol && passwordOrRol !== "admin" && passwordOrRol !== "vecino"
-          ? passwordOrRol
-          : "123456";
-
-      const respuesta = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ correo: email.trim(), password: passwordEnvio }),
-      });
-
-      const data = await respuesta.json();
-
-      if (respuesta.ok && data.ok) {
-        // Guardamos el token JWT real en el navegador
-        localStorage.setItem("msd_token", data.token);
-
-        const nuevoUsuario: IUser = {
-          id: `usr-${data.usuario.id_usuario}`,
-          email: data.usuario.correo,
-          nombre: data.usuario.nombre,
-          rol: data.usuario.rol as UserRole,
-          fechaRegistro: new Date().toISOString(),
-        };
-
-        setUser(nuevoUsuario);
-        return true;
-      }
+      const { token, usuario } = await authService.login(email, password);
+      localStorage.setItem("msd_token", token);
+      setUser(usuario);
+      return usuario;
     } catch (error) {
-      console.warn("Backend no disponible, usando fallback local:", error);
+      // fetch lanza TypeError cuando el backend esta apagado o inalcanzable
+      if (error instanceof TypeError) {
+        throw new Error(
+          "No se pudo conectar con el servidor. Intentalo nuevamente.",
+        );
+      }
+      throw error;
     }
-
-    // Fallback de contingencia (por si el backend estuviera apagado)
-    let rol: UserRole = "vecino";
-    if (rolOpcional) {
-      rol = rolOpcional;
-    } else if (passwordOrRol === "admin" || passwordOrRol === "vecino") {
-      rol = passwordOrRol as UserRole;
-    } else if (email.includes("admin")) {
-      rol = "admin";
-    }
-
-    const usuarioFallback: IUser = {
-      id: rol === "admin" ? "usr-admin-1" : "usr-vecino-1",
-      email,
-      nombre:
-        rol === "admin"
-          ? "Felipe Pérez (Funcionario)"
-          : "María González (Vecina)",
-      rol,
-      fechaRegistro: new Date().toISOString(),
-    };
-    setUser(usuarioFallback);
-    return true;
   };
 
   const logout = () => {

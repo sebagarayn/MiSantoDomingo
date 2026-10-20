@@ -1,41 +1,43 @@
+import { apiFetch } from "./api";
 import { IUser, UserRole } from "../types";
 
-export const usuariosPrueba: IUser[] = [
-  {
-    id: "usr-vecino-1",
-    nombre: "María González (Vecina)",
-    email: "vecino@correo.cl",
-    rol: "vecino",
-    fechaRegistro: "2026-01-15",
-  },
-  {
-    id: "usr-admin-1",
-    nombre: "Felipe Pérez (Funcionario)",
-    email: "admin@correo.cl",
-    rol: "admin",
-    fechaRegistro: "2026-01-10",
-  },
-];
-
-export const login = (email: string, _password?: string): IUser | null => {
-  const correo = email.trim().toLowerCase();
-  const rol: UserRole = correo.includes("admin") ? "admin" : "vecino";
-
-  return {
-    id: rol === "admin" ? "usr-admin-1" : "usr-vecino-1",
-    nombre:
-      rol === "admin"
-        ? "Felipe Pérez (Funcionario)"
-        : "María González (Vecina)",
-    email: correo,
-    rol,
-    fechaRegistro: new Date().toISOString(),
-  };
-};
+export interface IRegistroInput {
+  nombre: string;
+  correo: string;
+  password: string;
+  telefono?: string;
+}
 
 export const authService = {
-  usuariosPrueba,
-  login,
+  // Login real contra POST /api/auth/login
+  login: async (correo: string, password: string) => {
+    const data = await apiFetch("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ correo: correo.trim().toLowerCase(), password }),
+    });
+
+    const usuario: IUser = {
+      id: `usr-${data.usuario.id_usuario}`,
+      nombre: data.usuario.nombre,
+      email: data.usuario.correo,
+      rol: data.usuario.rol as UserRole,
+    };
+
+    return { token: data.token as string, usuario };
+  },
+
+  // Registro real contra POST /api/auth/registro (guarda en PostgreSQL)
+  registrar: async (input: IRegistroInput) => {
+    return apiFetch("/auth/registro", {
+      method: "POST",
+      body: JSON.stringify({
+        nombre: input.nombre.trim(),
+        correo: input.correo.trim().toLowerCase(),
+        password: input.password,
+        telefono: input.telefono?.trim() || undefined,
+      }),
+    });
+  },
 };
 
 export default authService;
