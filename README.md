@@ -48,29 +48,28 @@
 ## 2. Distribución de responsabilidades
 
 ### 2.1. Sebastián Garay
-
-Responsabilidad: 
-
-Entregables:
-
-### 2.2. Benjamin Lazcano
-
-Responsabilidad: 
-
-Entregables: 
-
+ 
+Responsabilidad: Desarrollo de la API REST y de la autenticación del backend.
+ 
+Entregables: API REST con los métodos GET, POST, PATCH y DELETE; implementación de la autenticación con JWT y gestión de los tokens; validación de las entradas de datos; redacción de las secciones del README correspondientes al trabajo que realizó.
+ 
+### 2.2. Benjamín Lazcano
+ 
+Responsabilidad: Apoyo en la creación de la base del servidor, diseño y scripts de la base de datos, y pruebas funcionales de la API.
+ 
+Entregables: Diagrama de la base de datos; scripts SQL para la creación de la base de datos, de las cuentas de usuarios de prueba y de los datos de prueba; pruebas funcionales de la API en Postman, con la colección exportada en un archivo JSON y los pantallazos de cada prueba junto a sus códigos de respuesta.
+ 
 ### 2.3. Vicente Olguin
-
-Responsabilidad: 
-
-Entregables: 
-
+ 
+Responsabilidad: Redacción y estructuración del README del backend.
+ 
+Entregables: README.md redactado según las exigencias de la segunda entrega, que cubre todos los puntos solicitados para la rama backend.
+ 
 ### 2.4. Ignacio Maureira
-
-Responsabilidad: 
-
-Entregables: 
-
+ 
+Responsabilidad: Apoyo en la redacción del README y corrección del prototipo en Figma.
+ 
+Entregables: Apoyo en la redacción del README del backend; corrección del prototipo en Figma (responsabilidad asignada al equipo, no exigida en esta entrega).
 
 ---
 
@@ -1027,7 +1026,7 @@ El frontend (rama `frontend`, Ionic + React + TypeScript) consume esta API desde
  
 ---
  
-## 18. Bibliografía y uso de IA
+## 18. Bibliografía y uso de IA  
 
 - **BIBLIOGRAFÍA**
 
