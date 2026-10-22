@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   IonPage,
   IonContent,
@@ -21,6 +21,12 @@ const LoginPage: React.FC = () => {
 
   const history = useHistory();
   const { login } = useAuth();
+  // Si el interceptor nos mando aqui por token vencido, avisamos al usuario
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("expirada")) {
+      setErrorModal("Tu sesión expiró. Inicia sesión nuevamente.");
+    }
+  }, []);
 
   // Esta funcion valida las credenciales contra nuestro mock de authService
   // Le agregamos async a la funcion

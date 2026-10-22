@@ -5,8 +5,10 @@ import {
   IRatingInput,
   IStatusHistory,
 } from "../types";
+import { apiFetch, API_URL } from "./api";
 
-const API_BASE = "http://localhost:3000/api";
+// Raiz del servidor (sin /api), para armar las URLs de las fotos
+const SERVER_URL = API_URL.replace(/\/api\/?$/, "");
 
 // Mapas para traducir nombres de categorias y unidades a IDs de la base de datos
 const MAPA_CATEGORIAS: Record<string, number> = {
@@ -31,9 +33,8 @@ const MAPA_UNIDADES: Record<string, number> = {
 
 // Convierte el registro de PostgreSQL al formato IReport que espera tu interfaz
 const mapearDesdeDB = (r: any): IReport => {
-    // El creador viene de la base de datos, no de la sesion
+  // El creador viene de la base de datos, no de la sesion
   const idCreador = r.id_usuario ? `usr-${r.id_usuario}` : undefined;
- 
 
   return {
     folio: r.folio,
@@ -43,7 +44,7 @@ const mapearDesdeDB = (r: any): IReport => {
     fotoUrl: r.foto_url
       ? r.foto_url.startsWith("http")
         ? r.foto_url
-        : `http://localhost:3000${r.foto_url}`
+        : `${SERVER_URL}${r.foto_url}`
       : undefined,
     estado: r.estado,
     fechaIngreso: r.fecha_ingreso,
@@ -78,14 +79,13 @@ const mapearDesdeDB = (r: any): IReport => {
 };
 
 class ReportService {
-  // Helper para hacer llamadas con token Bearer
-  private getHeaders(): HeadersInit {
-    const token = localStorage.getItem("msd_token");
-    const headers: HeadersInit = { "Content-Type": "application/json" };
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-    return headers;
+  // Busca el id interno del reclamo a partir de su folio
+  // (apiFetch lanza el error del backend si el folio no existe)
+  private async obtenerIdPorFolio(folio: string): Promise<number> {
+    const data = await apiFetch(
+      `/reclamos/folio/${encodeURIComponent(folio.trim())}`,
+    );
+    return data.reclamo.id_reclamo;
   }
 
   // Calculo oficial de los 20 dias legales (RF-04)
@@ -109,47 +109,39 @@ class ReportService {
   // 1. Obtener listado de reclamos desde la API
   public async obtenerReclamos(): Promise<IReport[]> {
     try {
-      const res = await fetch(`${API_BASE}/reclamos`, {
-        headers: this.getHeaders(),
-      });
-      const data = await res.json();
-      if (res.ok && data.ok) {
-        return data.reclamos.map(mapearDesdeDB);
-      }
+      const data = await apiFetch("/reclamos");
+      return data.reclamos.map(mapearDesdeDB);
     } catch (error) {
       console.error("Error al obtener reclamos desde el backend:", error);
+      return [];
     }
-    return [];
   }
 
   // 2. Consulta publica por folio sin inicio de sesion (RF-03)
   public async obtenerReclamoPorFolio(folio: string): Promise<IReport | null> {
     try {
-      const res = await fetch(
-        `${API_BASE}/reclamos/folio/${encodeURIComponent(folio.trim())}`,
+      const data = await apiFetch(
+        `/reclamos/folio/${encodeURIComponent(folio.trim())}`,
       );
-      const data = await res.json();
-      if (res.ok && data.ok) {
-        const reclamo = mapearDesdeDB(data.reclamo);
-        if (data.historial) {
-          reclamo.historial = data.historial.map(
-            (h: any): IStatusHistory => ({
-              estado: h.estado,
-              fecha: h.fecha,
-              observacion: h.observacion || undefined,
-              responsableId: h.unidad_destino || undefined,
-            }),
-          );
-        }
-        if (data.calificacion) {
-          reclamo.calificacion = data.calificacion.puntaje;
-        }
-        return reclamo;
+      const reclamo = mapearDesdeDB(data.reclamo);
+      if (data.historial) {
+        reclamo.historial = data.historial.map(
+          (h: any): IStatusHistory => ({
+            estado: h.estado,
+            fecha: h.fecha,
+            observacion: h.observacion || undefined,
+            responsableId: h.unidad_destino || undefined,
+          }),
+        );
       }
+      if (data.calificacion) {
+        reclamo.calificacion = data.calificacion.puntaje;
+      }
+      return reclamo;
     } catch (error) {
       console.error("Error al consultar folio en backend:", error);
+      return null;
     }
-    return null;
   }
 
   // 3. Crear nuevo reclamo (RF-01 y RF-02)
@@ -160,9 +152,8 @@ class ReportService {
     const catNormalizada = input.categoria.toLowerCase().trim();
     const id_categoria = MAPA_CATEGORIAS[catNormalizada] || 6; // 6 = 'Otros'
 
-    const res = await fetch(`${API_BASE}/reclamos`, {
+    const data = await apiFetch("/reclamos", {
       method: "POST",
-      headers: this.getHeaders(),
       body: JSON.stringify({
         id_categoria,
         descripcion: input.descripcion,
@@ -170,11 +161,7 @@ class ReportService {
       }),
     });
 
-    const data = await res.json();
-    if (res.ok && data.ok) {
-      return mapearDesdeDB(data.reclamo);
-    }
-    throw new Error(data.mensaje || "Error al crear el reclamo en el servidor");
+    return mapearDesdeDB(data.reclamo);
   }
 
   // 4. Derivar o cerrar reclamo (RF-07 y RF-08)
@@ -184,13 +171,7 @@ class ReportService {
     respuestaFormal?: string,
   ): Promise<IReport> {
     // 1. Buscamos el id del reclamo por su folio
-    const resFolio = await fetch(
-      `${API_BASE}/reclamos/folio/${encodeURIComponent(folio.trim())}`,
-    );
-    const dataFolio = await resFolio.json();
-    if (!resFolio.ok || !dataFolio.ok) throw new Error("Reclamo no encontrado");
-
-    const id_reclamo = dataFolio.reclamo.id_reclamo;
+    const id_reclamo = await this.obtenerIdPorFolio(folio);
 
     // 2. Si deriva, obtenemos el id de la unidad destino
     let id_unidad_destino: number | undefined;
@@ -199,9 +180,9 @@ class ReportService {
       id_unidad_destino = MAPA_UNIDADES[uNormalizada] || 2;
     }
 
-    const resPatch = await fetch(`${API_BASE}/reclamos/${id_reclamo}/estado`, {
+    // 3. Enviamos el cambio de estado (solo admin)
+    await apiFetch(`/reclamos/${id_reclamo}/estado`, {
       method: "PATCH",
-      headers: this.getHeaders(),
       body: JSON.stringify({
         nuevo_estado: input.estado,
         id_unidad_destino,
@@ -210,11 +191,6 @@ class ReportService {
         respuesta_formal: respuestaFormal,
       }),
     });
-
-    const dataPatch = await resPatch.json();
-    if (!resPatch.ok) {
-      throw new Error(dataPatch.mensaje || "Error al actualizar el estado");
-    }
 
     // Retornamos el reclamo fresco
     const reclamoActualizado = await this.obtenerReclamoPorFolio(folio);
@@ -226,13 +202,7 @@ class ReportService {
     folio: string,
     rating: IRatingInput | any,
   ): Promise<IReport> {
-    const resFolio = await fetch(
-      `${API_BASE}/reclamos/folio/${encodeURIComponent(folio.trim())}`,
-    );
-    const dataFolio = await resFolio.json();
-    if (!resFolio.ok || !dataFolio.ok) throw new Error("Reclamo no encontrado");
-
-    const id_reclamo = dataFolio.reclamo.id_reclamo;
+    const id_reclamo = await this.obtenerIdPorFolio(folio);
 
     // Detectamos si viene como .calificacion, .puntaje o el numero suelto
     const valorPuntaje =
@@ -240,23 +210,10 @@ class ReportService {
         ? rating.calificacion || rating.puntaje || 5
         : rating;
 
-    const resCalif = await fetch(
-      `${API_BASE}/reclamos/${id_reclamo}/calificacion`,
-      {
-        method: "POST",
-        headers: this.getHeaders(),
-        body: JSON.stringify({
-          puntaje: valorPuntaje,
-        }),
-      },
-    );
-
-    const dataCalif = await resCalif.json();
-    if (!resCalif.ok) {
-      throw new Error(
-        dataCalif.mensaje || "Error al registrar la calificación",
-      );
-    }
+    await apiFetch(`/reclamos/${id_reclamo}/calificacion`, {
+      method: "POST",
+      body: JSON.stringify({ puntaje: valorPuntaje }),
+    });
 
     // Refrescamos y retornamos el reclamo con su calificacion guardada
     const reclamoActualizado = await this.obtenerReclamoPorFolio(folio);
@@ -265,23 +222,9 @@ class ReportService {
 
   // 6. Cancelar reclamo propio en estado Pendiente
   public async cancelarReclamo(folio: string): Promise<IReport> {
-    const resFolio = await fetch(
-      `${API_BASE}/reclamos/folio/${encodeURIComponent(folio.trim())}`,
-    );
-    const dataFolio = await resFolio.json();
-    if (!resFolio.ok || !dataFolio.ok) throw new Error("Reclamo no encontrado");
+    const id_reclamo = await this.obtenerIdPorFolio(folio);
 
-    const id_reclamo = dataFolio.reclamo.id_reclamo;
-
-    const resDelete = await fetch(`${API_BASE}/reclamos/${id_reclamo}`, {
-      method: "DELETE",
-      headers: this.getHeaders(),
-    });
-
-    const dataDelete = await resDelete.json();
-    if (!resDelete.ok) {
-      throw new Error(dataDelete.mensaje || "Error al cancelar el reclamo");
-    }
+    await apiFetch(`/reclamos/${id_reclamo}`, { method: "DELETE" });
 
     return (await this.obtenerReclamoPorFolio(folio))!;
   }
