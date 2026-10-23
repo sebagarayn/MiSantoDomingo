@@ -26,9 +26,43 @@ export const registrarVecino = async (req, res) => {
     });
   }
 
-  try {
-    const correoNormalizado = correo.trim().toLowerCase();
+  // Los datos deben ser texto
+  if (
+    typeof nombre !== "string" ||
+    typeof correo !== "string" ||
+    typeof password !== "string" ||
+    (telefono != null && typeof telefono !== "string")
+  ) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "Los datos enviados no tienen el formato correcto",
+    });
+  }
+ 
+  const nombreLimpio = nombre.trim();
+  const correoNormalizado = correo.trim().toLowerCase();
+  const telefonoLimpio = telefono ? telefono.trim() : "";
+ 
+  if (!nombreLimpio) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El nombre no puede estar vacío",
+    });
+  }
+ 
+  // Formato de correo compatible con la restricción de la base de datos
+  if (
+    correoNormalizado.length > 254 ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoNormalizado)
+  ) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "Ingresa un correo electrónico válido (ejemplo: usuario@correo.cl)",
+    });
+  }
 
+
+  try {
     // Verificamos si el correo ya esta registrado en la base de datos
     const usuarioExistente = await pool.query(
       "SELECT id_usuario FROM usuarios WHERE correo = $1",
@@ -54,10 +88,10 @@ export const registrarVecino = async (req, res) => {
     `;
 
     const resultado = await pool.query(query, [
-      nombre.trim(),
+      nombreLimpio,
       correoNormalizado,
       passwordHash,
-      telefono ? telefono.trim() : null,
+      telefonoLimpio || null,
     ]);
 
     const nuevoUsuario = resultado.rows[0];
