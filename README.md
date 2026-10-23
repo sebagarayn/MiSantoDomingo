@@ -855,6 +855,16 @@ Los tokens emitidos cuentan con una validez estricta de **8 horas** (`expiresIn:
 | **Protección de rutas por rol**              | Middlewares `verificarToken` y `soloAdmin` que rechazan con `401 Unauthorized` peticiones anónimas y con `403 Forbidden` intentos de escalada de privilegios.                                                      |
 | **Manejo de errores seguro**                 | Respuestas HTTP consistentes en formato JSON (`400`, `401`, `403`, `404`, `409`, `500`) sin filtrar trazas de la base de datos ni detalles internos de la infraestructura.                                         |
 
+## Validaciones en el Registro de Usuarios (Backend)
+
+Se implementaron validaciones de seguridad y formato en el controlador de autenticación (`src/controllers/auth.controller.js`):
+- **Tipos de datos y saneamiento:** Se asegura que los campos de entrada sean de tipo texto y se limpian espacios en blanco (`trim()`) y mayúsculas en el correo (`toLowerCase()`).
+- **Formato de correo:** Validación estricta con expresiones regulares y un límite máximo de 254 caracteres.
+- **Largos máximos:** 
+  - Nombre: máximo 100 caracteres.
+  - Contraseña: máximo 72 caracteres (límite técnico considerado por bcrypt).
+  - Teléfono: máximo 20 caracteres (opcional).
+
 ---
 
 ## 14. Pruebas funcionales
