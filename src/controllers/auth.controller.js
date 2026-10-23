@@ -61,6 +61,29 @@ export const registrarVecino = async (req, res) => {
     });
   }
 
+if (nombreLimpio.length > 100) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El nombre no puede superar los 100 caracteres",
+    });
+  }
+
+  // bcrypt solo considera los primeros 72 caracteres de la contraseña
+  if (password.length > 72) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "La contraseña no puede superar los 72 caracteres",
+    });
+  }
+
+  if (telefonoLimpio.length > 20) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El teléfono no puede superar los 20 caracteres",
+    });
+  }
+
+
 
   try {
     // Verificamos si el correo ya esta registrado en la base de datos
