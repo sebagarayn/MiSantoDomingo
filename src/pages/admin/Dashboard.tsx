@@ -47,17 +47,35 @@ const Dashboard: React.FC = () => {
   const [periodo, setPeriodo] = useState("30dias");
   const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
 
-  // Leemos todos los reclamos del mock apenas arranca la vista para calcular las metricas
+  // Leemos todos los reclamos desde PostgreSQL apenas arranca la vista
   useEffect(() => {
     reportService.obtenerReclamos().then(setReclamos);
   }, []);
 
-  // Calculo de los 3 KPIs en tiempo real a partir de los datos cargados (RF-10)
-  const totalIngresados = reclamos.length;
-  const resueltos = reclamos.filter((r) => r.estado === "Resuelto").length;
+  // Filtramos los reclamos segun el rango de tiempo seleccionado en el selector (7 dias, 30 dias o año)
+  const reclamosFiltrados = reclamos.filter((r) => {
+    const fechaReclamo = new Date(r.fechaIngreso).getTime();
+    const ahora = Date.now();
+
+    if (periodo === "7dias") {
+      const limite7Dias = ahora - 7 * 24 * 60 * 60 * 1000;
+      return fechaReclamo >= limite7Dias;
+    }
+    if (periodo === "30dias") {
+      const limite30Dias = ahora - 30 * 24 * 60 * 60 * 1000;
+      return fechaReclamo >= limite30Dias;
+    }
+    return true; // "anio": muestra todo el año en curso (2026)
+  });
+
+  // Calculo de los 3 KPIs en tiempo real a partir de los datos filtrados (RF-10)
+  const totalIngresados = reclamosFiltrados.length;
+  const resueltos = reclamosFiltrados.filter(
+    (r) => r.estado === "Resuelto",
+  ).length;
 
   // Detecta reclamos con mas de 20 dias corridos sin resolver usando la funcion del servicio
-  const vencidos = reclamos.filter(
+  const vencidos = reclamosFiltrados.filter(
     (r) =>
       r.estado !== "Resuelto" &&
       reportService.calcularDiasRestantes(r.fechaIngreso).vencido,
@@ -66,9 +84,9 @@ const Dashboard: React.FC = () => {
   const tasaResolucion =
     totalIngresados > 0 ? Math.round((resueltos / totalIngresados) * 100) : 0;
 
-  // Agrupamos el conteo por categoria para dibujar las barras del grafico
+  // Agrupamos el conteo por categoria para dibujar las barras del grafico segun el periodo
   const categoriasConteo: { [key: string]: number } = {};
-  reclamos.forEach((r) => {
+  reclamosFiltrados.forEach((r) => {
     const cat = r.categoria || "Otros";
     categoriasConteo[cat] = (categoriasConteo[cat] || 0) + 1;
   });

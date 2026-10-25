@@ -17,8 +17,10 @@ const MAPA_CATEGORIAS: Record<string, number> = {
   "aseo y ornato": 2,
   "calles y veredas": 3,
   "seguridad ciudadana": 4,
+  seguridad: 4,
   "transporte y tránsito": 5,
   "transporte y transito": 5,
+  transporte: 5,
   otros: 6,
 };
 
