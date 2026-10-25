@@ -44,48 +44,49 @@ Proyecto académico de Ingeniería Web y Móvil — Entrega Parcial 2 (Backend A
 ---
 
 ## 2. Distribución de responsabilidades
-
+ 
 ### 2.1. Sebastián Garay
-
+ 
 Responsabilidad: Desarrollo de la API REST y de la autenticación del backend.
-
-Entregables: API REST con los métodos GET, POST, PATCH y DELETE; implementación de la autenticación con JWT y gestión de los tokens; validación de las entradas de datos; redacción de las secciones del README correspondientes al trabajo que realizó.
-
+ 
+Entregables: API REST con los métodos GET, POST, PUT, PATCH y DELETE; implementación de la autenticación con JWT y gestión de los tokens; validación de las entradas de datos y de los identificadores; arquitectura en tres capas (rutas, controladores y servicios); manejador global de errores y respuestas JSON para rutas inexistentes; redacción de las secciones del README correspondientes al trabajo que realizó.
+ 
 ### 2.2. Benjamín Lazcano
-
+ 
 Responsabilidad: Apoyo en la creación de la base del servidor, diseño y scripts de la base de datos, y pruebas funcionales de la API.
-
+ 
 Entregables: Diagrama de la base de datos; scripts SQL para la creación de la base de datos, de las cuentas de usuarios de prueba y de los datos de prueba; pruebas funcionales de la API en Postman, con la colección exportada en un archivo JSON y los pantallazos de cada prueba junto a sus códigos de respuesta.
-
+ 
 ### 2.3. Vicente Olguin
-
+ 
 Responsabilidad: Redacción y estructuración del README del backend.
-
-Entregables: README.md redactado según las exigencias de la segunda entrega, que cubre todos los puntos solicitados para la rama backend.
-
+ 
+Entregables: README.md redactado según las exigencias de la segunda entrega, que cubre todos los puntos solicitados para la rama `backend`.
+ 
 ### 2.4. Ignacio Maureira
-
-Responsabilidad: Apoyo en la redacción del README y corrección del prototipo en Figma.
-
-Entregables: Apoyo en la redacción del README del backend; corrección del prototipo en Figma (responsabilidad asignada al equipo, no exigida en esta entrega).
-
+ 
+Responsabilidad: Validaciones del registro de usuarios, apoyo en la redacción del README y corrección del prototipo en Figma.
+ 
+Entregables: Validaciones del registro (formato del correo, tipos de datos y largos máximos de nombre, teléfono y contraseña) y su documentación en el README; apoyo en la redacción del README del backend; corrección del prototipo en Figma (responsabilidad asignada al equipo, no exigida en esta entrega).
+ 
 ---
 
 ## 3. Descripción general del sistema y problema que aborda
 
 ### 3.1. Descripción general del sistema
 
-**API REST** desarrollada con **Node.js**, **Express** y **PostgreSQL** que da soporte a la plataforma MiSantoDomingo. Este sistema reemplaza los servicios **MOCK** del frontend por datos reales y se encarga de:
 
-- **Registro e inicio de sesión**: Permite a los vecinos crear una cuenta e ingresar a la plataforma mediante un token **JWT**, que identifica el rol como vecino o admin.
+**API REST** desarrollada con **Node.js**, **Express** y **PostgreSQL** que da soporte a la plataforma MiSantoDomingo. Este sistema reemplaza los servicios **mock** del frontend por datos reales y se encarga de:
+ 
+- **Registro e inicio de sesión**: permite a los vecinos crear una cuenta e ingresar a la plataforma mediante un token **JWT**, que identifica el rol como vecino o admin.
 
-- **Gestión de reclamos**: Permite ingresar reclamos con una fotografía opcional, generar un folio único para cada reclamo, actualizar el estado del reclamo, derivar el reclamo entre unidades municipales, registrar una respuesta formal al cerrar los reclamos y gestionar la cancelación de los reclamos.
+- **Gestión de reclamos**: permite ingresar reclamos con una fotografía opcional, generar un folio único para cada reclamo, actualizar el estado, derivar el reclamo entre unidades municipales, registrar una respuesta formal al cerrar los reclamos, editar los datos de un reclamo mientras está pendiente y gestionar su cancelación.
 
-- **Control de plazos**: Calcula el tiempo restante del plazo legal de 20 días para responder los reclamos e identifica los reclamos que ya se encuentran vencidos.
+- **Control de plazos**: calcula el tiempo restante del plazo legal de 20 días para responder los reclamos e identifica los que ya se encuentran vencidos.
 
-- **Historial de cambios**: Registra las modificaciones de estado de cada reclamo manteniendo la trazabilidad de la gestión.
+- **Historial de cambios**: registra las modificaciones de estado de cada reclamo, manteniendo la trazabilidad de la gestión.
 
-- **Calificación ciudadana**: Permite que los usuarios califiquen la atención que recibieron en una escala de puntuación de 1 a 5 estrellas, evitando que un mismo usuario vote más de una vez.
+- **Calificación ciudadana**: permite que los usuarios califiquen la atención recibida en una escala de 1 a 5 estrellas, evitando que un mismo usuario vote más de una vez.
 
 ### 3.2. Problema o necesidad que aborda
 
@@ -110,25 +111,25 @@ solicitudes que los ciudadanos ingresan al municipio, generando frustración.
 
 ## 4. Principales funcionalidades
 
-<!-- -->
-
 ### 4.1. Rol Vecino/Vecina
 
 Los vecinos y vecinas pueden utilizar la plataforma para ingresar reclamos, consultar su estado y hacer seguimiento de su resolución. Las funcionalidades disponibles para este rol son las siguientes:
+ 
+- **Registro e inicio de sesión**: permite crear una cuenta e ingresar a la plataforma. Al crearse una cuenta, el sistema le asigna automáticamente el rol de vecino.
 
-- **Registro e inicio de sesión**: Permite crear una cuenta e ingresar a la plataforma. Al crearse una cuenta, el sistema automáticamente le asignara el rol de vecino.
+- **RF-01. Ingreso de reclamos**: permite ingresar un reclamo indicando la categoría, descripción y ubicación, además de adjuntar una fotografía de forma opcional. Se aceptan imágenes en formato **JPEG**, **PNG** o **WebP**, con un tamaño máximo de 5 MB.
 
-- **RF-01. Ingreso de reclamos**: Permite ingresar un reclamo indicando la categoría, descripción y ubicación, además de poder adjuntar una fotografía de forma opcional. Se aceptan imágenes en formato **JPEG**, **PNG** o **WebP**, con un tamaño máximo de 5 MB.
+- **RF-02. Generación de folio**: al ingresar un reclamo, el sistema genera un folio único con el formato `SD-AAAA-XXXXXX`, que permite identificarlo y consultarlo posteriormente.
 
-- **RF-02. Generación de Folio**: Al ingresar un reclamo, el sistema genera un folio único con el formato SD-AAAA-XXXXXX, que permite identificarlo y consultarlo posteriormente.
+- **RF-04. Seguimiento de plazos**: permite conocer los días restantes del plazo legal de 20 días para la resolución del reclamo y verificar si este se encuentra vencido.
 
-- **RF-04. Seguimiento de plazos**: Permite conocer los días restantes del plazo legal de 20 días para la resolución del reclamo y verificar si este se encuentra vencido.
+- **RF-05. Consulta de reclamos**: permite revisar el listado de reclamos ingresados por el propio usuario, acceder al detalle de cada uno y consultar su historial de cambios.
 
-- **RF-05. Consulta de reclamos**: Permite revisar el listado de reclamos ingresados por el propio usuario, acceder al detalle de cada uno y consultar el historial de cambios del reclamo.
+- **RF-09. Calificación del servicio**: permite calificar con una puntuación de 1 a 5 estrellas un reclamo que haya sido resuelto. **Solo** la persona que ingresó el reclamo puede calificar y se admite un único voto.
 
-- **RF-09. Calificación del servicio**: Permite calificar con una puntuación de 1 a 5 estrellas a un reclamo que haya sido resuelto. **SOLO** la persona que ingresó el reclamo puede calificar y se admite solamente un voto.
+- **Edición de reclamos**: permite modificar la categoría, la descripción y la ubicación de un reclamo propio mientras se encuentre en estado **"Pendiente"**. El cambio queda registrado en el historial.
 
-- **Cancelación de reclamos**: Permite al vecino/vecina cancelar un reclamo propio mientras este reclamo se encuentre en el estado **"Pendiente"** cambiando el estado a **"Rechazado"**.
+- **Cancelación de reclamos**: permite al vecino o vecina cancelar un reclamo propio mientras se encuentre en estado **"Pendiente"**, cambiando su estado a **"Rechazado"**.
 
 ### 4.2. Rol Funcionario municipal (OIRS)
 
@@ -175,7 +176,12 @@ El funcionario municipal encargado de la OIRS puede acceder a los reclamos ingre
 
 ## 6. Arquitectura y estructura del backend
 
-El backend sigue una arquitectura en capas. Cada petición pasa por `app.js` (CORS y lectura de JSON), las **rutas** (`routes/`) que definen los endpoints, los **middlewares** (`middlewares/`) que verifican el JWT, el rol y la carga de archivos, y los **controladores** (`controllers/`), que contienen la lógica de negocio y ejecutan las consultas SQL sobre PostgreSQL a través de un pool de conexiones (`config/db.js`). Las operaciones que modifican varias tablas se ejecutan dentro de transacciones.
+El backend sigue una arquitectura en tres capas. Cada petición pasa por `app.js` (CORS y lectura de JSON), por las **rutas** (`routes/`), que definen los endpoints, y por los **middlewares** (`middlewares/`), que verifican el JWT, el rol y la carga de archivos. Luego intervienen dos capas con responsabilidades separadas:
+ 
+- **Controladores** (`controllers/`): capa HTTP. Validan los datos de la petición (campos obligatorios, tipos, largos e identificadores) y arman la respuesta con su código de estado.
+
+- **Servicios** (`services/`): capa de datos. Ejecutan las consultas SQL sobre PostgreSQL a través de un pool de conexiones (`config/db.js`) y concentran las transacciones de las operaciones que modifican varias tablas.
+Al final de `app.js` hay dos manejadores globales: uno responde en JSON las rutas que no existen y otro captura el JSON malformado y los errores no previstos, sin exponer trazas internas.
 
 ### 6.1. Estructura del proyecto
 
@@ -568,6 +574,48 @@ El inicio de sesión valida la contraseña contra el hash guardado en la base de
 
 ---
 
+10.4. Levantar la aplicación Frontend (Ionic + React)
+
+Para probar la integración completa de MiSantoDomingo, es necesario ejecutar tanto el backend (API REST) como el frontend (interfaz de usuario). Ambos deben permanecer en ejecución durante las pruebas.
+
+Paso 1. Acceder a la rama frontend
+
+Abrir una nueva terminal y situarse en la carpeta del proyecto. Para evitar conflictos con el backend que ya está en ejecución, se recomienda utilizar una copia independiente del repositorio.
+
+Si todavía no se ha clonado el repositorio, ejecutar:
+
+git clone -b frontend https://github.com/sebagarayn/MiSantoDomingo.git MiSantoDomingo-frontend
+cd MiSantoDomingo-frontend
+
+Si ya se dispone de una copia del proyecto, también se puede cambiar a la rama frontend desde ella, siempre que no se necesite mantener el backend ejecutándose desde esa misma carpeta:
+
+git fetch origin
+git switch frontend
+
+Paso 2. Instalar las dependencias
+
+Dentro de la carpeta del frontend, ejecutar:
+
+npm install
+
+Paso 3. Iniciar la aplicación
+
+Ejecutar el siguiente comando para iniciar el servidor de desarrollo:
+
+npm run dev
+
+Paso 4. Acceder a la aplicación
+
+Abrir el navegador en la siguiente dirección:
+
+http://localhost:5173
+
+La interfaz web se conectará a la API REST del backend, disponible en http://localhost:3000/api, siempre que ambos servicios estén correctamente configurados y en ejecución.
+
+Importante: mantener abiertas las terminales del backend y del frontend mientras se prueba la aplicación. Si alguno de los servicios no está funcionando, la integración no podrá completarse correctamente.
+
+
+
 ## 11. Documentación de la API REST
 
 URL base: `http://localhost:3000`. Todas las respuestas son JSON con el campo `ok` (`true` o `false`) y, en los errores, un `mensaje`. Las rutas protegidas requieren el header `Authorization: Bearer <token>`.
@@ -592,138 +640,112 @@ URL base: `http://localhost:3000`. Todas las respuestas son JSON con el campo `o
 | PUT    | `/api/reclamos/:id`              | Edita antecedentes de un reclamo en estado `Pendiente`        | Sí            | Dueño del reclamo         |
 
 ### 11.2. Detalle de endpoints
-
+ 
 #### `POST /api/auth/registro`
-
+ 
 - **Descripción:** crea una cuenta de vecino. El rol se asigna siempre como `vecino`.
 - **Autenticación:** no requiere.
-- **Body (JSON):** `nombre`, `correo` y `password` son obligatorios (mínimo 6 caracteres); `telefono` es opcional.
-
+- **Body (JSON):** `nombre`, `correo` y `password` son obligatorios; `telefono` es opcional. Validaciones: todos los campos deben ser texto; el nombre no puede estar vacío ni superar 100 caracteres; la contraseña debe tener entre 6 y 72 caracteres; el teléfono no puede superar 20 caracteres; el correo debe tener un formato válido (por ejemplo, `usuario@correo.cl`) y no superar 254 caracteres. El correo se guarda en minúsculas y sin espacios.
 ```json
-{
-  "nombre": "Usuario Prueba",
-  "correo": "prueba@correo.cl",
-  "password": "123456"
-}
+{ "nombre": "Usuario Prueba", "correo": "prueba@correo.cl", "password": "123456" }
 ```
-
+ 
 - **Respuesta exitosa (201):**
-
 ```json
 {
   "ok": true,
   "mensaje": "Usuario registrado exitosamente",
-  "usuario": {
-    "id_usuario": 3,
-    "nombre": "Usuario Prueba",
-    "correo": "prueba@correo.cl",
-    "rol": "vecino",
-    "fecha_registro": "2026-10-19T01:14:20.531Z"
-  }
+  "usuario": { "id_usuario": 3, "nombre": "Usuario Prueba", "correo": "prueba@correo.cl", "rol": "vecino", "fecha_registro": "2026-10-19T01:14:20.531Z" }
 }
 ```
-
+ 
 - **Casos de error:**
-  | Código | Situación |
-  |---|---|
-  | 400 | Faltan campos obligatorios, o la contraseña tiene menos de 6 caracteres |
-  | 409 | Ya existe una cuenta con ese correo |
-  | 500 | Error interno del servidor |
-
+| Código | Situación |
+|---|---|
+| 400 | Faltan campos obligatorios, los datos no son texto, o no se cumple alguna validación (nombre vacío o de más de 100 caracteres, contraseña de menos de 6 o más de 72 caracteres, teléfono de más de 20 caracteres, correo con formato inválido) |
+| 409 | Ya existe una cuenta con ese correo |
+| 500 | Error interno del servidor |
+ 
 #### `POST /api/auth/login`
-
+ 
 - **Descripción:** valida las credenciales y entrega un token JWT con vigencia de 8 horas.
 - **Autenticación:** no requiere.
 - **Body (JSON):**
-
 ```json
 { "correo": "vecino@correo.cl", "password": "123456" }
 ```
-
+ 
 - **Respuesta exitosa (200):**
-
 ```json
 {
   "ok": true,
   "mensaje": "Inicio de sesion exitoso",
   "token": "<token JWT>",
-  "usuario": {
-    "id_usuario": 1,
-    "nombre": "Maria Gonzalez",
-    "correo": "vecino@correo.cl",
-    "rol": "vecino"
-  }
+  "usuario": { "id_usuario": 1, "nombre": "Maria Gonzalez", "correo": "vecino@correo.cl", "rol": "vecino" }
 }
 ```
-
+ 
 - **Casos de error:**
-  | Código | Situación |
-  |---|---|
-  | 400 | Falta el correo o la contraseña |
-  | 401 | Credenciales inválidas (el mensaje es el mismo si falla el correo o la clave) |
-  | 500 | Error interno del servidor |
-
+| Código | Situación |
+|---|---|
+| 400 | Falta el correo o la contraseña |
+| 401 | Credenciales inválidas (el mensaje es el mismo si falla el correo o la clave) |
+| 500 | Error interno del servidor |
+ 
 #### `GET /api/reclamos/folio/:folio`
-
+ 
 - **Descripción:** consulta pública de un reclamo por su folio, sin iniciar sesión (RF-03).
 - **Autenticación:** no requiere.
 - **Ejemplo:** `GET /api/reclamos/folio/SD-2026-000101`
 - **Respuesta exitosa (200):**
-
 ```json
 {
   "ok": true,
   "reclamo": {
-    "id_reclamo": 1,
-    "folio": "SD-2026-000101",
-    "estado": "Pendiente",
-    "fecha_ingreso": "2026-10-15T12:00:00.000Z",
-    "respuesta_formal": null,
-    "categoria": "Alumbrado público",
-    "unidad_asignada": "OIRS Central",
-    "dias_restantes": 17,
-    "vencido": false
+    "id_reclamo": 1, "folio": "SD-2026-000101", "estado": "Pendiente",
+    "fecha_ingreso": "2026-10-15T12:00:00.000Z", "respuesta_formal": null,
+    "categoria": "Alumbrado público", "unidad_asignada": "OIRS Central",
+    "dias_restantes": 17, "vencido": false
   },
   "historial": [
-    {
-      "estado": "Pendiente",
-      "observacion": "Reclamo ingresado mediante plataforma ciudadana.",
-      "fecha": "2026-10-15T12:00:00.000Z",
-      "unidad_destino": null
-    }
+    { "estado": "Pendiente", "observacion": "Reclamo ingresado mediante plataforma ciudadana.", "fecha": "2026-10-15T12:00:00.000Z", "unidad_destino": null }
   ],
   "calificacion": null
 }
 ```
-
+ 
 - **Nota:** las fechas y los `dias_restantes` dependen del día en que se cargaron los datos de prueba (este reclamo se carga con 3 días de antigüedad).
 - **Casos de error:**
-  | Código | Situación |
-  |---|---|
-  | 404 | No existe un reclamo con ese folio |
-  | 500 | Error interno del servidor |
-
+| Código | Situación |
+|---|---|
+| 404 | No existe un reclamo con ese folio |
+| 500 | Error interno del servidor |
+ 
 #### `GET /api/reclamos`
-
+ 
 - **Descripción:** lista reclamos. El vecino recibe solo los suyos; el administrador recibe todos y puede filtrar.
 - **Autenticación:** requiere token.
-- **Parámetros de consulta (opcionales):** `estado`, `id_categoria`, `id_unidad`, `busqueda` (folio o texto de la descripción).
-- **Respuesta exitosa (200):** `{ "ok": true, "total": 3, "reclamos": [ ... ] }`, ordenados del más reciente al más antiguo, con `dias_restantes` y `vencido` en cada reclamo.
+- **Parámetros de consulta (opcionales):** `estado`, `id_categoria`, `id_unidad`, `busqueda` (texto que se busca en el folio, la descripción o la ubicación).
+- **Respuesta exitosa (200):** `{ "ok": true, "total": 3, "reclamos": [ ... ] }`, ordenados del más reciente al más antiguo. Cada reclamo incluye:
+  - `id_reclamo`, `id_usuario`, `folio`, `descripcion`, `ubicacion`, `foto_url`, `estado`, `fecha_ingreso` y `respuesta_formal`.
+  - `categoria`, `unidad_asignada` y `nombre_vecino` (nombres, no solo identificadores).
+  - `dias_restantes` y `vencido`, calculados con el plazo legal de 20 días.
+  - `calificacion`: el puntaje de 1 a 5, o `null` si todavía no fue calificado.
+  - `historial`: la lista de cambios del reclamo en orden cronológico, con `estado`, `fecha`, `observacion`, `unidad_destino` y `nombre_responsable` de cada uno.
 - **Casos de error:**
-  | Código | Situación |
-  |---|---|
-  | 401 | No se envió el token |
-  | 403 | Token inválido o expirado |
-  | 500 | Error interno del servidor |
-
+| Código | Situación |
+|---|---|
+| 401 | No se envió el token |
+| 403 | Token inválido o expirado |
+| 500 | Error interno del servidor |
+ 
 #### `POST /api/reclamos`
-
+ 
 - **Descripción:** ingresa un reclamo con estado `Pendiente`, genera su folio único (`SD-AAAA-XXXXXX`) y crea el primer registro del historial en una transacción.
 - **Autenticación:** requiere token.
 - **Body (`multipart/form-data`):** `id_categoria`, `descripcion` y `ubicacion` son obligatorios; `foto` es opcional (JPEG, PNG o WebP, máximo 5 MB).
 - **Ejemplo de body (`form-data`):** `id_categoria` = `1`, `descripcion` = `Reclamo de prueba`, `ubicacion` = `Calle Los Aromos 100`.
 - **Respuesta exitosa (201):**
-
 ```json
 {
   "ok": true,
@@ -743,98 +765,150 @@ URL base: `http://localhost:3000`. Todas las respuestas son JSON con el campo `o
   }
 }
 ```
-
+ 
 - **Casos de error:**
-  | Código | Situación |
-  |---|---|
-  | 400 | Faltan categoría, descripción o ubicación |
-  | 401 / 403 | Token ausente, o inválido o expirado |
-  | 500 | Error interno del servidor |
-
+| Código | Situación |
+|---|---|
+| 400 | Faltan categoría, descripción o ubicación |
+| 401 / 403 | Token ausente, o inválido o expirado |
+| 500 | Error interno del servidor |
+ 
 #### `GET /api/reclamos/:id`
-
+ 
 - **Descripción:** detalle completo de un reclamo, con historial (incluye el responsable de cada acción) y calificación.
 - **Autenticación:** requiere token. El vecino solo puede ver sus propios reclamos.
 - **Casos de error:**
-  | Código | Situación |
-  |---|---|
-  | 401 / 403 | Token ausente, o inválido o expirado |
-  | 403 | Un vecino intenta ver un reclamo ajeno |
-  | 404 | Reclamo no encontrado |
-  | 500 | Error interno del servidor |
-
+| Código | Situación |
+|---|---|
+| 400 | El `id` del reclamo no es un número entero válido |
+| 401 / 403 | Token ausente, o inválido o expirado |
+| 403 | Un vecino intenta ver un reclamo ajeno |
+| 404 | Reclamo no encontrado |
+| 500 | Error interno del servidor |
+ 
+#### `PUT /api/reclamos/:id`
+ 
+- **Descripción:** reemplaza la categoría, la descripción y la ubicación de un reclamo mientras esté en estado `Pendiente`, y deja constancia en el historial ("Antecedentes del reclamo actualizados por el usuario (PUT)"). La operación se ejecuta en una transacción.
+- **Autenticación:** requiere token. Un vecino solo puede editar sus propios reclamos; el administrador puede editar cualquier reclamo que esté pendiente.
+- **Body (JSON):** `id_categoria`, `descripcion` y `ubicacion` son obligatorios.
+```json
+{
+  "id_categoria": 2,
+  "descripcion": "Basura acumulada hace una semana en la esquina",
+  "ubicacion": "Av. Libertad 123"
+}
+```
+ 
+- **Respuesta exitosa (200):**
+```json
+{
+  "ok": true,
+  "mensaje": "Reclamo actualizado exitosamente (PUT)",
+  "reclamo": {
+    "id_reclamo": 5,
+    "folio": "SD-2026-TLKCQ5",
+    "id_usuario": 1,
+    "id_categoria": 2,
+    "id_unidad_asignada": 1,
+    "descripcion": "Basura acumulada hace una semana en la esquina",
+    "ubicacion": "Av. Libertad 123",
+    "foto_url": null,
+    "estado": "Pendiente",
+    "fecha_ingreso": "2026-10-25T02:03:58.804Z",
+    "respuesta_formal": null
+  }
+}
+```
+ 
+- **Casos de error:**
+| Código | Situación |
+|---|---|
+| 400 | El `id` no es un número entero válido, o falta la categoría, la descripción o la ubicación |
+| 401 / 403 | Token ausente, o inválido o expirado |
+| 403 | Un vecino intenta editar un reclamo ajeno |
+| 404 | Reclamo no encontrado |
+| 409 | El reclamo no está en estado `Pendiente` |
+| 500 | Error interno del servidor |
+ 
 #### `PATCH /api/reclamos/:id/estado`
-
+ 
 - **Descripción:** el funcionario actualiza el estado, deriva o cierra un reclamo y deja constancia en el historial.
 - **Autenticación:** requiere token con rol `admin`.
 - **Body (JSON):** `nuevo_estado` es obligatorio. Si es `Derivado`, se exigen `id_unidad_destino` y `observacion`. Si es `Resuelto`, se exige `respuesta_formal`.
-
 ```json
-{
-  "nuevo_estado": "Derivado",
-  "id_unidad_destino": 2,
-  "observacion": "Corresponde a Obras municipales"
-}
+{ "nuevo_estado": "Derivado", "id_unidad_destino": 2, "observacion": "Corresponde a Obras municipales" }
 ```
-
+ 
 - **Respuesta exitosa (200):** `{ "ok": true, "mensaje": "Reclamo actualizado exitosamente al estado: Derivado" }`
 - **Casos de error:**
-  | Código | Situación |
-  |---|---|
-  | 400 | Falta el nuevo estado, la unidad de destino y el motivo (derivación) o la respuesta formal (cierre) |
-  | 401 / 403 | Token ausente, inválido o expirado, o el usuario no es administrador |
-  | 404 | Reclamo no encontrado |
-  | 409 | El reclamo ya está cerrado (`Resuelto` o `Rechazado`) |
-  | 500 | Error interno del servidor |
-
+| Código | Situación |
+|---|---|
+| 400 | El `id` no es un número entero válido, falta el nuevo estado, falta la unidad de destino o el motivo (derivación) o falta la respuesta formal (cierre) |
+| 401 / 403 | Token ausente, inválido o expirado, o el usuario no es administrador |
+| 404 | Reclamo no encontrado |
+| 409 | El reclamo ya está cerrado (`Resuelto` o `Rechazado`) |
+| 500 | Error interno del servidor |
+ 
 #### `DELETE /api/reclamos/:id`
-
+ 
 - **Descripción:** cancela un reclamo en estado `Pendiente`. Es una baja lógica: el estado pasa a `Rechazado` y se registra en el historial.
 - **Autenticación:** requiere token. Un vecino solo puede cancelar sus propios reclamos.
 - **Respuesta exitosa (200):** `{ "ok": true, "mensaje": "Reclamo cancelado exitosamente" }`
 - **Casos de error:**
-  | Código | Situación |
-  |---|---|
-  | 401 / 403 | Token ausente, o inválido o expirado |
-  | 403 | Un vecino intenta cancelar un reclamo ajeno |
-  | 404 | Reclamo no encontrado |
-  | 409 | El reclamo no está en estado `Pendiente` |
-  | 500 | Error interno del servidor |
-
+| Código | Situación |
+|---|---|
+| 400 | El `id` del reclamo no es un número entero válido |
+| 401 / 403 | Token ausente, o inválido o expirado |
+| 403 | Un vecino intenta cancelar un reclamo ajeno |
+| 404 | Reclamo no encontrado |
+| 409 | El reclamo no está en estado `Pendiente` |
+| 500 | Error interno del servidor |
+ 
 #### `POST /api/reclamos/:id/calificacion`
-
+ 
 - **Descripción:** registra la calificación ciudadana de un reclamo resuelto (RF-09). Es de voto único.
 - **Autenticación:** requiere token. Solo puede calificar quien ingresó el reclamo.
 - **Body (JSON):** `puntaje` entero entre 1 y 5; `comentario` es opcional.
-
 ```json
 { "puntaje": 5 }
 ```
-
+ 
 - **Respuesta exitosa (201):** `{ "ok": true, "mensaje": "Gracias por calificar la respuesta municipal" }`
 - **Casos de error:**
-  | Código | Situación |
-  |---|---|
-  | 400 | El puntaje no es un entero entre 1 y 5 |
-  | 401 / 403 | Token ausente, o inválido o expirado |
-  | 403 | El usuario no es quien ingresó el reclamo |
-  | 404 | Reclamo no encontrado |
-  | 409 | El reclamo no está `Resuelto`, o ya tiene una calificación (voto único) |
-  | 500 | Error interno del servidor |
+| Código | Situación |
+|---|---|
+| 400 | El `id` no es un número entero válido, o el puntaje no es un entero entre 1 y 5 |
+| 401 / 403 | Token ausente, o inválido o expirado |
+| 403 | El usuario no es quien ingresó el reclamo |
+| 404 | Reclamo no encontrado |
+| 409 | El reclamo no está `Resuelto`, o ya tiene una calificación (voto único) |
+| 500 | Error interno del servidor |
+
+---
 
 ### 11.3. Códigos HTTP utilizados
+ 
+| Código | Uso |
+|---|---|
+| 200 | Consultas y actualizaciones exitosas (incluye PUT, PATCH y DELETE) |
+| 201 | Recurso creado: registro de usuario, reclamo y calificación |
+| 400 | Datos faltantes o inválidos, identificador que no es un número o JSON malformado |
+| 401 | Falta el token o las credenciales son inválidas |
+| 403 | Token inválido o expirado, o sin permisos para la acción |
+| 404 | Recurso no encontrado o ruta inexistente |
+| 409 | Conflicto: correo repetido, estado que no permite la acción o voto duplicado |
+| 500 | Error interno del servidor |
 
-| Código | Uso                                                                          |
-| ------ | ---------------------------------------------------------------------------- |
-| 200    | Consultas y actualizaciones exitosas                                         |
-| 201    | Recurso creado: registro de usuario, reclamo y calificación                  |
-| 400    | Datos faltantes o inválidos                                                  |
-| 401    | Falta el token o las credenciales son inválidas                              |
-| 403    | Token inválido o expirado, o sin permisos para la acción                     |
-| 404    | Recurso no encontrado                                                        |
-| 409    | Conflicto: correo repetido, estado que no permite la acción o voto duplicado |
-| 500    | Error interno del servidor                                                   |
-
+### 11.4. Errores generales del servidor
+ 
+Además de las respuestas de cada endpoint, `app.js` define dos manejadores globales que siempre responden en formato JSON, sin páginas HTML ni trazas de Node.js:
+ 
+| Código | Situación | Mensaje |
+|---|---|---|
+| 404 | Se llama a una ruta que no existe | `La ruta solicitada no existe en este servidor: <MÉTODO> <ruta>` |
+| 400 | El cuerpo de la petición es un JSON malformado | `El cuerpo de la petición contiene un formato JSON inválido o malformado` |
+| 500 | Cualquier otro error no previsto, por ejemplo, subir una fotografía que no es JPEG, PNG o WebP, o que pesa más de 5 MB | `Ocurrió un error interno en el servidor` |
+ 
 ---
 
 ## 12. Autenticación y roles (JWT)
@@ -867,25 +941,28 @@ URL base: `http://localhost:3000`. Todas las respuestas son JSON con el campo `o
 Los tokens emitidos cuentan con una validez estricta de **8 horas** (`expiresIn: '8h'`).
 
 ### 12.4. Roles y permisos
-
-| Rol                      | Endpoints / Acciones permitidas                                                                                                                                                                |
-| :----------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Vecino/Vecina**        | `POST /api/reclamos` (crear), `GET /api/reclamos` (solo sus propios reclamos), `DELETE /api/reclamos/:id` (cancelar pendiente), `POST /api/reclamos/:id/calificacion` (votar 1 a 5 estrellas). |
-| **Funcionario OIRS**     | `GET /api/reclamos` (bandeja completa con filtros de estado/unidad), `PATCH /api/reclamos/:id/estado` (derivar casos a otras unidades y cerrar formalmente).                                   |
-| **Público (Sin sesión)** | `GET /api/reclamos/folio/:folio` (consulta anónima de estado y trazabilidad), `GET /api/categorias`, `GET /api/unidades`, `POST /api/auth/login`, `POST /api/auth/registro`.                   |
-
+ 
+| Rol | Endpoints / acciones permitidas |
+| :-- | :------------------------------ |
+| **Vecino/Vecina** | `GET /api/auth/perfil`; `POST /api/reclamos` (crear); `GET /api/reclamos` (solo sus reclamos); `GET /api/reclamos/:id` (solo el detalle de sus reclamos); `PUT /api/reclamos/:id` (editar un reclamo pendiente); `DELETE /api/reclamos/:id` (cancelar pendiente); `POST /api/reclamos/:id/calificacion` (votar de 1 a 5 estrellas). |
+| **Funcionario OIRS** | `GET /api/reclamos` (bandeja completa con filtros de estado, categoría, unidad y búsqueda); `GET /api/reclamos/:id` (detalle de cualquier reclamo); `PATCH /api/reclamos/:id/estado` (derivar casos a otras unidades y cerrar formalmente); `PUT /api/reclamos/:id` y `DELETE /api/reclamos/:id` (sobre cualquier reclamo en estado pendiente). |
+| **Público (sin sesión)** | `GET /api/health`; `GET /api/reclamos/folio/:folio` (consulta anónima de estado y trazabilidad); `GET /api/categorias`; `GET /api/unidades`; `POST /api/auth/login`; `POST /api/auth/registro`. |
+ 
 ---
 
 ## 13. Seguridad y validaciones
 
-| Medida                                       | Implementación técnica en el sistema                                                                                                                                                                               |
-| :------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Hash de contraseñas con bcrypt**           | Cifrado con `bcryptjs` y 10 rondas de salt antes de insertar en la base de datos. Ninguna contraseña se almacena ni viaja en texto plano.                                                                          |
-| **Validación de entradas**                   | Sanitización de cadenas (`btrim()`), validación de longitud mínima de clave ($\ge$ 6 caracteres) y validación de tipos numéricos.                                                                                  |
-| **Prevención de inyección SQL**              | 100% de las consultas a PostgreSQL utilizan consultas parametrizadas con marcadores de posición (`$1, $2, $3...`) mediante `pg.Pool`.                                                                              |
-| **Manejo seguro de secretos (Criterio 2.5)** | Se eliminó cualquier valor por defecto (_fallback secret_) del código fuente. `JWT_SECRET` se lee exclusivamente desde `process.env`; si la variable no existe, el servidor se detiene de inmediato (_Fail-Fast_). |
-| **Protección de rutas por rol**              | Middlewares `verificarToken` y `soloAdmin` que rechazan con `401 Unauthorized` peticiones anónimas y con `403 Forbidden` intentos de escalada de privilegios.                                                      |
-| **Manejo de errores seguro**                 | Respuestas HTTP consistentes en formato JSON (`400`, `401`, `403`, `404`, `409`, `500`) sin filtrar trazas de la base de datos ni detalles internos de la infraestructura.                                         |
+| Medida | Implementación técnica en el sistema |
+| :----- | :----------------------------------- |
+| **Hash de contraseñas con bcrypt** | Cifrado con `bcryptjs` y 10 rondas de salt antes de insertar en la base de datos. Ninguna contraseña se almacena ni viaja en texto plano, y el hash nunca se devuelve en las respuestas. |
+| **Validación de entradas** | Campos obligatorios en registro, login, reclamos y cambios de estado. En el registro se valida además que los datos sean texto, que el nombre no esté vacío (máximo 100 caracteres), que la contraseña tenga entre 6 y 72 caracteres, que el teléfono no supere 20 caracteres y que el correo tenga un formato válido (máximo 254 caracteres) y se guarde normalizado. Los identificadores de reclamo de la URL deben ser números enteros, el puntaje es un entero de 1 a 5 y las fotografías se limitan a JPEG, PNG o WebP de hasta 5 MB. La base de datos refuerza las reglas con restricciones `CHECK`, incluida la validación de textos sin espacios vacíos (`btrim()`). |
+| **Prevención de inyección SQL** | Todas las consultas a PostgreSQL usan parámetros (`$1`, `$2`, `$3`...) mediante `pg.Pool`. Los filtros dinámicos agregan solo marcadores de posición, nunca valores concatenados. |
+| **Manejo seguro de secretos (criterio 2.5)** | No hay valores por defecto (*fallback*) para el secreto en el código fuente. `JWT_SECRET` se lee solo desde `process.env`; si no existe, el servidor se detiene al iniciar con el mensaje "Falta la variable de entorno JWT_SECRET en el archivo .env". |
+| **Protección de rutas por rol** | Los middlewares `verificarToken` y `soloAdmin` rechazan con `401 Unauthorized` las peticiones sin token y con `403 Forbidden` los tokens inválidos o los intentos de acceder a acciones de otro rol. Los controladores verifican además que el vecino solo acceda a sus propios reclamos. |
+| **Manejo de errores seguro** | Respuestas HTTP consistentes en formato JSON (`400`, `401`, `403`, `404`, `409`, `500`). Un manejador global captura el JSON malformado (400), las rutas inexistentes (404) y cualquier error no previsto (500, con el mensaje genérico "Ocurrió un error interno en el servidor"), sin filtrar trazas de la base de datos ni rutas de archivos. El login entrega el mismo mensaje si falla el correo o la contraseña. |
+| **Integridad de los datos** | Operaciones multi-tabla dentro de transacciones (`BEGIN`, `COMMIT`, `ROLLBACK`) con bloqueo de fila (`FOR UPDATE`) e historial inmutable mediante un trigger. |
+ 
+---                     |
 
 ## Validaciones en el Registro de Usuarios (Backend)
 
@@ -908,49 +985,56 @@ Postman (versión de escritorio), usada para probar los endpoints de la API REST
 contra el servidor local en `http://localhost:3000`.
 
 ### 14.2. Colección de pruebas
-
+ 
 ```
 pruebas/MiSantoDomingo.postman_collection.json
 ```
-
-La colección tiene 15 peticiones que cubren los métodos GET, POST, PATCH y DELETE, casos exitosos y casos de error:
-
-| N°  | Método | Endpoint                             | Caso probado                         | Resultado esperado           |
-| :-- | :----- | :----------------------------------- | :----------------------------------- | :--------------------------- |
-| 1   | GET    | `/api/health`                        | Verificación del servidor            | 200 OK                       |
-| 2   | POST   | `/api/auth/login`                    | Login del vecino                     | 200 OK + token JWT           |
-| 3   | POST   | `/api/auth/login`                    | Login del administrador              | 200 OK + token JWT           |
-| 4   | GET    | `/api/categorias`                    | Listado de categorías                | 200 OK (6 categorías)        |
-| 5   | GET    | `/api/reclamos`                      | Listado con token del vecino         | 200 OK (reclamos del vecino) |
-| 6   | POST   | `/api/auth/login`                    | Clave errónea                        | 401 Credenciales inválidas   |
-| 7   | POST   | `/api/auth/login`                    | Sin contraseña                       | 400 Datos incompletos        |
-| 8   | GET    | `/api/reclamos/folio/SD-2026-999999` | Folio inexistente                    | 404 No encontrado            |
-| 9   | PATCH  | `/api/reclamos/1/estado`             | Cambio de estado con token de vecino | 403 Permiso denegado         |
-| 10  | POST   | `/api/auth/registro`                 | Registro de un usuario nuevo         | 201 Created                  |
-| 11  | POST   | `/api/auth/registro`                 | Mismo correo por segunda vez         | 409 Conflict                 |
-| 12  | POST   | `/api/reclamos`                      | Creación de un reclamo (form-data)   | 201 Created + folio          |
-| 13  | PATCH  | `/api/reclamos/1/estado`             | Derivación como administrador        | 200 OK                       |
-| 14  | DELETE | `/api/reclamos/4`                    | Cancelación del reclamo propio       | 200 OK                       |
-| 15  | DELETE | `/api/reclamos/9999`                 | Reclamo inexistente                  | 404 No encontrado            |
-
+ 
+La colección tiene 16 peticiones que cubren los métodos GET, POST, PUT, PATCH y DELETE, casos exitosos y casos de error:
+ 
+| N° | Método | Endpoint | Caso probado | Resultado esperado |
+| :-- | :----- | :------- | :----------- | :----------------- |
+| 1 | GET | `/api/health` | Verificación del servidor | 200 OK |
+| 2 | POST | `/api/auth/login` | Login del vecino | 200 OK + token JWT |
+| 3 | POST | `/api/auth/login` | Login del administrador | 200 OK + token JWT |
+| 4 | GET | `/api/categorias` | Listado de categorías | 200 OK (6 categorías) |
+| 5 | GET | `/api/reclamos` | Listado con token del vecino | 200 OK (reclamos del vecino) |
+| 6 | POST | `/api/auth/login` | Clave errónea | 401 Credenciales inválidas |
+| 7 | POST | `/api/auth/login` | Sin contraseña | 400 Datos incompletos |
+| 8 | GET | `/api/reclamos/folio/SD-2026-999999` | Folio inexistente | 404 No encontrado |
+| 9 | PATCH | `/api/reclamos/1/estado` | Cambio de estado con token de vecino | 403 Permiso denegado |
+| 10 | POST | `/api/auth/registro` | Registro de un usuario nuevo | 201 Created |
+| 11 | POST | `/api/auth/registro` | Mismo correo por segunda vez | 409 Conflict |
+| 12 | POST | `/api/reclamos` | Creación de un reclamo (form-data) | 201 Created + folio |
+| 13 | PATCH | `/api/reclamos/1/estado` | Derivación como administrador | 200 OK |
+| 14 | DELETE | `/api/reclamos/4` | Cancelación del reclamo propio | 200 OK |
+| 15 | DELETE | `/api/reclamos/9999` | Reclamo inexistente | 404 No encontrado |
+| 16 | PUT | `/api/reclamos/5` | Edición de un reclamo propio pendiente | 200 OK + reclamo actualizado |
+ 
 Cómo ejecutarla:
-
+ 
 1. Dejar la base lista (`00_crear_base.sql` → `schema.sql` → `01_usuarios_prueba.sql` → `02_datos_prueba.sql`) y el servidor corriendo.
 2. En Postman: Import → seleccionar `pruebas/MiSantoDomingo.postman_collection.json`.
 3. Ejecutar los logins (peticiones 2 y 3) y copiar cada token.
-4. En las peticiones protegidas, reemplazar el marcador que está después de `Bearer ` en el header `Authorization` por el token correspondiente. Los marcadores no son todos iguales:
+4. En las peticiones protegidas, reemplazar el marcador que está después de `Bearer ` en el header `Authorization` por el token correspondiente. Los marcadores no son todos iguales, y el de las peticiones 5, 13, 14 y 15 es el mismo texto, por lo que hay que pegar el token que indica la tabla:
    | Petición | Marcador que se reemplaza | Token que va |
    | :------- | :------------------------ | :----------- |
    | 5 | `<pega_aqui_el_token>` | Vecino |
    | 9 | `<pega_aqui_el_tokenvecino>` | Vecino |
    | 12 | `<token_vecino>` | Vecino |
-   | 13 | `<pega_aqui_el_tokenadmin>` | Administrador |
+   | 13 | `<pega_aqui_el_token>` | Administrador |
    | 14 y 15 | `<pega_aqui_el_token>` | Vecino |
+   | 16 | `<pega_aqui_el_token vecino>` | Vecino |
+   
 5. Ejecutar las peticiones en orden y comparar con los resultados esperados.
-   Consideraciones para repetir las pruebas:
-
+Consideraciones para repetir las pruebas:
+ 
 - La petición 11 depende de la 10: el correo `prueba@correo.cl` debe haberse registrado antes. Si se repite la petición 10, responde 409 porque el correo ya existe.
+
 - La petición 14 cancela el reclamo con id 4, que es el que crea la petición 12 en una base recién cargada con los 3 reclamos de prueba. Por eso la 12 debe ejecutarse antes.
+
+- La petición 16 edita el reclamo con id 5, que debe existir, estar en estado `Pendiente` y pertenecer al vecino. En una base recién cargada, ese reclamo se crea ejecutando la petición 12 por segunda vez, después de la 14.
+
 - La petición 13 deriva el reclamo con id 1, que debe seguir abierto.
 
 Por seguridad, la colección no incluye ningún token real guardado.
@@ -1019,6 +1103,10 @@ Capturas de Postman con los códigos HTTP obtenidos. Están en la carpeta `prueb
 
 ![Cancelación de un reclamo inexistente](pruebas/capturas/15-cancelar-inexistente-404.png)
 
+**16. Actualización de un reclamo (PUT) — 200 OK**
+ 
+![Actualización de un reclamo (PUT)](pruebas/capturas/16%20ActualizarReclamo.png)
+
 ---
 
 ## 15. Integración frontend y backend
@@ -1049,12 +1137,20 @@ El frontend (rama `frontend`, Ionic + React + TypeScript) consume esta API desde
 
 ## 16. Gestión del proyecto y evidencia de contribuciones
 
-- **Ramas utilizadas:** Separación estricta en ramas `frontend` (aplicación móvil y web en Ionic React) y `backend` (servidor Express, base de datos PostgreSQL y pruebas de Postman), dando cumplimiento a la sección 3.2 de las bases oficiales.
-- **Convención de commits:** Mensajes descriptivos en lenguaje natural en español que identifican con precisión la tarea, archivo o corrección técnica efectuada (por ejemplo: _"Inclusión de trazabilidad histórica completa en listado de reclamos"_, _"Validar largos máximos de nombre y contraseña en el registro"_, _"Actualización de README con endpoints y pruebas"_).
-- **Evidencia de trabajo colaborativo:** Repositorio público con historial distribuido y continuo que evidencia la participación real de los cuatro integrantes del equipo (Sebastián Garay, Benjamín Lazcano, Vicente Olguín e Ignacio Maureira), cumpliendo con el requisito de desarrollo colaborativo sin cargas masivas de última hora.
-  > **Nota sobre autoría de commits:** Benjamín Lazcano registra contribuciones al repositorio bajo dos alias de GitHub (`benjaminlazcanor-hub` y `lazcanobenjamin83-arch`) debido a configuraciones de Git en diferentes equipos de trabajo (computador de escritorio y laptop). Ambas cuentas corresponden al mismo integrante.
+* **Ramas utilizadas:** Separación estricta en ramas `frontend` (aplicación móvil y web en Ionic React) y `backend` (servidor Express, PostgreSQL y pruebas), cumpliendo con la sección 3.2 de las bases.
 
----
+* **Convención de commits:** Mensajes descriptivos en español que identifican con precisión la tarea o corrección efectuada (ej: *"Inclusión de trazabilidad histórica"*, *"Validar largos máximos en registro"*).
+
+* **Evidencia de trabajo colaborativo:** Repositorio público con desarrollo continuo y aportes distribuidos entre los 4 integrantes. Para verificar la participación de cada miembro directamente en GitHub:
+
+| Integrante | Usuario de GitHub | Enlace directo al historial |
+| :--------- | :---------------- | :-------------------------- |
+| **Sebastián Garay** | `sebagarayn` | [Ver commits de Sebastián](https://github.com/sebagarayn/MiSantoDomingo/commits?author=sebagarayn) |
+| **Benjamín Lazcano** | `benjaminlazcanor-hub` / `lazcanobenjamin83-arch` | [Ver commits (cuenta 1)](https://github.com/sebagarayn/MiSantoDomingo/commits?author=benjaminlazcanor-hub) y [Ver commits (cuenta 2)](https://github.com/sebagarayn/MiSantoDomingo/commits?author=lazcanobenjamin83-arch) |
+| **Vicente Olguín** | `Vichonoma` | [Ver commits de Vicente](https://github.com/sebagarayn/MiSantoDomingo/commits?author=Vichonoma) |
+| **Ignacio Maureira** | `IgnacioMaureira` | [Ver commits de Ignacio](https://github.com/sebagarayn/MiSantoDomingo/commits?author=IgnacioMaureira) |
+
+> **Nota sobre Benjamín Lazcano:** Los alias `benjaminlazcanor-hub` y `lazcanobenjamin83-arch` corresponden al mismo estudiante, debido a configuraciones locales en diferentes computadores (escritorio y laptop).
 
 ## 17. Enlaces
 
