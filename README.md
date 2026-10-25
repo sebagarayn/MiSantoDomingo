@@ -574,37 +574,45 @@ El inicio de sesión valida la contraseña contra el hash guardado en la base de
 
 ---
 
-10.4. Levantar la aplicación Frontend (Ionic + React)
+### 10.4. Levantar la aplicación Frontend (Ionic + React)
 
 Para probar la integración completa de MiSantoDomingo, es necesario ejecutar tanto el backend (API REST) como el frontend (interfaz de usuario). Ambos deben permanecer en ejecución durante las pruebas.
 
-Paso 1. Acceder a la rama frontend
+**Paso 1. Acceder a la rama frontend**
 
 Abrir una nueva terminal y situarse en la carpeta del proyecto. Para evitar conflictos con el backend que ya está en ejecución, se recomienda utilizar una copia independiente del repositorio.
 
 Si todavía no se ha clonado el repositorio, ejecutar:
 
+```bash
 git clone -b frontend https://github.com/sebagarayn/MiSantoDomingo.git MiSantoDomingo-frontend
 cd MiSantoDomingo-frontend
+```
 
 Si ya se dispone de una copia del proyecto, también se puede cambiar a la rama frontend desde ella, siempre que no se necesite mantener el backend ejecutándose desde esa misma carpeta:
 
+```bash
 git fetch origin
 git switch frontend
+```
 
-Paso 2. Instalar las dependencias
+**Paso 2. Instalar las dependencias**
 
 Dentro de la carpeta del frontend, ejecutar:
 
+```bash
 npm install
+```
 
-Paso 3. Iniciar la aplicación
+**Paso 3. Iniciar la aplicación**
 
 Ejecutar el siguiente comando para iniciar el servidor de desarrollo:
 
+```bash
 npm run dev
+```
 
-Paso 4. Acceder a la aplicación
+**Paso 4. Acceder a la aplicación**
 
 Abrir el navegador en la siguiente dirección:
 
@@ -614,7 +622,7 @@ La interfaz web se conectará a la API REST del backend, disponible en http://lo
 
 Importante: mantener abiertas las terminales del backend y del frontend mientras se prueba la aplicación. Si alguno de los servicios no está funcionando, la integración no podrá completarse correctamente.
 
-
+---
 
 ## 11. Documentación de la API REST
 
@@ -1167,7 +1175,7 @@ El frontend (rama `frontend`, Ionic + React + TypeScript) consume esta API desde
 ## 18. Bibliografía y uso de IA
 
 - **Bibliografía:**
-  - Biblioteca del Congreso Nacional de Chile (BCN). _Reportes Comunales: Santo Domingo_. https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606](https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606
+  - Biblioteca del Congreso Nacional de Chile (BCN). _Reportes Comunales: Santo Domingo_. [https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606](https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606](https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606](https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606)
   - Instituto Nacional de Estadísticas (INE). _Censo de Población y Vivienda 2017 y 2024_.
   - Ley N° 19.880, que establece las Bases de los Procedimientos Administrativos que rigen los Actos de los Órganos de la Administración del Estado (Plazo legal de respuesta de 20 días en OIRS municipal).
   - Contraloría General de la República de Chile (CGR). _Dictámenes e informes de fiscalización sobre plazos de respuesta ciudadana y trazabilidad en municipalidades_.
