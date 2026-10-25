@@ -556,7 +556,7 @@ cambios en archivos; si una petición falla con `ECONNRESET` justo en ese moment
 reenviarla.
  
 ### 10.2. Cuentas de demostración
- 
+
 Cuentas creadas con `database/01_usuarios_prueba.sql` y alineadas con las proto-personas definidas para el proyecto:
  
 | Rol | Nombre | Correo electrónico | Contraseña | Permisos y capacidades |
@@ -564,6 +564,11 @@ Cuentas creadas con `database/01_usuarios_prueba.sql` y alineadas con las proto-
 | **Vecina (ciudadana)** | Maria Gonzalez | `vecino@correo.cl` | `123456` | Ingresar reclamos, consultar "Mis Reclamos", calificar con estrellas casos resueltos y cancelar reclamos propios en estado Pendiente. |
 | **Funcionario OIRS (admin)** | Felipe Perez | `admin@correo.cl` | `123456` | Bandeja general con filtros combinados, derivación a unidades técnicas y cierre formal con respuesta oficial. |
  
+El inicio de sesión valida la contraseña contra el hash guardado en la base de datos: no acepta cualquier clave.
+ 
+- Estas cuentas existen solo si se cargó `01_usuarios_prueba.sql` en la base de datos.
+- También se puede crear un vecino nuevo desde la pantalla de registro del frontend o con `POST /api/auth/registro`; queda guardado en PostgreSQL con la contraseña cifrada.
+- El rol `admin` no se puede obtener por el registro: solo se asigna directamente en la base de datos.
 ### 10.3. Uso de la API
  
 1. Iniciar sesión: `POST /api/auth/login` con body JSON `{ "correo": "vecino@correo.cl", "password": "123456" }`. Devuelve un token JWT.
@@ -991,14 +996,17 @@ Capturas de Postman con los códigos HTTP obtenidos. Están en la carpeta `prueb
 
 ## 15. Integración frontend y backend
  
-El frontend (rama `frontend`, Ionic + React + TypeScript) consume esta API desde `http://localhost:3000/api`. La API admite peticiones desde el navegador porque el servidor tiene CORS habilitado.
+El frontend (rama `frontend`, Ionic + React + TypeScript) consume esta API desde `http://localhost:3000/api`. La URL base se define en un solo lugar (`src/services/api.ts`) y puede cambiarse con la variable `VITE_API_URL`. La API admite peticiones desde el navegador porque el servidor tiene CORS habilitado.
  
-- **Cliente HTTP utilizado (fetch / Axios):** `fetch` nativo del navegador. No se usa Axios.
-- **Manejo de JWT (almacenamiento e interceptores):** al iniciar sesión, `AuthContext` llama a `POST /api/auth/login` y guarda el token en `localStorage["msd_token"]` y los datos del usuario en `localStorage["msd_session_user"]`. No se usan interceptores: el token se adjunta manualmente en la cabecera `Authorization: Bearer <token>` de cada petición protegida, mediante el método `getHeaders()` de `src/services/report.service.ts`. Al cerrar sesión se eliminan ambas claves.
-- **Manejo de errores y sesiones:** cuando la API responde con error, los servicios de reclamos lanzan una excepción con el campo `mensaje` que entrega el backend (por ejemplo, "Reclamo no encontrado"). Las rutas privadas del frontend (`ProtectedRoute`) redirigen a `/login` si no hay sesión o si el rol del usuario no tiene permiso, y muestran un aviso en pantalla. La sesión se mantiene al recargar la página, porque se restaura desde `localStorage`.
-- **Flujos principales funcionando con datos reales:** todas las operaciones de `src/services/report.service.ts` usan la API:
+- **Cliente HTTP utilizado (fetch / Axios):** `fetch` nativo del navegador, encapsulado en un helper central llamado `apiFetch` (`src/services/api.ts`). No se usa Axios. Ningún componente ni servicio hace `fetch` directo: todas las peticiones pasan por `apiFetch`.
+- **Autenticación real (registro e inicio de sesión):** el frontend ya no usa cuentas simuladas. `RegistroPage` llama a `authService.registrar` (`POST /api/auth/registro`), que crea la cuenta con rol `vecino` y guarda la contraseña cifrada con bcrypt en PostgreSQL. `LoginPage` llama a `AuthContext.login`, que usa `authService.login` (`POST /api/auth/login`). El nombre, el correo y el **rol** que muestra la aplicación son los que devuelve la base de datos; el rol `admin` solo se asigna directamente en la base. Si las credenciales son incorrectas, o el servidor no responde, no se inicia sesión y se muestra el mensaje de error.
+- **Manejo de JWT (almacenamiento e interceptor):** al iniciar sesión se guarda el token en `localStorage["msd_token"]` y los datos del usuario en `localStorage["msd_session_user"]`. `apiFetch` actúa como interceptor: adjunta automáticamente la cabecera `Authorization: Bearer <token>` en cada petición y revisa cada respuesta de error. Si la API responde `401`, o `403` con el mensaje de token inválido o expirado, limpia ambas claves y redirige a `/login` con el aviso "Tu sesión expiró. Inicia sesión nuevamente." Esta revisión no se aplica a `/auth/login` ni `/auth/registro`, para no confundir una contraseña incorrecta con una sesión vencida, y un `403` por falta de rol (por ejemplo, un vecino que intenta una ruta de administrador) solo muestra el error sin cerrar la sesión. El tiempo de vida del token está descrito en la sección 12.3.
+- **Manejo de errores y sesiones:** cuando la API responde con error, `apiFetch` lanza una excepción con el campo `mensaje` que entrega el backend (por ejemplo, "Ya existe una cuenta registrada con este correo" o "Reclamo no encontrado"), y las pantallas la muestran en un modal. Si el servidor está apagado o inalcanzable, se muestra un mensaje de conexión. Las rutas privadas del frontend (`ProtectedRoute`) redirigen a `/login` si no hay sesión o si el rol del usuario no tiene permiso. La sesión se mantiene al recargar la página, porque se restaura desde `localStorage`.
+- **Autoría de los reclamos:** el frontend identifica al creador de cada reclamo con el `id_usuario` que entrega la API, no con el usuario de la sesión. La restricción real la aplica el backend: un vecino solo recibe sus propios reclamos en `GET /api/reclamos`, y solo puede calificar o cancelar los suyos.
+- **Flujos principales funcionando con datos reales:** todas las operaciones de `src/services/auth.service.ts` y `src/services/report.service.ts` usan la API:
 | Operación en el frontend | Endpoint del backend |
 | :----------------------- | :------------------- |
+| Registrar una cuenta de vecino | `POST /api/auth/registro` |
 | Iniciar sesión | `POST /api/auth/login` |
 | Listar reclamos ("Mis Reclamos" y bandeja del funcionario) | `GET /api/reclamos` |
 | Consulta pública por folio | `GET /api/reclamos/folio/:folio` |
@@ -1007,13 +1015,8 @@ El frontend (rama `frontend`, Ionic + React + TypeScript) consume esta API desde
 | Calificar un reclamo resuelto | `POST /api/reclamos/:id/calificacion` |
 | Cancelar un reclamo propio | `DELETE /api/reclamos/:id` |
  
-- **Servicios mock reemplazados (`auth.service.ts`, `report.service.ts`):** `report.service.ts` ya no usa datos simulados: toda su lógica pasa por la API. El cálculo de los 20 días del plazo legal (RF-04) se hace en el cliente a partir de la fecha de ingreso. El dashboard de indicadores se calcula en el frontend a partir del listado de reclamos que entrega `GET /api/reclamos`.
-### 15.1. Cómo probar el frontend y el backend juntos
- 
-1. Dejar el backend corriendo siguiendo la sección 8 (`npm run dev`, servidor en `http://localhost:3000`).
-2. En otra carpeta, clonar el repositorio, cambiar a la rama `frontend`, instalar las dependencias con `npm install` y ejecutar `npm run dev`. El frontend queda en la URL que muestra la terminal (por defecto `http://localhost:5173`).
-3. Iniciar sesión con las cuentas de la sección 10.2: `vecino@correo.cl` o `admin@correo.cl`, con contraseña `123456`.
-   
+- **Servicios mock reemplazados (`auth.service.ts`, `report.service.ts`):** ambos servicios ya no usan datos simulados: toda su lógica pasa por la API a través de `apiFetch`. El cálculo de los 20 días del plazo legal (RF-04) se hace en el cliente a partir de la fecha de ingreso. El dashboard de indicadores se calcula en el frontend a partir del listado de reclamos que entrega `GET /api/reclamos`.
+  
 ---
 
 ## 16. Gestión del proyecto y evidencia de contribuciones
