@@ -133,7 +133,7 @@
       "response": []
     },
     {
-      "name": "Login clave erronea",
+      "name": "Post clavemala",
       "request": {
         "method": "POST",
         "header": [],
@@ -221,7 +221,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_tokenvecino>"
+            "value": "Bearer <pega_aqui_el_token>"
           }
         ],
         "body": {
@@ -251,7 +251,7 @@
       "response": []
     },
     {
-      "name": "Registro usuario nuevo",
+      "name": "Usuario prueba",
       "request": {
         "method": "POST",
         "header": [],
@@ -281,7 +281,7 @@
       "response": []
     },
     {
-      "name": "Registro correo duplicado.",
+      "name": "Registro Dup.",
       "request": {
         "method": "POST",
         "header": [],
@@ -311,7 +311,7 @@
       "response": []
     },
     {
-      "name": "Crear reclamo",
+      "name": "ReclamoP",
       "request": {
         "method": "POST",
         "header": [
@@ -362,7 +362,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_tokenadmin>"
+            "value": "Bearer <pega_aqui_el_token>"
           }
         ],
         "body": {
@@ -442,7 +442,87 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Actualizar reclamo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <pega_aqui_el_token vecino>"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"id_categoria\": 2,\r\n  \"descripcion\": \"Basura acumulada hace una semana en la esquina\",\r\n  \"ubicacion\": \"Av. Libertad 123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/reclamos/5",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "reclamos",
+            "5"
+          ]
+        }
+      },
+      "response": []
     }
   ],
-  "variable": []
+  "variable": [
+    {
+      "key": "token",
+      "secret": true
+    },
+    {
+      "key": "tokenAdmin",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_142z",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_13q0",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_11c5",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_0zrr",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_1bax",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_0zb1",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_0gok",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_15bg",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_0ohb",
+      "secret": true
+    }
+  ]
 }
