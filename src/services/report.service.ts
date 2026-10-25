@@ -230,6 +230,27 @@ class ReportService {
 
     return (await this.obtenerReclamoPorFolio(folio))!;
   }
+
+  // 7. Editar antecedentes completos de un reclamo en estado Pendiente (Verbo PUT)
+  public async editarReclamo(
+    folio: string,
+    datos: { categoria: string; descripcion: string; ubicacion: string },
+  ): Promise<IReport> {
+    const id_reclamo = await this.obtenerIdPorFolio(folio);
+    const catNormalizada = datos.categoria.toLowerCase().trim();
+    const id_categoria = MAPA_CATEGORIAS[catNormalizada] || 6;
+
+    await apiFetch(`/reclamos/${id_reclamo}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        id_categoria,
+        descripcion: datos.descripcion,
+        ubicacion: datos.ubicacion,
+      }),
+    });
+
+    return (await this.obtenerReclamoPorFolio(folio))!;
+  }
 }
 
 export const reportService = new ReportService();

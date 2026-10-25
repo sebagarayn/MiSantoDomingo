@@ -82,6 +82,10 @@ const VecinoHomePage: React.FC = () => {
   // Detalle del reclamo seleccionado al presionar una tarjeta
   const [reclamoDetalle, setReclamoDetalle] = useState<IReport | null>(null);
   const [calificacionTemp, setCalificacionTemp] = useState<number>(0);
+  const [editandoReclamo, setEditandoReclamo] = useState(false);
+  const [editDescripcion, setEditDescripcion] = useState("");
+  const [editUbicacion, setEditUbicacion] = useState("");
+  const [editCategoria, setEditCategoria] = useState("");
 
   // Estados para la consulta por folio integrada
   const [folioConsulta, setFolioConsulta] = useState("");
@@ -180,7 +184,7 @@ const VecinoHomePage: React.FC = () => {
       return;
     }
 
-    const idUsuario = user?.id;   
+    const idUsuario = user?.id;
 
     const nuevo = await reportService.crearReclamo(
       {
@@ -215,6 +219,10 @@ const VecinoHomePage: React.FC = () => {
   const abrirDetalleReclamo = (r: IReport) => {
     setReclamoDetalle(r);
     setCalificacionTemp(r.calificacion || 0);
+    setEditandoReclamo(false);
+    setEditDescripcion(r.descripcion);
+    setEditUbicacion(r.ubicacion);
+    setEditCategoria(r.categoria);
   };
 
   // Califica la atencion desde el modal de detalle y refresca la vista
@@ -242,11 +250,36 @@ const VecinoHomePage: React.FC = () => {
       try {
         await reportService.cancelarReclamo(reclamoDetalle.folio);
         setToastMsg("Reclamo cancelado exitosamente.");
-        setReclamoDetalle(null); // <-- AQUÍ: Debe ser setReclamoDetalle(null)
+        setReclamoDetalle(null);
         cargarReclamos();
       } catch (error: any) {
         setToastMsg(error.message || "Error al cancelar el reclamo.");
       }
+    }
+  };
+
+  // Guarda los cambios del reclamo pendiente usando el verbo PUT
+  const handleGuardarEdicion = async () => {
+    if (!reclamoDetalle) return;
+    if (!editDescripcion.trim() || !editUbicacion.trim()) {
+      setToastMsg("Descripción y ubicación no pueden estar vacías.");
+      return;
+    }
+    try {
+      const actualizado = await reportService.editarReclamo(
+        reclamoDetalle.folio,
+        {
+          categoria: editCategoria || reclamoDetalle.categoria,
+          descripcion: editDescripcion,
+          ubicacion: editUbicacion,
+        },
+      );
+      setReclamoDetalle(actualizado);
+      setEditandoReclamo(false);
+      setToastMsg("Reclamo actualizado exitosamente.");
+      cargarReclamos();
+    } catch (error: any) {
+      setToastMsg(error.message || "Error al actualizar el reclamo.");
     }
   };
 
@@ -1731,25 +1764,150 @@ const VecinoHomePage: React.FC = () => {
                       </IonList>
                     </div>
 
-                    {/* Boton para anular reclamo si aun esta Pendiente (Verbo DELETE) */}
+                    {/* Botones de accion para reclamos en estado Pendiente (PUT y DELETE) */}
                     {reclamoDetalle.estado === "Pendiente" && (
-                      <IonButton
-                        expand="block"
-                        fill="outline"
-                        color="danger"
+                      <div
                         style={{
-                          "--border-color": "#DC2626",
-                          "--color": "#DC2626",
-                          "--border-radius": "8px",
-                          height: "42px",
-                          fontWeight: 600,
-                          fontSize: "13px",
-                          marginTop: "16px",
+                          marginTop: "14px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
                         }}
-                        onClick={handleCancelarReclamo}
                       >
-                        Anular este reclamo
-                      </IonButton>
+                        {editandoReclamo ? (
+                          <div style={{ display: "flex", gap: "10px" }}>
+                            <IonButton
+                              expand="block"
+                              fill="outline"
+                              style={{
+                                flex: 1,
+                                "--border-color": "#64748B",
+                                "--color": "#64748B",
+                                height: "42px",
+                                fontWeight: 600,
+                              }}
+                              onClick={() => setEditandoReclamo(false)}
+                            >
+                              Cancelar
+                            </IonButton>
+                            <IonButton
+                              expand="block"
+                              style={{
+                                flex: 1,
+                                "--background": "#0D3B66",
+                                height: "42px",
+                                fontWeight: 600,
+                              }}
+                              onClick={handleGuardarEdicion}
+                            >
+                              Guardar cambios
+                            </IonButton>
+                          </div>
+                        ) : (
+                          <IonButton
+                            expand="block"
+                            fill="outline"
+                            style={{
+                              "--border-color": "#0D3B66",
+                              "--color": "#0D3B66",
+                              "--border-radius": "8px",
+                              height: "42px",
+                              fontWeight: 600,
+                              fontSize: "13px",
+                            }}
+                            onClick={() => setEditandoReclamo(true)}
+                          >
+                            Editar antecedentes
+                          </IonButton>
+                        )}
+
+                        {!editandoReclamo && (
+                          <IonButton
+                            expand="block"
+                            fill="outline"
+                            color="danger"
+                            style={{
+                              "--border-color": "#DC2626",
+                              "--color": "#DC2626",
+                              "--border-radius": "8px",
+                              height: "42px",
+                              fontWeight: 600,
+                              fontSize: "13px",
+                            }}
+                            onClick={handleCancelarReclamo}
+                          >
+                            Anular este reclamo
+                          </IonButton>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Inputs de edicion si la vecina activo el modo editar */}
+                    {editandoReclamo && (
+                      <div
+                        style={{
+                          marginTop: "16px",
+                          padding: "14px",
+                          background: "#F1F5F9",
+                          borderRadius: "10px",
+                        }}
+                      >
+                        <label
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            color: "#0D3B66",
+                            display: "block",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          Modificar Ubicación:
+                        </label>
+                        <IonItem
+                          lines="none"
+                          style={{
+                            border: "1px solid #CBD5E1",
+                            borderRadius: "8px",
+                            marginBottom: "10px",
+                            background: "#FFFFFF",
+                          }}
+                        >
+                          <IonInput
+                            value={editUbicacion}
+                            onIonInput={(e) =>
+                              setEditUbicacion(e.detail.value!)
+                            }
+                          />
+                        </IonItem>
+
+                        <label
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            color: "#0D3B66",
+                            display: "block",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          Modificar Descripción:
+                        </label>
+                        <IonItem
+                          lines="none"
+                          style={{
+                            border: "1px solid #CBD5E1",
+                            borderRadius: "8px",
+                            background: "#FFFFFF",
+                          }}
+                        >
+                          <IonTextarea
+                            rows={3}
+                            value={editDescripcion}
+                            onIonInput={(e) =>
+                              setEditDescripcion(e.detail.value!)
+                            }
+                          />
+                        </IonItem>
+                      </div>
                     )}
 
                     <IonButton
