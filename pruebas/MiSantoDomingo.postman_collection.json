@@ -133,7 +133,7 @@
       "response": []
     },
     {
-      "name": "Post clavemala",
+      "name": "Login clave erronea",
       "request": {
         "method": "POST",
         "header": [],
@@ -221,7 +221,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_token>"
+            "value": "Bearer <pega_aqui_el_tokenvecino>"
           }
         ],
         "body": {
@@ -251,7 +251,7 @@
       "response": []
     },
     {
-      "name": "Usuario prueba",
+      "name": "Registro usuario nuevo",
       "request": {
         "method": "POST",
         "header": [],
@@ -281,7 +281,7 @@
       "response": []
     },
     {
-      "name": "Registro Dup.",
+      "name": "Registro correo duplicado",
       "request": {
         "method": "POST",
         "header": [],
@@ -311,7 +311,7 @@
       "response": []
     },
     {
-      "name": "ReclamoP",
+      "name": "Crear reclamo",
       "request": {
         "method": "POST",
         "header": [
@@ -479,50 +479,5 @@
       "response": []
     }
   ],
-  "variable": [
-    {
-      "key": "token",
-      "secret": true
-    },
-    {
-      "key": "tokenAdmin",
-      "secret": true
-    },
-    {
-      "key": "bearer_token_142z",
-      "secret": true
-    },
-    {
-      "key": "json_web_token_13q0",
-      "secret": true
-    },
-    {
-      "key": "bearer_token_11c5",
-      "secret": true
-    },
-    {
-      "key": "json_web_token_0zrr",
-      "secret": true
-    },
-    {
-      "key": "bearer_token_1bax",
-      "secret": true
-    },
-    {
-      "key": "json_web_token_0zb1",
-      "secret": true
-    },
-    {
-      "key": "bearer_token_0gok",
-      "secret": true
-    },
-    {
-      "key": "json_web_token_15bg",
-      "secret": true
-    },
-    {
-      "key": "bearer_token_0ohb",
-      "secret": true
-    }
-  ]
+  "variable": []
 }
