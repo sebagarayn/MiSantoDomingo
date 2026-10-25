@@ -7,6 +7,7 @@ import {
   actualizarEstado,
   cancelarReclamo,
   calificarReclamo,
+  editarReclamo,
 } from "../controllers/reclamos.controller.js";
 import { verificarToken, soloAdmin } from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/upload.middleware.js";
@@ -36,5 +37,8 @@ router.post("/:id/calificacion", calificarReclamo);
 
 // Rutas exclusivas para Administradores (OIRS)
 router.patch("/:id/estado", soloAdmin, actualizarEstado);
+
+// Editar datos completos de un reclamo pendiente (Verbo PUT del CRUD)
+router.put("/:id", editarReclamo);
 
 export default router;

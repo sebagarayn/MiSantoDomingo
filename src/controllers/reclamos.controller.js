@@ -6,6 +6,7 @@ import {
   actualizarEstadoReclamoEnDB,
   cancelarReclamoEnDB,
   calificarReclamoEnDB,
+  editarReclamoEnDB,
 } from "../services/reclamos.service.js";
 
 export const crearReclamo = async (req, res) => {
@@ -37,12 +38,10 @@ export const crearReclamo = async (req, res) => {
     });
   } catch (error) {
     console.error("Error al crear reclamo:", error);
-    return res
-      .status(500)
-      .json({
-        ok: false,
-        mensaje: "Error en el servidor al registrar el reclamo",
-      });
+    return res.status(500).json({
+      ok: false,
+      mensaje: "Error en el servidor al registrar el reclamo",
+    });
   }
 };
 
@@ -73,12 +72,10 @@ export const consultarPorFolio = async (req, res) => {
   try {
     const resultado = await consultarReclamoPorFolioEnDB(folio);
     if (!resultado) {
-      return res
-        .status(404)
-        .json({
-          ok: false,
-          mensaje: "No se encontro ningun reclamo con el folio ingresado",
-        });
+      return res.status(404).json({
+        ok: false,
+        mensaje: "No se encontro ningun reclamo con el folio ingresado",
+      });
     }
     return res.json({ ok: true, ...resultado });
   } catch (error) {
@@ -95,12 +92,10 @@ export const obtenerDetalleReclamo = async (req, res) => {
 
   // Validacion de entrada: ID debe ser numerico
   if (isNaN(parseInt(id, 10))) {
-    return res
-      .status(400)
-      .json({
-        ok: false,
-        mensaje: "El ID del reclamo debe ser un número entero válido",
-      });
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El ID del reclamo debe ser un número entero válido",
+    });
   }
 
   try {
@@ -126,12 +121,10 @@ export const actualizarEstado = async (req, res) => {
   const id_funcionario = req.usuario.id_usuario;
 
   if (isNaN(parseInt(id, 10))) {
-    return res
-      .status(400)
-      .json({
-        ok: false,
-        mensaje: "El ID del reclamo debe ser un número entero válido",
-      });
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El ID del reclamo debe ser un número entero válido",
+    });
   }
 
   if (!nuevo_estado) {
@@ -192,12 +185,10 @@ export const cancelarReclamo = async (req, res) => {
   const { rol, id_usuario } = req.usuario;
 
   if (isNaN(parseInt(id, 10))) {
-    return res
-      .status(400)
-      .json({
-        ok: false,
-        mensaje: "El ID del reclamo debe ser un número entero válido",
-      });
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El ID del reclamo debe ser un número entero válido",
+    });
   }
 
   try {
@@ -222,12 +213,10 @@ export const calificarReclamo = async (req, res) => {
   const { id_usuario } = req.usuario;
 
   if (isNaN(parseInt(id, 10))) {
-    return res
-      .status(400)
-      .json({
-        ok: false,
-        mensaje: "El ID del reclamo debe ser un número entero válido",
-      });
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El ID del reclamo debe ser un número entero válido",
+    });
   }
 
   const estrellas = parseInt(puntaje, 10);
@@ -250,16 +239,68 @@ export const calificarReclamo = async (req, res) => {
         .status(resultado.error)
         .json({ ok: false, mensaje: resultado.mensaje });
     }
-    return res
-      .status(201)
-      .json({
-        ok: true,
-        mensaje: "Gracias por calificar la respuesta municipal",
-      });
+    return res.status(201).json({
+      ok: true,
+      mensaje: "Gracias por calificar la respuesta municipal",
+    });
   } catch (error) {
     console.error("Error al calificar reclamo:", error);
     return res
       .status(500)
       .json({ ok: false, mensaje: "Error al registrar la calificacion" });
+  }
+};
+
+export const editarReclamo = async (req, res) => {
+  const { id } = req.params;
+  const { id_categoria, descripcion, ubicacion } = req.body;
+  const { rol, id_usuario } = req.usuario;
+
+  if (isNaN(parseInt(id, 10))) {
+    return res
+      .status(400)
+      .json({
+        ok: false,
+        mensaje: "El ID del reclamo debe ser un número entero válido",
+      });
+  }
+
+  if (!id_categoria || !descripcion || !ubicacion) {
+    return res.status(400).json({
+      ok: false,
+      mensaje:
+        "Categoria, descripcion y ubicacion son campos obligatorios para actualizar el reclamo",
+    });
+  }
+
+  try {
+    const resultado = await editarReclamoEnDB({
+      id,
+      id_usuario,
+      rol,
+      id_categoria,
+      descripcion,
+      ubicacion,
+    });
+
+    if (resultado.error) {
+      return res
+        .status(resultado.error)
+        .json({ ok: false, mensaje: resultado.mensaje });
+    }
+
+    return res.json({
+      ok: true,
+      mensaje: "Reclamo actualizado exitosamente (PUT)",
+      reclamo: resultado.reclamo,
+    });
+  } catch (error) {
+    console.error("Error al editar reclamo con PUT:", error);
+    return res
+      .status(500)
+      .json({
+        ok: false,
+        mensaje: "Error al actualizar los datos del reclamo",
+      });
   }
 };

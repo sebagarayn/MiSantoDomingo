@@ -408,3 +408,78 @@ export const calificarReclamoEnDB = async ({
     throw error;
   }
 };
+
+// 8. Servicio: Editar antecedentes completos del reclamo (Verbo PUT del vecino mientras este Pendiente)
+export const editarReclamoEnDB = async ({
+  id,
+  id_usuario,
+  rol,
+  id_categoria,
+  descripcion,
+  ubicacion,
+}) => {
+  const cliente = await pool.connect();
+  try {
+    await cliente.query("BEGIN");
+
+    // 1. Buscamos el reclamo
+    const reclamoRes = await cliente.query(
+      "SELECT * FROM reclamos WHERE id_reclamo = $1 FOR UPDATE",
+      [id],
+    );
+    if (reclamoRes.rows.length === 0) {
+      await cliente.query("ROLLBACK");
+      return { error: 404, mensaje: "Reclamo no encontrado" };
+    }
+
+    const reclamo = reclamoRes.rows[0];
+
+    // 2. Solo el dueño del reclamo o un admin pueden editarlo
+    if (rol === "vecino" && reclamo.id_usuario !== id_usuario) {
+      await cliente.query("ROLLBACK");
+      return {
+        error: 403,
+        mensaje: "No tienes permiso para editar este reclamo",
+      };
+    }
+
+    // 3. Regla estricta: Solo se puede editar si sigue en Pendiente
+    if (reclamo.estado !== "Pendiente") {
+      await cliente.query("ROLLBACK");
+      return {
+        error: 409,
+        mensaje:
+          "Solo se pueden editar los datos de reclamos que esten en estado Pendiente",
+      };
+    }
+
+    // 4. Reemplazamos los datos del reclamo (PUT)
+    const updateQuery = `
+      UPDATE reclamos 
+      SET id_categoria = $1, descripcion = $2, ubicacion = $3 
+      WHERE id_reclamo = $4 
+      RETURNING *
+    `;
+    const resUpdate = await cliente.query(updateQuery, [
+      id_categoria,
+      descripcion.trim(),
+      ubicacion.trim(),
+      id,
+    ]);
+
+    // 5. Dejamos constancia en la trazabilidad inmutable
+    await cliente.query(
+      `INSERT INTO historial_reclamos (id_reclamo, id_usuario, estado, observacion)
+       VALUES ($1, $2, 'Pendiente', 'Antecedentes del reclamo actualizados por el usuario (PUT)')`,
+      [id, id_usuario],
+    );
+
+    await cliente.query("COMMIT");
+    return { ok: true, reclamo: resUpdate.rows[0] };
+  } catch (error) {
+    await cliente.query("ROLLBACK");
+    throw error;
+  } finally {
+    cliente.release();
+  }
+};
