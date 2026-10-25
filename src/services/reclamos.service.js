@@ -136,7 +136,7 @@ export const listarReclamosDeDB = async ({
   }
 
   if (busqueda) {
-    consulta += ` AND (r.folio ILIKE $${contador} OR r.descripcion ILIKE $${contador})`;
+    consulta += ` AND (r.folio ILIKE $${contador} OR r.descripcion ILIKE $${contador} OR r.ubicacion ILIKE $${contador})`;
     valores.push(`%${busqueda}%`);
     contador++;
   }
