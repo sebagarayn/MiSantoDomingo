@@ -281,7 +281,7 @@
       "response": []
     },
     {
-      "name": "Registro correo duplicado.",
+      "name": "Registro correo duplicado",
       "request": {
         "method": "POST",
         "header": [],
@@ -362,7 +362,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_tokenadmin>"
+            "value": "Bearer <pega_aqui_el_token>"
           }
         ],
         "body": {
@@ -438,6 +438,41 @@
             "api",
             "reclamos",
             "9999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar reclamo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <pega_aqui_el_token vecino>"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"id_categoria\": 2,\r\n  \"descripcion\": \"Basura acumulada hace una semana en la esquina\",\r\n  \"ubicacion\": \"Av. Libertad 123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/reclamos/5",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "reclamos",
+            "5"
           ]
         }
       },
