@@ -680,6 +680,31 @@ const AdminHomePage: React.FC = () => {
                             marginTop: "12px",
                           }}
                         >
+                          {/* Ubicacion fisica del reclamo */}
+                          <small
+                            style={{
+                              color: "#64748B",
+                              textTransform: "uppercase",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              display: "block",
+                              marginBottom: "2px",
+                            }}
+                          >
+                            Ubicación / Dirección del problema:
+                          </small>
+                          <p
+                            style={{
+                              margin: "0 0 12px 0",
+                              color: "#0D3B66",
+                              fontWeight: 700,
+                              fontSize: "13.5px",
+                            }}
+                          >
+                            {reclamoSeleccionado.ubicacion}
+                          </p>
+
+                          {/* Descripcion del reclamo */}
                           <small
                             style={{
                               color: "#64748B",
@@ -783,7 +808,7 @@ const AdminHomePage: React.FC = () => {
                                   marginBottom: "8px",
                                 }}
                               >
-                                Historial de Avances y Trazabilidad 
+                                Historial de Avances y Trazabilidad
                               </small>
 
                               <div
