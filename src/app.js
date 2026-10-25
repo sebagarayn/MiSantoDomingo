@@ -23,7 +23,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Montaje de rutas en la API
 app.use("/api/auth", authRoutes);
-app.use("/api", catalogosRoutes); // /api/categorias y /api/unidades
+app.use("/api", catalogosRoutes);
 app.use("/api/reclamos", reclamosRoutes);
 
 // Ruta de verificacion
@@ -31,6 +31,33 @@ app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
     mensaje: "API de MiSantoDomingo funcionando correctamente",
+  });
+});
+
+// 1. Manejador para cualquier ruta no encontrada (Evita devolver paginas HTML por defecto)
+app.use((req, res) => {
+  res.status(404).json({
+    ok: false,
+    mensaje: `La ruta solicitada no existe en este servidor: ${req.method} ${req.originalUrl}`,
+  });
+});
+
+// 2. Manejador global de errores: captura JSON malformado y fallos sin revelar rutas de disco
+app.use((err, req, res, next) => {
+  // Captura error de sintaxis en el JSON enviado por el cliente
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    return res.status(400).json({
+      ok: false,
+      mensaje:
+        "El cuerpo de la petición contiene un formato JSON inválido o malformado",
+    });
+  }
+
+  // Cualquier otro error interno se responde en JSON sin exponer trazas de Node.js
+  console.error("Error interno capturado:", err.message);
+  return res.status(500).json({
+    ok: false,
+    mensaje: "Ocurrió un error interno en el servidor",
   });
 });
 
