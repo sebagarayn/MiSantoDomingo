@@ -257,12 +257,10 @@ export const editarReclamo = async (req, res) => {
   const { rol, id_usuario } = req.usuario;
 
   if (isNaN(parseInt(id, 10))) {
-    return res
-      .status(400)
-      .json({
-        ok: false,
-        mensaje: "El ID del reclamo debe ser un número entero válido",
-      });
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El ID del reclamo debe ser un número entero válido",
+    });
   }
 
   if (!id_categoria || !descripcion || !ubicacion) {
@@ -291,16 +289,14 @@ export const editarReclamo = async (req, res) => {
 
     return res.json({
       ok: true,
-      mensaje: "Reclamo actualizado exitosamente (PUT)",
+      mensaje: "Reclamo actualizado exitosamente",
       reclamo: resultado.reclamo,
     });
   } catch (error) {
     console.error("Error al editar reclamo con PUT:", error);
-    return res
-      .status(500)
-      .json({
-        ok: false,
-        mensaje: "Error al actualizar los datos del reclamo",
-      });
+    return res.status(500).json({
+      ok: false,
+      mensaje: "Error al actualizar los datos del reclamo",
+    });
   }
 };

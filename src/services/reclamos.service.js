@@ -150,7 +150,7 @@ export const listarReclamosDeDB = async ({
 export const consultarReclamoPorFolioEnDB = async (folio) => {
   const reclamoRes = await pool.query(
     `SELECT 
-      r.id_reclamo, r.folio, r.estado, r.fecha_ingreso, r.respuesta_formal,
+      r.id_reclamo, r.folio, r.descripcion, r.ubicacion, r.foto_url, r.estado, r.fecha_ingreso, r.respuesta_formal,
       c.nombre AS categoria,
       u.nombre AS unidad_asignada,
       GREATEST(0, 20 - FLOOR(EXTRACT(EPOCH FROM (NOW() - r.fecha_ingreso)) / 86400)::INTEGER) AS dias_restantes,
@@ -470,7 +470,7 @@ export const editarReclamoEnDB = async ({
     // 5. Dejamos constancia en la trazabilidad inmutable
     await cliente.query(
       `INSERT INTO historial_reclamos (id_reclamo, id_usuario, estado, observacion)
-       VALUES ($1, $2, 'Pendiente', 'Antecedentes del reclamo actualizados por el usuario (PUT)')`,
+       VALUES ($1, $2, 'Pendiente', 'Antecedentes del reclamo actualizados por el usuario')`,
       [id, id_usuario],
     );
 
