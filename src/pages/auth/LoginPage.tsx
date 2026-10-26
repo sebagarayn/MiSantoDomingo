@@ -31,23 +31,20 @@ const LoginPage: React.FC = () => {
   // Esta funcion valida las credenciales contra nuestro mock de authService
   // Le agregamos async a la funcion
   const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    
-    // Login real: el rol viene de la base de datos, no del texto del correo
-    const usuario = await login(email, password);
-    history.push(usuario.rol === "admin" ? "/admin/inicio" : "/app/inicio");
-  } catch (error) {
-    setErrorModal(
-      error instanceof Error
-        ? error.message
-        : "No se pudo iniciar sesión, inténtelo nuevamente.",
-    );
-  }
-};
-
-    
+    try {
+      // Login real: el rol viene de la base de datos, no del texto del correo
+      const usuario = await login(email, password);
+      history.push(usuario.rol === "admin" ? "/admin/inicio" : "/app/inicio");
+    } catch (error) {
+      setErrorModal(
+        error instanceof Error
+          ? error.message
+          : "No se pudo iniciar sesión, inténtelo nuevamente.",
+      );
+    }
+  };
 
   return (
     <IonPage>
@@ -193,7 +190,7 @@ const LoginPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Enlace provisorio de recuperacion (la logica real queda para la EP2) */}
+                {/* Enlace provisorio de recuperacion (la logica real queda para la Entrega final) */}
                 <div style={{ textAlign: "right", marginBottom: "18px" }}>
                   <span
                     style={{
@@ -204,7 +201,7 @@ const LoginPage: React.FC = () => {
                     }}
                     onClick={() =>
                       alert(
-                        "Modulo de recuperacion disponible en la siguiente entrega.",
+                        "La funcionalidad de recuperación de contraseña mediante correo electrónico estará disponible en la Entrega Final.",
                       )
                     }
                   >

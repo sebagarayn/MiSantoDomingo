@@ -106,11 +106,10 @@ const VecinoHomePage: React.FC = () => {
   const [categoria, setCategoria] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [ubicacion, setUbicacion] = useState("");
-  const [fotoSimulada, setFotoSimulada] = useState(false);
 
   // Revisa si la vecina ya escribio algo en el formulario para activar la guardia preventiva
   const formularioTieneDatos = Boolean(
-    categoria || descripcion.trim() || ubicacion.trim() || fotoSimulada,
+    categoria || descripcion.trim() || ubicacion.trim(),
   );
 
   // Carga estrictamente los reclamos del vecino conectado para cumplir privacidad (RNF-03)
@@ -161,7 +160,6 @@ const VecinoHomePage: React.FC = () => {
     setCategoria("");
     setDescripcion("");
     setUbicacion("");
-    setFotoSimulada(false);
     setReclamoCreadoExito(null);
 
     if (destino === "mis_reclamos") {
@@ -193,9 +191,6 @@ const VecinoHomePage: React.FC = () => {
         ubicacion,
         origen: "usuario",
         creadorId: idUsuario,
-        fotoUrl: fotoSimulada
-          ? "https://via.placeholder.com/400x300.png?text=Foto+Reclamo"
-          : undefined,
       },
       idUsuario,
     );
@@ -206,7 +201,6 @@ const VecinoHomePage: React.FC = () => {
     setCategoria("");
     setDescripcion("");
     setUbicacion("");
-    setFotoSimulada(false);
   };
 
   const cerrarFlujoExito = () => {
@@ -743,7 +737,7 @@ const VecinoHomePage: React.FC = () => {
                           </IonItem>
                         </div>
 
-                        {/* Adjunto de foto opcional (RF-01) */}
+                        {/* Adjunto de foto opcional (Queda para EF) */}
                         <div style={{ marginBottom: "22px" }}>
                           <label
                             style={{
@@ -754,7 +748,7 @@ const VecinoHomePage: React.FC = () => {
                               marginBottom: "2px",
                             }}
                           >
-                            ADJUNTAR FOTOGRAFIA
+                            ADJUNTAR FOTOGRAFÍA
                           </label>
                           <small
                             style={{
@@ -764,7 +758,7 @@ const VecinoHomePage: React.FC = () => {
                               fontSize: "11px",
                             }}
                           >
-                            JPG o PNG - Max. 5MB (Opcional)
+                            Uso de cámara nativa (Opcional)
                           </small>
 
                           <IonButton
@@ -776,15 +770,14 @@ const VecinoHomePage: React.FC = () => {
                               "--border-radius": "8px",
                               fontSize: "13px",
                             }}
-                            onClick={() => setFotoSimulada(!fotoSimulada)}
+                            onClick={() =>
+                              alert(
+                                "La integración con la cámara nativa del dispositivo estará disponible en la Entrega Final.",
+                              )
+                            }
                           >
-                            <IonIcon
-                              slot="start"
-                              icon={fotoSimulada ? imageOutline : cameraOutline}
-                            />
-                            {fotoSimulada
-                              ? "Fotografia adjuntada (1 archivo)"
-                              : "Adjuntar fotografia"}
+                            <IonIcon slot="start" icon={cameraOutline} />
+                            Tomar fotografía
                           </IonButton>
                         </div>
 
