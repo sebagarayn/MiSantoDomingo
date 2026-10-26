@@ -60,7 +60,12 @@ app.use((err, req, res, next) => {
   }
 
   // Errores de PostgreSQL mapeados a 400 Bad Request
-  if (err.code === "23503" || err.code === "22001" || err.code === "22P02") {
+  if (
+    err.code === "23503" ||
+    err.code === "22001" ||
+    err.code === "22P02" ||
+    err.code === "23514"
+  ) {
     return res.status(400).json({
       ok: false,
       mensaje:
