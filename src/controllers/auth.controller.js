@@ -44,39 +44,31 @@ export const registrarVecino = async (req, res) => {
   }
 
   if (password.length < 6) {
-    return res
-      .status(400)
-      .json({
-        ok: false,
-        mensaje: "La contraseña debe tener al menos 6 caracteres",
-      });
+    return res.status(400).json({
+      ok: false,
+      mensaje: "La contraseña debe tener al menos 6 caracteres",
+    });
   }
 
   if (password.length > 72) {
-    return res
-      .status(400)
-      .json({
-        ok: false,
-        mensaje: "La contraseña no puede superar los 72 caracteres",
-      });
+    return res.status(400).json({
+      ok: false,
+      mensaje: "La contraseña no puede superar los 72 caracteres",
+    });
   }
 
   if (nombreLimpio.length > 100) {
-    return res
-      .status(400)
-      .json({
-        ok: false,
-        mensaje: "El nombre no puede superar los 100 caracteres",
-      });
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El nombre no puede superar los 100 caracteres",
+    });
   }
 
   if (telefonoLimpio.length > 20) {
-    return res
-      .status(400)
-      .json({
-        ok: false,
-        mensaje: "El teléfono no puede superar los 20 caracteres",
-      });
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El teléfono no puede superar los 20 caracteres",
+    });
   }
 
   if (
@@ -119,12 +111,10 @@ export const registrarVecino = async (req, res) => {
     });
   } catch (error) {
     console.error("Error al registrar usuario:", error);
-    return res
-      .status(500)
-      .json({
-        ok: false,
-        mensaje: "Error interno en el servidor al registrar el usuario",
-      });
+    return res.status(500).json({
+      ok: false,
+      mensaje: "Error interno en el servidor al registrar el usuario",
+    });
   }
 };
 
@@ -132,10 +122,19 @@ export const registrarVecino = async (req, res) => {
 export const iniciarSesion = async (req, res) => {
   const { correo, password } = req.body;
 
-  if (!correo || !password) {
+  if (
+    !correo ||
+    !password ||
+    typeof correo !== "string" ||
+    typeof password !== "string"
+  ) {
     return res
       .status(400)
-      .json({ ok: false, mensaje: "Por favor ingresa tu correo y contraseña" });
+      .json({
+        ok: false,
+        mensaje:
+          "Por favor ingresa un correo y contraseña válidos en formato de texto",
+      });
   }
 
   try {
@@ -143,12 +142,10 @@ export const iniciarSesion = async (req, res) => {
     const usuario = await buscarUsuarioPorCorreo(correoNormalizado);
 
     if (!usuario) {
-      return res
-        .status(401)
-        .json({
-          ok: false,
-          mensaje: "Credenciales invalidas (correo o contraseña incorrectos)",
-        });
+      return res.status(401).json({
+        ok: false,
+        mensaje: "Credenciales invalidas (correo o contraseña incorrectos)",
+      });
     }
 
     const passwordCorrecto = await bcrypt.compare(
@@ -156,12 +153,10 @@ export const iniciarSesion = async (req, res) => {
       usuario.password_hash,
     );
     if (!passwordCorrecto) {
-      return res
-        .status(401)
-        .json({
-          ok: false,
-          mensaje: "Credenciales invalidas (correo o contraseña incorrectos)",
-        });
+      return res.status(401).json({
+        ok: false,
+        mensaje: "Credenciales invalidas (correo o contraseña incorrectos)",
+      });
     }
 
     // Generamos el token JWT con vigencia de 8 horas
@@ -189,12 +184,10 @@ export const iniciarSesion = async (req, res) => {
     });
   } catch (error) {
     console.error("Error al iniciar sesion:", error);
-    return res
-      .status(500)
-      .json({
-        ok: false,
-        mensaje: "Error interno en el servidor al intentar iniciar sesion",
-      });
+    return res.status(500).json({
+      ok: false,
+      mensaje: "Error interno en el servidor al intentar iniciar sesion",
+    });
   }
 };
 

@@ -2,9 +2,9 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
+import multer from "multer";
 import { fileURLToPath } from "url";
 
-// Importamos las rutas
 import authRoutes from "./routes/auth.routes.js";
 import catalogosRoutes from "./routes/catalogos.routes.js";
 import reclamosRoutes from "./routes/reclamos.routes.js";
@@ -14,19 +14,15 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Middlewares globales
 app.use(cors());
 app.use(express.json());
 
-// Servir fotos subidas
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// Montaje de rutas en la API
 app.use("/api/auth", authRoutes);
 app.use("/api", catalogosRoutes);
 app.use("/api/reclamos", reclamosRoutes);
 
-// Ruta de verificacion
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
@@ -34,7 +30,7 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// 1. Manejador para cualquier ruta no encontrada (Evita devolver paginas HTML por defecto)
+// Manejador 404
 app.use((req, res) => {
   res.status(404).json({
     ok: false,
@@ -42,9 +38,9 @@ app.use((req, res) => {
   });
 });
 
-// 2. Manejador global de errores: captura JSON malformado y fallos sin revelar rutas de disco
+// Manejador Global 500 / 400 (Aqui capturamos los errores de la BD)
 app.use((err, req, res, next) => {
-  // Captura error de sintaxis en el JSON enviado por el cliente
+  // Errores de sintaxis JSON
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     return res.status(400).json({
       ok: false,
@@ -53,12 +49,29 @@ app.use((err, req, res, next) => {
     });
   }
 
-  // Cualquier otro error interno se responde en JSON sin exponer trazas de Node.js
+  // Errores de Multer (foto muy pesada o formato invalido)
+  if (
+    err instanceof multer.MulterError ||
+    err.message.includes("Solo se permiten archivos")
+  ) {
+    return res
+      .status(400)
+      .json({ ok: false, mensaje: `Error de archivo: ${err.message}` });
+  }
+
+  // Errores de PostgreSQL mapeados a 400 Bad Request
+  if (err.code === "23503" || err.code === "22001" || err.code === "22P02") {
+    return res.status(400).json({
+      ok: false,
+      mensaje:
+        "Los datos enviados son inválidos o referencian a registros que no existen",
+    });
+  }
+
   console.error("Error interno capturado:", err.message);
-  return res.status(500).json({
-    ok: false,
-    mensaje: "Ocurrió un error interno en el servidor",
-  });
+  return res
+    .status(500)
+    .json({ ok: false, mensaje: "Ocurrió un error interno en el servidor" });
 });
 
 export default app;

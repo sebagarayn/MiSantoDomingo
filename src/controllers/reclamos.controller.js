@@ -9,7 +9,7 @@ import {
   editarReclamoEnDB,
 } from "../services/reclamos.service.js";
 
-export const crearReclamo = async (req, res) => {
+export const crearReclamo = async (req, res, next) => {
   const { id_categoria, descripcion, ubicacion } = req.body;
   const id_usuario = req.usuario.id_usuario;
 
@@ -17,6 +17,22 @@ export const crearReclamo = async (req, res) => {
     return res.status(400).json({
       ok: false,
       mensaje: "Categoria, descripcion y ubicacion son obligatorios",
+    });
+  }
+
+  // Valida que los textos sean realmente strings para que no explote el .trim()
+  if (typeof descripcion !== "string" || typeof ubicacion !== "string") {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "La descripción y ubicación deben ser formato de texto",
+    });
+  }
+
+  // Bloquea categorías no numéricas
+  if (!Number.isInteger(Number(id_categoria))) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "La categoría debe ser un identificador numérico",
     });
   }
 
@@ -30,22 +46,17 @@ export const crearReclamo = async (req, res) => {
       ubicacion,
       foto_url,
     });
-
     return res.status(201).json({
       ok: true,
       mensaje: "Reclamo ingresado exitosamente",
       reclamo: nuevoReclamo,
     });
   } catch (error) {
-    console.error("Error al crear reclamo:", error);
-    return res.status(500).json({
-      ok: false,
-      mensaje: "Error en el servidor al registrar el reclamo",
-    });
+    next(error); // Pasa el error al manejador global de app.js
   }
 };
 
-export const listarReclamos = async (req, res) => {
+export const listarReclamos = async (req, res, next) => {
   const { rol, id_usuario } = req.usuario;
   const { estado, id_categoria, id_unidad, busqueda } = req.query;
 
@@ -60,14 +71,11 @@ export const listarReclamos = async (req, res) => {
     });
     return res.json({ ok: true, total: reclamos.length, reclamos });
   } catch (error) {
-    console.error("Error al listar reclamos:", error);
-    return res
-      .status(500)
-      .json({ ok: false, mensaje: "Error al obtener reclamos" });
+    next(error);
   }
 };
 
-export const consultarPorFolio = async (req, res) => {
+export const consultarPorFolio = async (req, res, next) => {
   const { folio } = req.params;
   try {
     const resultado = await consultarReclamoPorFolioEnDB(folio);
@@ -79,19 +87,16 @@ export const consultarPorFolio = async (req, res) => {
     }
     return res.json({ ok: true, ...resultado });
   } catch (error) {
-    console.error("Error al consultar por folio:", error);
-    return res
-      .status(500)
-      .json({ ok: false, mensaje: "Error al consultar reclamo" });
+    next(error);
   }
 };
 
-export const obtenerDetalleReclamo = async (req, res) => {
+export const obtenerDetalleReclamo = async (req, res, next) => {
   const { id } = req.params;
   const { rol, id_usuario } = req.usuario;
 
-  // Validacion de entrada: ID debe ser numerico
-  if (isNaN(parseInt(id, 10))) {
+  // Validación estricta que evita el truco '12abc'
+  if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
     return res.status(400).json({
       ok: false,
       mensaje: "El ID del reclamo debe ser un número entero válido",
@@ -107,20 +112,17 @@ export const obtenerDetalleReclamo = async (req, res) => {
     }
     return res.json({ ok: true, ...resultado });
   } catch (error) {
-    console.error("Error al obtener detalle de reclamo:", error);
-    return res
-      .status(500)
-      .json({ ok: false, mensaje: "Error al cargar reclamo" });
+    next(error);
   }
 };
 
-export const actualizarEstado = async (req, res) => {
+export const actualizarEstado = async (req, res, next) => {
   const { id } = req.params;
   const { nuevo_estado, id_unidad_destino, observacion, respuesta_formal } =
     req.body;
   const id_funcionario = req.usuario.id_usuario;
 
-  if (isNaN(parseInt(id, 10))) {
+  if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
     return res.status(400).json({
       ok: false,
       mensaje: "El ID del reclamo debe ser un número entero válido",
@@ -131,6 +133,19 @@ export const actualizarEstado = async (req, res) => {
     return res
       .status(400)
       .json({ ok: false, mensaje: "El nuevo estado es obligatorio" });
+  }
+
+  const estadosPermitidos = [
+    "Pendiente",
+    "En Revisión",
+    "Derivado",
+    "Resuelto",
+    "Rechazado",
+  ];
+  if (!estadosPermitidos.includes(nuevo_estado)) {
+    return res
+      .status(400)
+      .json({ ok: false, mensaje: "El estado enviado no es válido" });
   }
 
   if (nuevo_estado === "Derivado" && (!id_unidad_destino || !observacion)) {
@@ -161,30 +176,25 @@ export const actualizarEstado = async (req, res) => {
       observacion,
       respuesta_formal,
     });
-
     if (resultado.error) {
       return res
         .status(resultado.error)
         .json({ ok: false, mensaje: resultado.mensaje });
     }
-
     return res.json({
       ok: true,
       mensaje: `Reclamo actualizado exitosamente al estado: ${nuevo_estado}`,
     });
   } catch (error) {
-    console.error("Error al actualizar estado:", error);
-    return res
-      .status(500)
-      .json({ ok: false, mensaje: "Error al actualizar el reclamo" });
+    next(error);
   }
 };
 
-export const cancelarReclamo = async (req, res) => {
+export const cancelarReclamo = async (req, res, next) => {
   const { id } = req.params;
   const { rol, id_usuario } = req.usuario;
 
-  if (isNaN(parseInt(id, 10))) {
+  if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
     return res.status(400).json({
       ok: false,
       mensaje: "El ID del reclamo debe ser un número entero válido",
@@ -200,19 +210,16 @@ export const cancelarReclamo = async (req, res) => {
     }
     return res.json({ ok: true, mensaje: "Reclamo cancelado exitosamente" });
   } catch (error) {
-    console.error("Error al cancelar reclamo:", error);
-    return res
-      .status(500)
-      .json({ ok: false, mensaje: "Error al cancelar el reclamo" });
+    next(error);
   }
 };
 
-export const calificarReclamo = async (req, res) => {
+export const calificarReclamo = async (req, res, next) => {
   const { id } = req.params;
   const { puntaje, comentario } = req.body;
   const { id_usuario } = req.usuario;
 
-  if (isNaN(parseInt(id, 10))) {
+  if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
     return res.status(400).json({
       ok: false,
       mensaje: "El ID del reclamo debe ser un número entero válido",
@@ -244,19 +251,16 @@ export const calificarReclamo = async (req, res) => {
       mensaje: "Gracias por calificar la respuesta municipal",
     });
   } catch (error) {
-    console.error("Error al calificar reclamo:", error);
-    return res
-      .status(500)
-      .json({ ok: false, mensaje: "Error al registrar la calificacion" });
+    next(error); // Los errores de llave foranea los ataja app.js
   }
 };
 
-export const editarReclamo = async (req, res) => {
+export const editarReclamo = async (req, res, next) => {
   const { id } = req.params;
   const { id_categoria, descripcion, ubicacion } = req.body;
   const { rol, id_usuario } = req.usuario;
 
-  if (isNaN(parseInt(id, 10))) {
+  if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
     return res.status(400).json({
       ok: false,
       mensaje: "El ID del reclamo debe ser un número entero válido",
@@ -271,6 +275,15 @@ export const editarReclamo = async (req, res) => {
     });
   }
 
+  if (typeof descripcion !== "string" || typeof ubicacion !== "string") {
+    return res
+      .status(400)
+      .json({
+        ok: false,
+        mensaje: "La descripción y ubicación deben ser formato de texto",
+      });
+  }
+
   try {
     const resultado = await editarReclamoEnDB({
       id,
@@ -280,23 +293,17 @@ export const editarReclamo = async (req, res) => {
       descripcion,
       ubicacion,
     });
-
     if (resultado.error) {
       return res
         .status(resultado.error)
         .json({ ok: false, mensaje: resultado.mensaje });
     }
-
     return res.json({
       ok: true,
       mensaje: "Reclamo actualizado exitosamente",
       reclamo: resultado.reclamo,
     });
   } catch (error) {
-    console.error("Error al editar reclamo con PUT:", error);
-    return res.status(500).json({
-      ok: false,
-      mensaje: "Error al actualizar los datos del reclamo",
-    });
+    next(error);
   }
 };
