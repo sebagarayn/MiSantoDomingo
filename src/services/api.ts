@@ -23,10 +23,19 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  let response;
+  try {
+    // Intentamos la conexion de red con el backend
+    response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+  } catch (networkError) {
+    // Si hay un corte de red o el servidor esta apagado, devolvemos este mensaje en español
+    throw new Error(
+      "No se pudo conectar con el servidor. Verifique su conexión.",
+    );
+  }
 
   const data = await response.json().catch(() => ({}));
 

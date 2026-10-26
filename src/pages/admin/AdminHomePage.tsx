@@ -95,8 +95,14 @@ const AdminHomePage: React.FC = () => {
 
   // Leemos todos los reclamos del servicio asincrono apenas arranca la pantalla
   const cargarDatos = async () => {
-    const data = await reportService.obtenerReclamos();
-    setReclamos(data);
+    try {
+      const data = await reportService.obtenerReclamos();
+      setReclamos(data);
+    } catch (error: any) {
+      setToastMsg(
+        "No se pudo conectar con el servidor para cargar la bandeja.",
+      );
+    }
   };
 
   useEffect(() => {

@@ -110,16 +110,11 @@ class ReportService {
 
   // 1. Obtener listado de reclamos desde la API
   public async obtenerReclamos(): Promise<IReport[]> {
-    try {
-      const data = await apiFetch("/reclamos");
-      return data.reclamos.map(mapearDesdeDB);
-    } catch (error) {
-      console.error("Error al obtener reclamos desde el backend:", error);
-      return [];
-    }
+    const data = await apiFetch("/reclamos");
+    return data.reclamos.map(mapearDesdeDB);
   }
 
-  // 2. Consulta publica por folio sin inicio de sesion (RF-03)
+  // 2. Consulta publica por folio (propaga error si hay corte de red; retorna null si es 404 no encontrado)
   public async obtenerReclamoPorFolio(folio: string): Promise<IReport | null> {
     try {
       const data = await apiFetch(
@@ -140,8 +135,12 @@ class ReportService {
         reclamo.calificacion = data.calificacion.puntaje;
       }
       return reclamo;
-    } catch (error) {
-      console.error("Error al consultar folio en backend:", error);
+    } catch (error: any) {
+      // Si el servidor esta caido, dejamos que el error suba para mostrar el Toast en pantalla
+      if (error.message && error.message.includes("No se pudo conectar")) {
+        throw error;
+      }
+      // Si es un 404 (folio no existe), retornamos null silenciosamente
       return null;
     }
   }

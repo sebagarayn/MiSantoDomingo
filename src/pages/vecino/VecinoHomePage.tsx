@@ -39,7 +39,6 @@ import {
   timeOutline,
   cameraOutline,
   arrowBackOutline,
-  imageOutline,
   homeOutline,
   logOutOutline,
   star,
@@ -114,8 +113,15 @@ const VecinoHomePage: React.FC = () => {
 
   // Carga estrictamente los reclamos del vecino conectado para cumplir privacidad (RNF-03)
   const cargarReclamos = async () => {
-    const data = await reportService.obtenerReclamos();
-    setReclamos(data.filter((r) => r.creadorId === user?.id));
+    try {
+      const data = await reportService.obtenerReclamos();
+      setReclamos(data.filter((r) => r.creadorId === user?.id));
+    } catch (error: any) {
+      setToastMsg(
+        "No se pudo conectar con el servidor para cargar tus reclamos.",
+      );
+      setReclamos([]);
+    }
   };
 
   useEffect(() => {
@@ -184,23 +190,30 @@ const VecinoHomePage: React.FC = () => {
 
     const idUsuario = user?.id;
 
-    const nuevo = await reportService.crearReclamo(
-      {
-        categoria,
-        descripcion,
-        ubicacion,
-        origen: "usuario",
-        creadorId: idUsuario,
-      },
-      idUsuario,
-    );
+    try {
+      const nuevo = await reportService.crearReclamo(
+        {
+          categoria,
+          descripcion,
+          ubicacion,
+          origen: "usuario",
+          creadorId: idUsuario,
+        },
+        idUsuario,
+      );
 
-    setReclamos((prev) => [nuevo, ...prev]);
-    setReclamoCreadoExito(nuevo);
+      setReclamos((prev) => [nuevo, ...prev]);
+      setReclamoCreadoExito(nuevo);
 
-    setCategoria("");
-    setDescripcion("");
-    setUbicacion("");
+      setCategoria("");
+      setDescripcion("");
+      setUbicacion("");
+    } catch (error: any) {
+      setToastMsg(
+        error.message ||
+          "No se pudo conectar con el servidor para enviar el reclamo.",
+      );
+    }
   };
 
   const cerrarFlujoExito = () => {
@@ -223,18 +236,22 @@ const VecinoHomePage: React.FC = () => {
   const handleCalificarDesdeDetalle = async (puntuacion: number) => {
     if (!reclamoDetalle) return;
     setCalificacionTemp(puntuacion);
-    await reportService.calificarRespuesta(reclamoDetalle.folio, {
-      calificacion: puntuacion,
-    });
-    setToastMsg(`Calificación registrada: ${puntuacion} de 5 estrellas.`);
+    try {
+      await reportService.calificarRespuesta(reclamoDetalle.folio, {
+        calificacion: puntuacion,
+      });
+      setToastMsg(`Calificación registrada: ${puntuacion} de 5 estrellas.`);
 
-    const actualizado = await reportService.obtenerReclamoPorFolio(
-      reclamoDetalle.folio,
-    );
-    if (actualizado) {
-      setReclamoDetalle(actualizado);
+      const actualizado = await reportService.obtenerReclamoPorFolio(
+        reclamoDetalle.folio,
+      );
+      if (actualizado) {
+        setReclamoDetalle(actualizado);
+      }
+      cargarReclamos();
+    } catch (error: any) {
+      setToastMsg(error.message || "Error al registrar la calificación.");
     }
-    cargarReclamos();
   };
 
   // Cancela un reclamo pendiente usando el verbo DELETE
@@ -280,28 +297,43 @@ const VecinoHomePage: React.FC = () => {
   // Califica la atencion desde la seccion de consulta de folio
   const handleCalificarDesdeConsulta = async (puntuacion: number) => {
     if (!reporteConsulta) return;
-    await reportService.calificarRespuesta(reporteConsulta.folio, {
-      calificacion: puntuacion,
-    });
-    setToastMsg(`Calificación registrada: ${puntuacion} de 5 estrellas.`);
+    try {
+      await reportService.calificarRespuesta(reporteConsulta.folio, {
+        calificacion: puntuacion,
+      });
+      setToastMsg(`Calificación registrada: ${puntuacion} de 5 estrellas.`);
 
-    const actualizado = await reportService.obtenerReclamoPorFolio(
-      reporteConsulta.folio,
-    );
-    setReporteConsulta(actualizado);
-    cargarReclamos();
+      const actualizado = await reportService.obtenerReclamoPorFolio(
+        reporteConsulta.folio,
+      );
+      setReporteConsulta(actualizado);
+      cargarReclamos();
+    } catch (error: any) {
+      setToastMsg(error.message || "Error al registrar la calificación.");
+    }
   };
 
-  // Busca el folio dentro de la vista integrada del vecino
+  // Busca el folio dentro de la vista integrada del vecino con manejo de errores
   const handleBuscarFolioIntegrado = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!folioConsulta.trim()) return;
 
     setCargandoConsulta(true);
-    setBusquedaRealizada(true);
-    const resultado = await reportService.obtenerReclamoPorFolio(folioConsulta);
-    setReporteConsulta(resultado);
-    setCargandoConsulta(false);
+    setBusquedaRealizada(false);
+    setReporteConsulta(null);
+
+    try {
+      const resultado =
+        await reportService.obtenerReclamoPorFolio(folioConsulta);
+      setReporteConsulta(resultado);
+      setBusquedaRealizada(true);
+    } catch (error: any) {
+      setToastMsg(error.message || "Error al consultar el folio.");
+      setReporteConsulta(null);
+      setBusquedaRealizada(false);
+    } finally {
+      setCargandoConsulta(false);
+    }
   };
 
   const getBadgeStyle = (estado: string) => {

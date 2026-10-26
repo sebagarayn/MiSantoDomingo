@@ -22,6 +22,7 @@ import {
   IonTabButton,
   IonLabel,
   IonAlert,
+  IonToast,
 } from "@ionic/react";
 import {
   timeOutline,
@@ -46,10 +47,19 @@ const Dashboard: React.FC = () => {
   const [reclamos, setReclamos] = useState<IReport[]>([]);
   const [periodo, setPeriodo] = useState("30dias");
   const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
 
   // Leemos todos los reclamos desde PostgreSQL apenas arranca la vista
   useEffect(() => {
-    reportService.obtenerReclamos().then(setReclamos);
+    reportService
+      .obtenerReclamos()
+      .then(setReclamos)
+      .catch((error: any) => {
+        setToastMsg(
+          "No se pudo conectar con el servidor para cargar las métricas.",
+        );
+        setReclamos([]);
+      });
   }, []);
 
   // Filtramos los reclamos segun el rango de tiempo seleccionado en el selector (7 dias, 30 dias o año)
@@ -533,6 +543,12 @@ const Dashboard: React.FC = () => {
               },
             },
           ]}
+        />
+        <IonToast
+          isOpen={!!toastMsg}
+          message={toastMsg}
+          duration={2500}
+          onDidDismiss={() => setToastMsg("")}
         />
       </IonContent>
 
