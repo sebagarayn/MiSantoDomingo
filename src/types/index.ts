@@ -61,7 +61,7 @@ export interface IUpdateReportStatusInput {
   estado: ReportStatus;
   observacion?: string;
   unidadAsignada?: string;
-  responsableId: string;
+  responsableId?: string;
 }
 
 // Los datos que se mandan al evaluar la respuesta municipal (RF-09)

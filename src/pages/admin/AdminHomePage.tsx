@@ -125,62 +125,72 @@ const AdminHomePage: React.FC = () => {
     setModalDetalleAbierto(true);
   };
 
-  // Guarda la derivacion en el mock y pasa a la pantalla de SUCCESS (RF-07)
+  // Guarda la derivacion en el backend y pasa a la pantalla de SUCCESS (RF-07)
   const handleConfirmarDerivacion = async () => {
     if (!reclamoSeleccionado || !unidadElegida || !motivoDerivacion.trim()) {
       setToastMsg("Debe ingresar el motivo de la derivación.");
       return;
     }
 
-    const actualizado = await reportService.actualizarEstado(
-      reclamoSeleccionado.folio,
-      {
-        estado: "Derivado",
-        unidadAsignada: unidadElegida,
-        observacion: motivoDerivacion,
-        responsableId: "Felipe Pérez",
-      },
-    );
+    try {
+      const actualizado = await reportService.actualizarEstado(
+        reclamoSeleccionado.folio,
+        {
+          estado: "Derivado",
+          unidadAsignada: unidadElegida,
+          observacion: motivoDerivacion,
+        },
+      );
 
-    setReclamoSeleccionado(actualizado);
-    setPasoDerivacion("exito");
-    cargarDatos();
+      setReclamoSeleccionado(actualizado);
+      setPasoDerivacion("exito");
+      cargarDatos();
+    } catch (error: any) {
+      setToastMsg(error.message || "Error al derivar el reclamo.");
+    }
   };
 
-  // Guarda la respuesta formal del municipio, cambia el estado a Resuelto y pasa a SUCCESS (RF-08)
+  // Guarda la respuesta formal del municipio y cierra el caso (RF-08)
   const handleConfirmarCierre = async () => {
     if (!reclamoSeleccionado || !descripcionCierre.trim()) {
       setToastMsg("Debe ingresar la descripción formal del cierre.");
       return;
     }
 
-    const actualizado = await reportService.actualizarEstado(
-      reclamoSeleccionado.folio,
-      {
-        estado: "Resuelto",
-        observacion: "Reclamo resuelto formalmente.",
-        responsableId: "Felipe Pérez",
-      },
-      descripcionCierre,
-    );
+    try {
+      const actualizado = await reportService.actualizarEstado(
+        reclamoSeleccionado.folio,
+        {
+          estado: "Resuelto",
+          observacion: "Reclamo resuelto formalmente.",
+        },
+        descripcionCierre,
+      );
 
-    setReclamoSeleccionado(actualizado);
-    setPasoCierre("exito");
-    cargarDatos();
+      setReclamoSeleccionado(actualizado);
+      setPasoCierre("exito");
+      cargarDatos();
+    } catch (error: any) {
+      setToastMsg(error.message || "Error al cerrar el reclamo.");
+    }
   };
 
   // Asigna los colores semanticos a los badges de estado
   const getBadgeStyle = (estado: string) => {
-    switch (estado) {
-      case "Resuelto":
-        return { background: "#DCFCE7", color: "#15803D" };
-      case "Derivado":
-        return { background: "#E0F2FE", color: "#0369A1" };
-      case "En Revisión":
-        return { background: "#F1F5F9", color: "#334155" };
-      case "Pendiente":
+    const est = (estado || "").toLowerCase().trim();
+    switch (est) {
+      case "resuelto":
+        return { background: "#DCFCE7", color: "#15803D" }; // Verde
+      case "rechazado":
+        return { background: "#FEE2E2", color: "#DC2626" }; // Rojo
+      case "derivado":
+        return { background: "#E0F2FE", color: "#0369A1" }; // Azul
+      case "en revisión":
+      case "en revision":
+        return { background: "#F1F5F9", color: "#334155" }; // Gris
+      case "pendiente":
       default:
-        return { background: "#FEF3C7", color: "#B45309" };
+        return { background: "#FEF3C7", color: "#B45309" }; // Amarillo
     }
   };
 
@@ -426,6 +436,8 @@ const AdminHomePage: React.FC = () => {
                         const { diasRestantes, vencido } =
                           reportService.calcularDiasRestantes(r.fechaIngreso);
                         const esResuelto = r.estado === "Resuelto";
+                        const esRechazado = r.estado === "Rechazado";
+                        const enProceso = !esResuelto && !esRechazado;
 
                         return (
                           <tr
@@ -491,8 +503,10 @@ const AdminHomePage: React.FC = () => {
                                     : "#D97706",
                               }}
                             >
-                              {esResuelto
-                                ? "0 (Resuelto)"
+                              {!enProceso
+                                ? esResuelto
+                                  ? "0 (Resuelto)"
+                                  : "Cancelado"
                                 : vencido
                                   ? `Vencido (${diasRestantes}d)`
                                   : `${diasRestantes} dias`}
@@ -902,8 +916,9 @@ const AdminHomePage: React.FC = () => {
                       </IonCardContent>
                     </IonCard>
 
-                    {/* Botones de accion para derivar o cerrar reclamo */}
-                    {reclamoSeleccionado.estado !== "Resuelto" ? (
+                    {/* Botones de accion para derivar o cerrar reclamo (Solo si está en proceso) */}
+                    {reclamoSeleccionado.estado !== "Resuelto" &&
+                    reclamoSeleccionado.estado !== "Rechazado" ? (
                       <div style={{ display: "flex", gap: "12px" }}>
                         <IonButton
                           expand="block"
