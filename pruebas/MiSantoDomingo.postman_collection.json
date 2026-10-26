@@ -163,7 +163,7 @@
       "response": []
     },
     {
-      "name": "Post sin contraseña",
+      "name": "Login sin contraseña",
       "request": {
         "method": "POST",
         "header": [],
