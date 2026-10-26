@@ -574,54 +574,32 @@ El inicio de sesión valida la contraseña contra el hash guardado en la base de
 
 ---
 
-### 10.4. Levantar la aplicación Frontend (Ionic + React)
-
-Para probar la integración completa de MiSantoDomingo, es necesario ejecutar tanto el backend (API REST) como el frontend (interfaz de usuario). Ambos deben permanecer en ejecución durante las pruebas.
-
-**Paso 1. Acceder a la rama frontend**
-
-Abrir una nueva terminal y situarse en la carpeta del proyecto. Para evitar conflictos con el backend que ya está en ejecución, se recomienda utilizar una copia independiente del repositorio.
-
-Si todavía no se ha clonado el repositorio, ejecutar:
-
+### 10.4. Levantar la aplicación frontend (Ionic + React)
+ 
+El frontend está en la rama `frontend` del mismo repositorio. Para probar la plataforma completa con su interfaz, el backend debe seguir corriendo (secciones 8 y 10.1) y el frontend se levanta **en una carpeta distinta**, porque cambiar de rama dentro de la carpeta del backend reemplazaría sus archivos.
+ 
+En una **terminal nueva** (PowerShell o la terminal de Visual Studio Code), ubicada fuera de la carpeta `MiSantoDomingo` del backend:
+ 
+1. Clonar el repositorio en una carpeta nueva:
 ```bash
-git clone -b frontend https://github.com/sebagarayn/MiSantoDomingo.git MiSantoDomingo-frontend
-cd MiSantoDomingo-frontend
+   git clone https://github.com/sebagarayn/MiSantoDomingo.git MiSantoDomingo-frontend
 ```
-
-Si ya se dispone de una copia del proyecto, también se puede cambiar a la rama frontend desde ella, siempre que no se necesite mantener el backend ejecutándose desde esa misma carpeta:
-
+ 
+2. Entrar a la carpeta y cambiar a la rama `frontend`:
 ```bash
-git fetch origin
-git switch frontend
+   cd MiSantoDomingo-frontend
+   git checkout frontend
 ```
-
-**Paso 2. Instalar las dependencias**
-
-Dentro de la carpeta del frontend, ejecutar:
-
+ 
+3. Instalar las dependencias e iniciar el cliente web:
 ```bash
-npm install
+   npm install
+   npm run dev
 ```
+ 
+4. Abrir en el navegador la dirección que muestra la terminal (por defecto `http://localhost:5173`). La aplicación se conecta a esta API en `http://localhost:3000/api`.
 
-**Paso 3. Iniciar la aplicación**
-
-Ejecutar el siguiente comando para iniciar el servidor de desarrollo:
-
-```bash
-npm run dev
-```
-
-**Paso 4. Acceder a la aplicación**
-
-Abrir el navegador en la siguiente dirección:
-
-http://localhost:5173
-
-La interfaz web se conectará a la API REST del backend, disponible en http://localhost:3000/api, siempre que ambos servicios estén correctamente configurados y en ejecución.
-
-Importante: mantener abiertas las terminales del backend y del frontend mientras se prueba la aplicación. Si alguno de los servicios no está funcionando, la integración no podrá completarse correctamente.
-
+5. Iniciar sesión con las cuentas de la sección 10.2 (`vecino@correo.cl` o `admin@correo.cl`, con contraseña `123456`). Si el backend está apagado, el frontend muestra un mensaje de conexión.
 ---
 
 ## 11. Documentación de la API REST
@@ -972,7 +950,7 @@ Los tokens emitidos cuentan con una validez estricta de **8 horas** (`expiresIn:
  
 ---                     |
 
-## Validaciones en el Registro de Usuarios (Backend)
+### 13.1. Validaciones en el Registro de Usuarios (Backend)
 
 Se implementaron validaciones de seguridad y formato en el controlador de autenticación (`src/controllers/auth.controller.js`):
 
@@ -1033,18 +1011,31 @@ Cómo ejecutarla:
    | 13 | `<pega_aqui_el_token>` | Administrador |
    | 14 y 15 | `<pega_aqui_el_token>` | Vecino |
    | 16 | `<pega_aqui_el_token vecino>` | Vecino |
-   
-5. Ejecutar las peticiones en orden y comparar con los resultados esperados.
+5. Ejecutar las peticiones en el orden de la tabla siguiente y comparar con los resultados esperados. **La petición 12 se ejecuta dos veces**: de lo contrario, la 16 responde 404.
+   | Orden | Petición | Esperado |
+   | :---- | :------- | :------- |
+   | 1 a 5 | Health, login vecino, login admin, categorías, listar reclamos | 200 |
+   | 6 | Login con clave errónea | 401 |
+   | 7 | Login sin contraseña | 400 |
+   | 8 | Folio inexistente | 404 |
+   | 9 | Cambio de estado sin ser administrador | 403 |
+   | 10 | Registro de un usuario nuevo | 201 |
+   | 11 | Registro con correo duplicado | 409 |
+   | 12 | Crear reclamo (crea el id 4) | 201 |
+   | 12 otra vez | Crear reclamo (crea el id 5) | 201 |
+   | 13 | Derivar reclamo como administrador | 200 |
+   | 14 | Cancelar reclamo propio (id 4) | 200 |
+   | 15 | Cancelar reclamo inexistente | 404 |
+   | 16 | Actualizar reclamo (id 5) | 200 |
 Consideraciones para repetir las pruebas:
  
 - La petición 11 depende de la 10: el correo `prueba@correo.cl` debe haberse registrado antes. Si se repite la petición 10, responde 409 porque el correo ya existe.
 
 - La petición 14 cancela el reclamo con id 4, que es el que crea la petición 12 en una base recién cargada con los 3 reclamos de prueba. Por eso la 12 debe ejecutarse antes.
 
-- La petición 16 edita el reclamo con id 5, que debe existir, estar en estado `Pendiente` y pertenecer al vecino. En una base recién cargada, ese reclamo se crea ejecutando la petición 12 por segunda vez, después de la 14.
+- **Ejecutar la petición 12 dos veces.** La petición 16 edita el reclamo con id 5, que debe existir, estar en estado `Pendiente` y pertenecer al vecino. En una base recién cargada, la primera ejecución de la 12 crea el reclamo con id 4 (el que cancela la 14) y la segunda crea el id 5 (el que edita la 16). Si se omite la segunda ejecución, la petición 16 responde 404.
 
 - La petición 13 deriva el reclamo con id 1, que debe seguir abierto.
-
 Por seguridad, la colección no incluye ningún token real guardado.
 
 ### 14.3. Evidencia
