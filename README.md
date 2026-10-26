@@ -375,9 +375,10 @@ MiSantoDomingo/
 │   │   └── NotFoundPage.tsx        # Página de error 404
 │   ├── routes/
 │   │   └── AppRoutes.tsx           # Mapa central de rutas e IonRouterOutlet
-│   ├── services/                   # Servicios mock asíncronos (Promise)
-│   │   ├── auth.service.ts         # Mock de cuentas de prueba
-│   │   └── report.service.ts       # Mock de reclamos, cálculo legal y folios
+│   ├── services/                   # Consumo de API REST y manejo de Tokens
+│   │   ├── api.ts                  # Interceptor central y llamadas con JWT
+│   │   ├── auth.service.ts         # Autenticación real contra el backend
+│   │   └── report.service.ts       # CRUD de reclamos conectados a PostgreSQL
 │   ├── theme/
 │   │   └── variables.css           # Paleta Santo Domingo (Azul, Verde, Amarillo)
 │   ├── types/
@@ -429,6 +430,9 @@ MiSantoDomingo/
 
 ## 11. Instrucciones de ejecución y uso
 
+> **IMPORTANTE PARA LA EVALUACIÓN (EP2):**
+> Esta aplicación frontend ahora consume la API REST real. Para que funcione correctamente y no arroje errores de red, **el backend debe estar corriendo simultáneamente en el puerto 3000** (desde la rama `backend`).
+
 ### 11.1. Levantar el servidor del desarrollo
 
 ```bash
@@ -444,14 +448,14 @@ Para evaluar las rutas protegidas y la diferenciación por roles, utiliza las si
 1. **Vecina (Ciudadano)**
 
 - Correo Electrónico: vecino@correo.cl
-- Contraseña: Cualquier clave (ej: 123456)
+- Contraseña: 123456
 
 (Esto lleva a /app/inicio)
 
 2. **Funcionario OIRS (Admin)**
 
 - Correo Electrónico: admin@correo.cl
-- Contraseña: Cualquier clave (ej: 123456)
+- Contraseña: 123456
 
 (Esto lleva a /admin/inicio)
 
