@@ -1173,3 +1173,28 @@ El frontend (rama `frontend`, Ionic + React + TypeScript) consume esta API desde
 
 - **Uso de IA:**  
   En el desarrollo de este trabajo se utilizó inteligencia artificial como una herramienta de apoyo: orientación en el diseño de la arquitectura modular, optimización de consultas SQL parametrizadas y clarificación de buenas prácticas de seguridad. Todo el código fuente, diseño de base de datos y documentación técnica fue revisado, probado, adaptado e integrado directamente por los integrantes del equipo.
+
+---
+
+## PARA LA ENTREGA FINAL
+
+## Optimización y Rendimiento de Consultas (Criterio EF4)
+
+### 1. Paginación y Reducción de Carga
+- Se implementó paginación con `LIMIT` y `OFFSET` en el endpoint `GET /api/reclamos`.
+- Se eliminaron las consultas `SELECT *` para optimizar ancho de banda y uso de memoria.
+- Se utiliza la función de ventana `COUNT(*) OVER()` para calcular el total de registros en una sola consulta.
+
+### 2. Compresión y Caché HTTP
+- Se integró el middleware `compression` para compresión Gzip de las respuestas JSON.
+- Se configuró la cabecera `Cache-Control: public, max-age=3600` en los endpoints de catálogos (`/api/categorias` y `/api/unidades`).
+
+### 3. Evidencia con EXPLAIN ANALYZE (10.000 reclamos)
+Se ejecutó una prueba de carga masiva generando 10.000 reclamos en PostgreSQL para comprobar la efectividad del índice compuesto `idx_reclamos_compuesto_busqueda` (`estado`, `id_categoria`, `fecha_ingreso DESC`):
+
+| Métrica | Resultado |
+|---|---|
+| **Registros evaluados** | 10.000 reclamos |
+| **Filtro aplicado** | `estado = 'Pendiente'` (5.001 filas coincidentes) |
+| **Estrategia del motor** | `Bitmap Index Scan` sobre `idx_reclamos_compuesto_busqueda` |
+| **Tiempo de ejecución** | **3.711 ms** |
