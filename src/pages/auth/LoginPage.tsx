@@ -28,8 +28,8 @@ const LoginPage: React.FC = () => {
     }
   }, []);
 
-  // Esta funcion valida las credenciales contra nuestro mock de authService
-  // Le agregamos async a la funcion
+  // Valida las credenciales mediante el servicio de autenticación
+  // y redirige al usuario según su rol.
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 

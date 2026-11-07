@@ -68,7 +68,8 @@ const ConsultaPublicaPage: React.FC = () => {
       : "/app/inicio"
     : "/login";
 
-  // Esta funcion busca el reclamo en el mock y si ya venia con calificacion previa deja las estrellas listas
+  // Busca un reclamo por su folio mediante la API
+  // y recupera su calificación previa si existe.
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!folioInput.trim()) return;
@@ -290,7 +291,7 @@ const ConsultaPublicaPage: React.FC = () => {
             </IonCardContent>
           </IonCard>
 
-          {/* Tarjeta de error si el folio no existe en el mock */}
+          {/* Muestra un mensaje cuando no se encuentra un reclamo con el folio ingresado */}
           {searched && !loading && !report && (
             <IonCard
               style={{

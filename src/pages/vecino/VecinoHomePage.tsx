@@ -195,7 +195,8 @@ const VecinoHomePage: React.FC = () => {
     }
   };
 
-  // Envia el nuevo reclamo al servicio mock y lo agrega arriba de la lista reactiva
+  // Envía el nuevo reclamo al backend mediante reportService
+  // y actualiza la lista de reclamos del vecino.
   const handleEnviarReclamo = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoria || !descripcion.trim() || !ubicacion.trim()) {
@@ -1051,7 +1052,7 @@ const VecinoHomePage: React.FC = () => {
                   </IonCardContent>
                 </IonCard>
 
-                {/* Si no se encuentra el folio en el mock */}
+                {/* Muestra un mensaje cuando no se encuentra un reclamo con el folio ingresado */}
                 {busquedaRealizada && !cargandoConsulta && !reporteConsulta && (
                   <IonCard
                     style={{
