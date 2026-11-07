@@ -50,18 +50,10 @@ import {
 import { useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { reportService } from "../../services/report.service";
+import { catalogosService, type ICategoria } from "../../services/catalogos.service";
 import { IReport } from "../../types";
 import VecinoSidebar from "../../components/VecinoSidebar";
 
-// Las 6 categorias oficiales del Figma movil
-const CATEGORIAS_FIGMA = [
-  "Alumbrado público",
-  "Aseo y ornato",
-  "Calles y veredas",
-  "Seguridad",
-  "Transporte",
-  "Otros",
-];
 
 const VecinoHomePage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -105,8 +97,25 @@ const VecinoHomePage: React.FC = () => {
   const [categoria, setCategoria] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [ubicacion, setUbicacion] = useState("");
-  //agregado de la linea de abajo
   const [foto, setFoto] = useState<File | null>(null);
+  const [categorias, setCategorias] = useState<ICategoria[]>([]);
+
+  // Carga las categorías desde el backend al abrir la pantalla
+  // y las guarda para mostrarlas en el formulario de reclamos.
+  useEffect(() => {
+    const cargarCategorias = async () => {
+      try {
+        const datos = await catalogosService.obtenerCategorias();
+        setCategorias(datos);
+      } catch (error) {
+        console.error("Error al cargar las categorías:", error);
+        setToastMsg("No se pudieron cargar las categorías.");
+      }
+    };
+
+    cargarCategorias();
+  }, []);
+
 
 
   // Revisa si la vecina ya escribio algo en el formulario para activar la guardia preventiva
@@ -692,9 +701,9 @@ const VecinoHomePage: React.FC = () => {
                               onIonChange={(e) => setCategoria(e.detail.value)}
                               interface="action-sheet"
                             >
-                              {CATEGORIAS_FIGMA.map((cat) => (
-                                <IonSelectOption key={cat} value={cat}>
-                                  {cat}
+                              {categorias.map((cat) => (
+                                <IonSelectOption key={cat.id_categoria} value={cat.nombre}>
+                                  {cat.nombre}
                                 </IonSelectOption>
                               ))}
                             </IonSelect>
