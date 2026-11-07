@@ -2,6 +2,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { fileTypeFromFile } from "file-type";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,7 +25,7 @@ const storage = multer.diskStorage({
   },
 });
 
-// Filtro basico para aceptar solo imagenes (jpg, png, webp)
+// Filtro inicial por cabecera MIME
 const filtroImagenes = (req, file, cb) => {
   const tiposPermitidos = [
     "image/jpeg",
@@ -43,10 +44,45 @@ const filtroImagenes = (req, file, cb) => {
 };
 
 // Limite de 5MB por fotografia
-const upload = multer({
+export const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: filtroImagenes,
 });
+
+// Middleware de seguridad avanzada: valida la firma binaria real (magic bytes)
+export const validarMagicBytes = async (req, res, next) => {
+  // Si no se adjuntó archivo, continuamos normalmente (la foto es opcional)
+  if (!req.file) {
+    return next();
+  }
+
+  try {
+    const tipoReal = await fileTypeFromFile(req.file.path);
+    const tiposValidos = ["image/jpeg", "image/png", "image/webp"];
+
+    if (!tipoReal || !tiposValidos.includes(tipoReal.mime)) {
+      // Si el contenido real no es una imagen válida, borramos el archivo falso
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(400).json({
+        ok: false,
+        mensaje:
+          "El archivo enviado no corresponde a una imagen real o está dañado",
+      });
+    }
+
+    next();
+  } catch (error) {
+    if (fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    return res.status(400).json({
+      ok: false,
+      mensaje: "Error al validar la autenticidad de la imagen",
+    });
+  }
+};
 
 export default upload;

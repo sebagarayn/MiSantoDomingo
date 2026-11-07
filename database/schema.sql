@@ -1,5 +1,15 @@
 BEGIN;
 
+-- LIMPIEZA INICIAL (Permite que el script sea 100% re-ejecutable)
+DROP TRIGGER IF EXISTS historial_inmutable ON historial_reclamos;
+DROP FUNCTION IF EXISTS proteger_historial();
+DROP TABLE IF EXISTS calificaciones CASCADE;
+DROP TABLE IF EXISTS historial_reclamos CASCADE;
+DROP TABLE IF EXISTS reclamos CASCADE;
+DROP TABLE IF EXISTS unidades CASCADE;
+DROP TABLE IF EXISTS categorias CASCADE;
+DROP TABLE IF EXISTS usuarios CASCADE;
+
 -- 1. TABLA USUARIOS
 CREATE TABLE usuarios (
     id_usuario INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -66,10 +76,11 @@ CREATE TABLE historial_reclamos (
     )
 );
 
--- 6. TABLA CALIFICACIONES
+-- 6. TABLA CALIFICACIONES (Actualizada con id_usuario para trazabilidad completa)
 CREATE TABLE calificaciones (
     id_calificacion INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_reclamo INTEGER NOT NULL UNIQUE REFERENCES reclamos(id_reclamo) ON DELETE RESTRICT,
+    id_usuario INTEGER NOT NULL REFERENCES usuarios(id_usuario) ON DELETE RESTRICT,
     puntaje SMALLINT NOT NULL CHECK (puntaje BETWEEN 1 AND 5),
     comentario TEXT,
     fecha TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -79,6 +90,7 @@ CREATE TABLE calificaciones (
 CREATE INDEX idx_reclamos_usuario ON reclamos(id_usuario);
 CREATE INDEX idx_reclamos_categoria ON reclamos(id_categoria);
 CREATE INDEX idx_reclamos_unidad ON reclamos(id_unidad_asignada);
+CREATE INDEX idx_calificaciones_usuario ON calificaciones(id_usuario);
 CREATE INDEX idx_historial_reclamo_fecha ON historial_reclamos(id_reclamo, fecha, id_historial);
 
 -- TRIGGER DE INMUTABILIDAD
@@ -87,6 +99,7 @@ BEGIN
     RAISE EXCEPTION 'El historial no se puede modificar ni eliminar' USING ERRCODE = '23514';
 END;
 $$;
+
 CREATE TRIGGER historial_inmutable
 BEFORE UPDATE OR DELETE ON historial_reclamos
 FOR EACH ROW EXECUTE FUNCTION proteger_historial();

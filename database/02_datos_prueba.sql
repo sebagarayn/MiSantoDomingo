@@ -1,21 +1,22 @@
 BEGIN;
 
 -- ====================================================================
--- CASOS DE PRUEBA: RECLAMOS CIUDADANOS PARA EVALUACION EP2
--- Permite validar en vivo:
--- 1. Reclamo reciente dentro de plazo.
--- 2. Alerta roja del plazo legal de 20 dias (RF-04) con fecha antigua.
--- 3. Reclamo derivado a Obras Municipales (RF-07).
--- 4. Reclamo resuelto listo para probar la calificacion de estrellas (RF-09).
+-- CASOS DE PRUEBA: RECLAMOS CIUDADANOS PARA EVALUACION FINAL
+-- 100% re-ejecutable y SIN IDs fijos
 -- ====================================================================
+
+-- Limpieza preventiva de datos de prueba si ya fueron ejecutados
+DELETE FROM calificaciones WHERE id_reclamo IN (SELECT id_reclamo FROM reclamos WHERE folio IN ('SD-2026-000101', 'SD-2026-000088', 'SD-2026-000042'));
+DELETE FROM historial_reclamos WHERE id_reclamo IN (SELECT id_reclamo FROM reclamos WHERE folio IN ('SD-2026-000101', 'SD-2026-000088', 'SD-2026-000042'));
+DELETE FROM reclamos WHERE folio IN ('SD-2026-000101', 'SD-2026-000088', 'SD-2026-000042');
 
 -- Caso 1: Reclamo Pendiente Reciente (Ingresado hace 3 dias)
 INSERT INTO reclamos (folio, id_usuario, id_categoria, id_unidad_asignada, descripcion, ubicacion, estado, fecha_ingreso)
 VALUES (
     'SD-2026-000101',
-    1,
-    1, -- Alumbrado publico
-    1, -- OIRS Central
+    (SELECT id_usuario FROM usuarios WHERE correo = 'vecino@correo.cl'),
+    (SELECT id_categoria FROM categorias WHERE nombre = 'Alumbrado público'),
+    (SELECT id_unidad FROM unidades WHERE nombre = 'OIRS Central'),
     'Poste de alumbrado con luz intermitente frente a plaza central. Genera sensacion de inseguridad.',
     'Calle Los Aromos 450, Santo Domingo',
     'Pendiente',
@@ -25,7 +26,7 @@ VALUES (
 INSERT INTO historial_reclamos (id_reclamo, id_usuario, estado, observacion, fecha)
 VALUES (
     (SELECT id_reclamo FROM reclamos WHERE folio = 'SD-2026-000101'),
-    1,
+    (SELECT id_usuario FROM usuarios WHERE correo = 'vecino@correo.cl'),
     'Pendiente',
     'Reclamo ingresado mediante plataforma ciudadana.',
     CURRENT_TIMESTAMP - INTERVAL '3 days'
@@ -35,9 +36,9 @@ VALUES (
 INSERT INTO reclamos (folio, id_usuario, id_categoria, id_unidad_asignada, descripcion, ubicacion, estado, fecha_ingreso)
 VALUES (
     'SD-2026-000088',
-    1,
-    2, -- Aseo y ornato
-    5, -- Desarrollo comunitario
+    (SELECT id_usuario FROM usuarios WHERE correo = 'vecino@correo.cl'),
+    (SELECT id_categoria FROM categorias WHERE nombre = 'Aseo y ornato'),
+    (SELECT id_unidad FROM unidades WHERE nombre = 'Desarrollo comunitario'),
     'Microbasural clandestino formado en quebrada cercana a avenida principal. Requiere retiro urgente.',
     'Av. Santa Maria con Las Lilas',
     'Derivado',
@@ -47,7 +48,7 @@ VALUES (
 INSERT INTO historial_reclamos (id_reclamo, id_usuario, estado, observacion, fecha)
 VALUES (
     (SELECT id_reclamo FROM reclamos WHERE folio = 'SD-2026-000088'),
-    1,
+    (SELECT id_usuario FROM usuarios WHERE correo = 'vecino@correo.cl'),
     'Pendiente',
     'Reclamo recibido en oficina OIRS Central.',
     CURRENT_TIMESTAMP - INTERVAL '26 days'
@@ -56,8 +57,8 @@ VALUES (
 INSERT INTO historial_reclamos (id_reclamo, id_usuario, id_unidad_destino, estado, observacion, fecha)
 VALUES (
     (SELECT id_reclamo FROM reclamos WHERE folio = 'SD-2026-000088'),
-    2, -- Admin Felipe
-    5, -- Desarrollo comunitario
+    (SELECT id_usuario FROM usuarios WHERE correo = 'admin@correo.cl'),
+    (SELECT id_unidad FROM unidades WHERE nombre = 'Desarrollo comunitario'),
     'Derivado',
     'Se deriva caso a cuadrilla de aseo para coordinar retiro de escombros en terreno.',
     CURRENT_TIMESTAMP - INTERVAL '20 days'
@@ -67,9 +68,9 @@ VALUES (
 INSERT INTO reclamos (folio, id_usuario, id_categoria, id_unidad_asignada, descripcion, ubicacion, estado, fecha_ingreso, respuesta_formal)
 VALUES (
     'SD-2026-000042',
-    1,
-    3, -- Calles y veredas
-    2, -- Obras municipales
+    (SELECT id_usuario FROM usuarios WHERE correo = 'vecino@correo.cl'),
+    (SELECT id_categoria FROM categorias WHERE nombre = 'Calles y veredas'),
+    (SELECT id_unidad FROM unidades WHERE nombre = 'Obras municipales'),
     'Bache pronunciado en calzada frente a consultorio que provoca daños a vehiculos.',
     'Av. El Golf frente a Consultorio Municipal',
     'Resuelto',
@@ -80,7 +81,7 @@ VALUES (
 INSERT INTO historial_reclamos (id_reclamo, id_usuario, estado, observacion, fecha)
 VALUES (
     (SELECT id_reclamo FROM reclamos WHERE folio = 'SD-2026-000042'),
-    1,
+    (SELECT id_usuario FROM usuarios WHERE correo = 'vecino@correo.cl'),
     'Pendiente',
     'Ingresado por ciudadana en portal municipal.',
     CURRENT_TIMESTAMP - INTERVAL '15 days'
@@ -89,7 +90,7 @@ VALUES (
 INSERT INTO historial_reclamos (id_reclamo, id_usuario, estado, observacion, fecha)
 VALUES (
     (SELECT id_reclamo FROM reclamos WHERE folio = 'SD-2026-000042'),
-    2, -- Admin
+    (SELECT id_usuario FROM usuarios WHERE correo = 'admin@correo.cl'),
     'Resuelto',
     'Trabajo concluido en terreno conforme al plan de reparacion vial.',
     CURRENT_TIMESTAMP - INTERVAL '5 days'
