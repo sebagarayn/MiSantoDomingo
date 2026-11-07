@@ -130,11 +130,11 @@ const VecinoHomePage: React.FC = () => {
     try {
       const data = await reportService.obtenerReclamos();
       setReclamos(data.filter((r) => r.creadorId === user?.id));
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Error al cargar los reclamos:", error);
       setToastMsg(
         "No se pudo conectar con el servidor para cargar tus reclamos.",
       );
-      setReclamos([]);
     }
   };
 

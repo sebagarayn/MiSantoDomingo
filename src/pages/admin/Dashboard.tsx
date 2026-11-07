@@ -54,11 +54,11 @@ const Dashboard: React.FC = () => {
     reportService
       .obtenerReclamos()
       .then(setReclamos)
-      .catch((error: any) => {
+      .catch((error) => {
+        console.error("Error al cargar las métricas:", error);
         setToastMsg(
           "No se pudo conectar con el servidor para cargar las métricas.",
         );
-        setReclamos([]);
       });
   }, []);
 

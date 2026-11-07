@@ -98,7 +98,8 @@ const AdminHomePage: React.FC = () => {
     try {
       const data = await reportService.obtenerReclamos();
       setReclamos(data);
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Error al cargar la bandeja de reclamos:", error);
       setToastMsg(
         "No se pudo conectar con el servidor para cargar la bandeja.",
       );
