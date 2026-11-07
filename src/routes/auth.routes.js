@@ -1,4 +1,5 @@
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import {
   registrarVecino,
   iniciarSesion,
@@ -8,11 +9,25 @@ import { verificarToken } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-// Rutas publicas de autenticacion
-router.post("/registro", registrarVecino);
-router.post("/login", iniciarSesion);
+// Limitador de seguridad para evitar ataques de fuerza bruta (S1)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // Ventana de 15 minutos
+  max: 5, // Máximo 5 intentos por IP
+  statusCode: 429,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    ok: false,
+    mensaje:
+      "Demasiados intentos fallidos. Por seguridad, inténtelo de nuevo en 15 minutos.",
+  },
+});
 
-// Ruta protegida para probar que el token funcione correctamente
+// Rutas de autenticación protegidas con limitador de intentos
+router.post("/registro", authLimiter, registrarVecino);
+router.post("/login", authLimiter, iniciarSesion);
+
+// Ruta protegida para validar sesión
 router.get("/perfil", verificarToken, obtenerPerfil);
 
 export default router;

@@ -37,6 +37,13 @@ export const registrarVecino = async (req, res) => {
   const correoNormalizado = correo.trim().toLowerCase();
   const telefonoLimpio = telefono ? telefono.trim() : "";
 
+  if (/<[a-z/][\s\S]*>/i.test(nombreLimpio)) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El nombre no puede contener etiquetas HTML o scripts",
+    });
+  }
+
   if (!nombreLimpio) {
     return res
       .status(400)
@@ -128,13 +135,11 @@ export const iniciarSesion = async (req, res) => {
     typeof correo !== "string" ||
     typeof password !== "string"
   ) {
-    return res
-      .status(400)
-      .json({
-        ok: false,
-        mensaje:
-          "Por favor ingresa un correo y contraseña válidos en formato de texto",
-      });
+    return res.status(400).json({
+      ok: false,
+      mensaje:
+        "Por favor ingresa un correo y contraseña válidos en formato de texto",
+    });
   }
 
   try {
