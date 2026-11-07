@@ -35,7 +35,7 @@ export const crearReclamoEnDB = async ({
         descripcion, ubicacion, foto_url, estado
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, 'Pendiente')
-      RETURNING *
+      RETURNING id_reclamo, folio, estado, fecha_ingreso
     `;
     const resReclamo = await cliente.query(insertReclamoQuery, [
       folio,
@@ -67,7 +67,7 @@ export const crearReclamoEnDB = async ({
   }
 };
 
-// 2. Servicio: Listar reclamos con filtros, cálculo legal de 20 días y trazabilidad histórica
+// 2. Servicio: Listar reclamos con paginación eficiente, cálculo legal y filtros
 export const listarReclamosDeDB = async ({
   rol,
   id_usuario,
@@ -75,9 +75,14 @@ export const listarReclamosDeDB = async ({
   id_categoria,
   id_unidad,
   busqueda,
+  pagina = 1,
+  limite = 20,
 }) => {
+  const offset = (pagina - 1) * limite;
+
   let consulta = `
     SELECT 
+      COUNT(*) OVER() AS total_registros,
       r.id_reclamo, r.id_usuario, r.folio, r.descripcion, r.ubicacion, r.foto_url,
       r.estado, r.fecha_ingreso, r.respuesta_formal,
       c.nombre AS categoria,
@@ -141,12 +146,32 @@ export const listarReclamosDeDB = async ({
     contador++;
   }
 
-  consulta += " ORDER BY r.fecha_ingreso DESC";
+  // Ordenamiento y paginación con LIMIT y OFFSET (S3)
+  consulta += ` ORDER BY r.fecha_ingreso DESC LIMIT $${contador} OFFSET $${contador + 1}`;
+  valores.push(limite, offset);
+
   const resultado = await pool.query(consulta, valores);
-  return resultado.rows;
+  const total =
+    resultado.rows.length > 0
+      ? parseInt(resultado.rows[0].total_registros, 10)
+      : 0;
+
+  // Limpiamos total_registros de las filas de salida
+  const reclamos = resultado.rows.map((fila) => {
+    const { total_registros, ...datosReclamo } = fila;
+    return datosReclamo;
+  });
+
+  return {
+    total,
+    paginaActual: pagina,
+    totalPaginas: Math.ceil(total / limite) || 1,
+    limite,
+    reclamos,
+  };
 };
 
-// 3. Servicio: Consulta pública por folio
+// 3. Servicio: Consulta pública por folio (sin SELECT *)
 export const consultarReclamoPorFolioEnDB = async (folio) => {
   const reclamoRes = await pool.query(
     `SELECT 
@@ -175,7 +200,7 @@ export const consultarReclamoPorFolioEnDB = async (folio) => {
   );
 
   const calificacionRes = await pool.query(
-    "SELECT puntaje, comentario FROM calificaciones WHERE id_reclamo = $1",
+    "SELECT puntaje, comentario, fecha FROM calificaciones WHERE id_reclamo = $1",
     [reclamo.id_reclamo],
   );
 
@@ -186,11 +211,12 @@ export const consultarReclamoPorFolioEnDB = async (folio) => {
   };
 };
 
-// 4. Servicio: Obtener detalle completo para dueño o admin
+// 4. Servicio: Obtener detalle completo para dueño o admin (sin SELECT *)
 export const obtenerDetalleReclamoEnDB = async (id, rol, id_usuario) => {
   const reclamoRes = await pool.query(
     `SELECT 
-      r.*, 
+      r.id_reclamo, r.folio, r.id_usuario, r.id_categoria, r.id_unidad_asignada,
+      r.descripcion, r.ubicacion, r.foto_url, r.estado, r.fecha_ingreso, r.respuesta_formal,
       c.nombre AS categoria, 
       u.nombre AS unidad_asignada,
       usr.nombre AS nombre_vecino,
@@ -214,7 +240,8 @@ export const obtenerDetalleReclamoEnDB = async (id, rol, id_usuario) => {
   }
 
   const historialRes = await pool.query(
-    `SELECT h.*, usr.nombre AS nombre_responsable, u.nombre AS unidad_destino
+    `SELECT h.id_historial, h.id_reclamo, h.estado, h.observacion, h.fecha,
+            usr.nombre AS nombre_responsable, u.nombre AS unidad_destino
      FROM historial_reclamos h
      JOIN usuarios usr ON h.id_usuario = usr.id_usuario
      LEFT JOIN unidades u ON h.id_unidad_destino = u.id_unidad
@@ -224,7 +251,7 @@ export const obtenerDetalleReclamoEnDB = async (id, rol, id_usuario) => {
   );
 
   const calificacionRes = await pool.query(
-    "SELECT * FROM calificaciones WHERE id_reclamo = $1",
+    "SELECT id_calificacion, id_reclamo, id_usuario, puntaje, comentario, fecha FROM calificaciones WHERE id_reclamo = $1",
     [id],
   );
 
@@ -249,7 +276,7 @@ export const actualizarEstadoReclamoEnDB = async ({
     await cliente.query("BEGIN");
 
     const actualRes = await cliente.query(
-      "SELECT * FROM reclamos WHERE id_reclamo = $1 FOR UPDATE",
+      "SELECT id_reclamo, estado, id_unidad_asignada, respuesta_formal FROM reclamos WHERE id_reclamo = $1 FOR UPDATE",
       [id],
     );
     if (actualRes.rows.length === 0) {
@@ -316,7 +343,7 @@ export const cancelarReclamoEnDB = async ({ id, id_usuario, rol }) => {
     await cliente.query("BEGIN");
 
     const reclamoRes = await cliente.query(
-      "SELECT * FROM reclamos WHERE id_reclamo = $1 FOR UPDATE",
+      "SELECT id_reclamo, id_usuario, estado FROM reclamos WHERE id_reclamo = $1 FOR UPDATE",
       [id],
     );
     if (reclamoRes.rows.length === 0) {
@@ -362,7 +389,7 @@ export const cancelarReclamoEnDB = async ({ id, id_usuario, rol }) => {
   }
 };
 
-// 7. Servicio: Calificación ciudadana única (1-5 estrellas)
+// 7. Servicio: Calificación ciudadana única (guarda id_usuario corregido)
 export const calificarReclamoEnDB = async ({
   id,
   id_usuario,
@@ -392,9 +419,10 @@ export const calificarReclamoEnDB = async ({
   }
 
   try {
+    // Corrección S2: Inserta id_usuario como clave foránea
     await pool.query(
-      "INSERT INTO calificaciones (id_reclamo, puntaje, comentario) VALUES ($1, $2, $3)",
-      [id, estrellas, comentario ? comentario.trim() : null],
+      "INSERT INTO calificaciones (id_reclamo, id_usuario, puntaje, comentario) VALUES ($1, $2, $3, $4)",
+      [id, id_usuario, estrellas, comentario ? comentario.trim() : null],
     );
     return { ok: true };
   } catch (error) {
@@ -409,7 +437,7 @@ export const calificarReclamoEnDB = async ({
   }
 };
 
-// 8. Servicio: Editar antecedentes completos del reclamo (Verbo PUT del vecino mientras este Pendiente)
+// 8. Servicio: Editar antecedentes completos del reclamo (sin SELECT *)
 export const editarReclamoEnDB = async ({
   id,
   id_usuario,
@@ -422,9 +450,8 @@ export const editarReclamoEnDB = async ({
   try {
     await cliente.query("BEGIN");
 
-    // 1. Buscamos el reclamo
     const reclamoRes = await cliente.query(
-      "SELECT * FROM reclamos WHERE id_reclamo = $1 FOR UPDATE",
+      "SELECT id_reclamo, id_usuario, estado FROM reclamos WHERE id_reclamo = $1 FOR UPDATE",
       [id],
     );
     if (reclamoRes.rows.length === 0) {
@@ -434,7 +461,6 @@ export const editarReclamoEnDB = async ({
 
     const reclamo = reclamoRes.rows[0];
 
-    // 2. Solo el dueño del reclamo o un admin pueden editarlo
     if (rol === "vecino" && reclamo.id_usuario !== id_usuario) {
       await cliente.query("ROLLBACK");
       return {
@@ -443,7 +469,6 @@ export const editarReclamoEnDB = async ({
       };
     }
 
-    // 3. Regla estricta: Solo se puede editar si sigue en Pendiente
     if (reclamo.estado !== "Pendiente") {
       await cliente.query("ROLLBACK");
       return {
@@ -453,12 +478,11 @@ export const editarReclamoEnDB = async ({
       };
     }
 
-    // 4. Reemplazamos los datos del reclamo (PUT)
     const updateQuery = `
       UPDATE reclamos 
       SET id_categoria = $1, descripcion = $2, ubicacion = $3 
       WHERE id_reclamo = $4 
-      RETURNING *
+      RETURNING id_reclamo, folio, id_categoria, descripcion, ubicacion, estado
     `;
     const resUpdate = await cliente.query(updateQuery, [
       id_categoria,
@@ -467,7 +491,6 @@ export const editarReclamoEnDB = async ({
       id,
     ]);
 
-    // 5. Dejamos constancia en la trazabilidad inmutable
     await cliente.query(
       `INSERT INTO historial_reclamos (id_reclamo, id_usuario, estado, observacion)
        VALUES ($1, $2, 'Pendiente', 'Antecedentes del reclamo actualizados por el usuario')`,

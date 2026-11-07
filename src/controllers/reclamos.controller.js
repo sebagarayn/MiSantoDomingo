@@ -76,9 +76,10 @@ export const crearReclamo = async (req, res, next) => {
 
 export const listarReclamos = async (req, res, next) => {
   const { rol, id_usuario } = req.usuario;
-  const { estado, id_categoria, id_unidad, busqueda } = req.query;
+  const { estado, id_categoria, id_unidad, busqueda, pagina, limite } =
+    req.query;
 
-  // Validación estricta de filtros de dominio (observación del ayudante)
+  // Validación de filtros
   const estadosValidos = [
     "Pendiente",
     "En Revisión",
@@ -121,16 +122,30 @@ export const listarReclamos = async (req, res, next) => {
     });
   }
 
+  // Paginación segura: por defecto página 1 y límite 20
+  const numPagina = Math.max(1, parseInt(pagina, 10) || 1);
+  const numLimite = Math.min(100, Math.max(1, parseInt(limite, 10) || 20));
+
   try {
-    const reclamos = await listarReclamosDeDB({
+    const resultado = await listarReclamosDeDB({
       rol,
       id_usuario,
       estado,
       id_categoria,
       id_unidad,
       busqueda,
+      pagina: numPagina,
+      limite: numLimite,
     });
-    return res.json({ ok: true, total: reclamos.length, reclamos });
+
+    return res.json({
+      ok: true,
+      total: resultado.total,
+      pagina: resultado.paginaActual,
+      total_paginas: resultado.totalPaginas,
+      limite: resultado.limite,
+      reclamos: resultado.reclamos,
+    });
   } catch (error) {
     next(error);
   }

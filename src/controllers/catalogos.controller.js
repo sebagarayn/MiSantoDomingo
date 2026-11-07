@@ -6,6 +6,8 @@ import {
 export const obtenerCategorias = async (req, res) => {
   try {
     const categorias = await obtenerTodasCategorias();
+    // Optimización EF4: Caché HTTP de 1 hora para catálogos estáticos
+    res.set("Cache-Control", "public, max-age=3600");
     return res.json({ ok: true, categorias });
   } catch (error) {
     console.error("Error al obtener categorias:", error);
@@ -18,6 +20,8 @@ export const obtenerCategorias = async (req, res) => {
 export const obtenerUnidades = async (req, res) => {
   try {
     const unidades = await obtenerTodasUnidades();
+    // Optimización EF4: Caché HTTP de 1 hora para catálogos estáticos
+    res.set("Cache-Control", "public, max-age=3600");
     return res.json({ ok: true, unidades });
   } catch (error) {
     console.error("Error al obtener unidades:", error);
