@@ -6,32 +6,49 @@ import {
   IStatusHistory,
 } from "../types";
 import { apiFetch, API_URL } from "./api";
+import { catalogosService } from "./catalogos.service";
 
 // Raiz del servidor (sin /api), para armar las URLs de las fotos
 const SERVER_URL = API_URL.replace(/\/api\/?$/, "");
 
-// Mapas para traducir nombres de categorias y unidades a IDs de la base de datos
-const MAPA_CATEGORIAS: Record<string, number> = {
-  "alumbrado público": 1,
-  "alumbrado publico": 1,
-  "aseo y ornato": 2,
-  "calles y veredas": 3,
-  "seguridad ciudadana": 4,
-  seguridad: 4,
-  "transporte y tránsito": 5,
-  "transporte y transito": 5,
-  transporte: 5,
-  otros: 6,
+
+const normalizarNombre = (nombre: string): string =>
+  nombre
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+// Busca el ID real de una categoría en la API
+const obtenerIdCategoria = async (nombre: string): Promise<number> => {
+  const categorias = await catalogosService.obtenerCategorias();
+
+  const categoria = categorias.find(
+    (c) => normalizarNombre(c.nombre) === normalizarNombre(nombre),
+  );
+
+  if (!categoria) {
+    throw new Error(`No se encontró la categoría: ${nombre}`);
+  }
+
+  return categoria.id_categoria;
 };
 
-const MAPA_UNIDADES: Record<string, number> = {
-  "oirs central": 1,
-  "obras municipales": 2,
-  salud: 3,
-  educación: 4,
-  educacion: 4,
-  "desarrollo comunitario": 5,
+// Busca el ID real de una unidad municipal en la API
+const obtenerIdUnidad = async (nombre: string): Promise<number> => {
+  const unidades = await catalogosService.obtenerUnidades();
+
+  const unidad = unidades.find(
+    (u) => normalizarNombre(u.nombre) === normalizarNombre(nombre),
+  );
+
+  if (!unidad) {
+    throw new Error(`No se encontró la unidad municipal: ${nombre}`);
+  }
+
+  return unidad.id_unidad;
 };
+
 
 // Convierte el registro de PostgreSQL al formato IReport que espera tu interfaz
 const mapearDesdeDB = (r: any): IReport => {
@@ -146,24 +163,36 @@ class ReportService {
   }
 
   // 3. Crear nuevo reclamo (RF-01 y RF-02)
+
   public async crearReclamo(
     input: ICreateReportInput,
     _creadorId?: string,
   ): Promise<IReport> {
-    const catNormalizada = input.categoria.toLowerCase().trim();
-    const id_categoria = MAPA_CATEGORIAS[catNormalizada] || 6; // 6 = 'Otros'
 
+    const id_categoria = await obtenerIdCategoria(input.categoria);
+
+    // Crear FormData para enviar los datos del reclamo
+    const formData = new FormData();
+
+    formData.append("id_categoria", String(id_categoria));
+    formData.append("descripcion", input.descripcion);
+    formData.append("ubicacion", input.ubicacion);
+
+    // Adjuntar fotografía si el usuario seleccionó una
+    if (input.foto) {
+      formData.append("foto", input.foto);
+    }
+
+    // Enviar el reclamo al backend
     const data = await apiFetch("/reclamos", {
       method: "POST",
-      body: JSON.stringify({
-        id_categoria,
-        descripcion: input.descripcion,
-        ubicacion: input.ubicacion,
-      }),
+      body: formData,
     });
 
     return mapearDesdeDB(data.reclamo);
   }
+
+
 
   // 4. Derivar o cerrar reclamo (RF-07 y RF-08)
   public async actualizarEstado(
@@ -174,12 +203,13 @@ class ReportService {
     // 1. Buscamos el id del reclamo por su folio
     const id_reclamo = await this.obtenerIdPorFolio(folio);
 
-    // 2. Si deriva, obtenemos el id de la unidad destino
+    
     let id_unidad_destino: number | undefined;
+
     if (input.unidadAsignada) {
-      const uNormalizada = input.unidadAsignada.toLowerCase().trim();
-      id_unidad_destino = MAPA_UNIDADES[uNormalizada] || 2;
+      id_unidad_destino = await obtenerIdUnidad(input.unidadAsignada);
     }
+
 
     // 3. Enviamos el cambio de estado (solo admin)
     await apiFetch(`/reclamos/${id_reclamo}/estado`, {
@@ -236,8 +266,8 @@ class ReportService {
     datos: { categoria: string; descripcion: string; ubicacion: string },
   ): Promise<IReport> {
     const id_reclamo = await this.obtenerIdPorFolio(folio);
-    const catNormalizada = datos.categoria.toLowerCase().trim();
-    const id_categoria = MAPA_CATEGORIAS[catNormalizada] || 6;
+    const id_categoria = await obtenerIdCategoria(datos.categoria);
+
 
     await apiFetch(`/reclamos/${id_reclamo}`, {
       method: "PUT",

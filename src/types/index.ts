@@ -52,9 +52,12 @@ export interface ICreateReportInput {
   descripcion: string;
   ubicacion: string;
   fotoUrl?: string;
+  //se agrego la linea de abajo
+  foto?: File;
   origen: ReportOrigin;
   creadorId?: string;
 }
+
 
 // Lo que envía el funcionario cuando traspasa el reclamo a otra unidad (RF-07) o cuando lo cierra formalmente (RF-08)
 export interface IUpdateReportStatusInput {

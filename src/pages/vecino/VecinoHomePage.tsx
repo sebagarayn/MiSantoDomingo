@@ -105,11 +105,16 @@ const VecinoHomePage: React.FC = () => {
   const [categoria, setCategoria] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [ubicacion, setUbicacion] = useState("");
+  //agregado de la linea de abajo
+  const [foto, setFoto] = useState<File | null>(null);
+
 
   // Revisa si la vecina ya escribio algo en el formulario para activar la guardia preventiva
+
   const formularioTieneDatos = Boolean(
-    categoria || descripcion.trim() || ubicacion.trim(),
+    categoria || descripcion.trim() || ubicacion.trim() || foto,
   );
+
 
   // Carga estrictamente los reclamos del vecino conectado para cumplir privacidad (RNF-03)
   const cargarReclamos = async () => {
@@ -166,6 +171,7 @@ const VecinoHomePage: React.FC = () => {
     setCategoria("");
     setDescripcion("");
     setUbicacion("");
+    setFoto(null);
     setReclamoCreadoExito(null);
 
     if (destino === "mis_reclamos") {
@@ -191,16 +197,19 @@ const VecinoHomePage: React.FC = () => {
     const idUsuario = user?.id;
 
     try {
+      
       const nuevo = await reportService.crearReclamo(
         {
           categoria,
           descripcion,
           ubicacion,
+          foto: foto ?? undefined,
           origen: "usuario",
           creadorId: idUsuario,
         },
         idUsuario,
       );
+
 
       setReclamos((prev) => [nuevo, ...prev]);
       setReclamoCreadoExito(nuevo);
@@ -208,6 +217,7 @@ const VecinoHomePage: React.FC = () => {
       setCategoria("");
       setDescripcion("");
       setUbicacion("");
+      setFoto(null);
     } catch (error: any) {
       setToastMsg(
         error.message ||
@@ -790,10 +800,33 @@ const VecinoHomePage: React.FC = () => {
                               fontSize: "11px",
                             }}
                           >
-                            Uso de cámara nativa (Opcional)
+                            Formatos permitidos: JPG, PNG o WebP. Máximo 5 MB (Opcional).
                           </small>
 
+                          {/* Botón modificado para seleccionar fotografía del reclamo */}
+                          <input
+                            id="foto-reclamo"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            style={{ display: "none" }}
+                            onChange={(e) => {
+                              const archivo = e.target.files?.[0];
+
+                              if (!archivo) return;
+
+                              if (archivo.size > 5 * 1024 * 1024) {
+                                setToastMsg("La fotografía no puede superar los 5 MB.");
+                                e.target.value = "";
+                                setFoto(null);
+                                return;
+                              }
+
+                              setFoto(archivo);
+                            }}
+                          />
+
                           <IonButton
+                            type="button"
                             expand="block"
                             fill="outline"
                             style={{
@@ -802,15 +835,18 @@ const VecinoHomePage: React.FC = () => {
                               "--border-radius": "8px",
                               fontSize: "13px",
                             }}
-                            onClick={() =>
-                              alert(
-                                "La integración con la cámara nativa del dispositivo estará disponible en la Entrega Final.",
-                              )
-                            }
+                            onClick={() => document.getElementById("foto-reclamo")?.click()}
                           >
                             <IonIcon slot="start" icon={cameraOutline} />
-                            Tomar fotografía
+                            Seleccionar fotografía
                           </IonButton>
+
+                          {foto && (
+                            <p style={{ fontSize: "12px", color: "#15803D" }}>
+                              Fotografía seleccionada: {foto.name}
+                            </p>
+                          )}
+
                         </div>
 
                         {/* Boton principal para enviar el reclamo */}
