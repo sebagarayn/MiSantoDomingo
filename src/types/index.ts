@@ -35,6 +35,8 @@ export interface IReport {
   categoria: string;
   descripcion: string;
   ubicacion: string;
+  latitud?: number | null;
+  longitud?: number | null;
   fotoUrl?: string;
   estado: ReportStatus;
   fechaIngreso: string;
@@ -52,8 +54,9 @@ export interface ICreateReportInput {
   descripcion: string;
   ubicacion: string;
   fotoUrl?: string;
-  //se agrego la linea de abajo
   foto?: File;
+  latitud?: number;
+  longitud?: number;
   origen: ReportOrigin;
   creadorId?: string;
 }

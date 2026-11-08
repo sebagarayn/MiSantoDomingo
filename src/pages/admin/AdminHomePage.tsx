@@ -34,6 +34,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
 import AdminSidebar from "../../components/AdminSidebar";
+import MapaSeleccionUbicacion from "../../components/MapaSeleccionUbicacion";
 
 // Las 5 unidades para filtrar la tabla (incluyendo OIRS Central que es donde llegan primero los reclamos)
 const UNIDADES_FILTRO = [
@@ -724,6 +725,23 @@ const AdminHomePage: React.FC = () => {
                           >
                             {reclamoSeleccionado.ubicacion}
                           </p>
+
+                          {/* Mapa de ubicación del reclamo para el administrador */}
+                          {reclamoSeleccionado.latitud != null &&
+                            reclamoSeleccionado.longitud != null && (
+                              <div
+                                style={{
+                                  marginTop: "12px",
+                                  marginBottom: "16px",
+                                }}
+                              >
+                                <MapaSeleccionUbicacion
+                                  latitud={reclamoSeleccionado.latitud}
+                                  longitud={reclamoSeleccionado.longitud}
+                                  soloLectura={true}
+                                />
+                              </div>
+                            )}
 
                           {/* Descripcion del reclamo */}
                           <small

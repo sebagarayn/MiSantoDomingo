@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   IonPage,
   IonHeader,
@@ -53,6 +53,12 @@ import { reportService } from "../../services/report.service";
 import { catalogosService, type ICategoria } from "../../services/catalogos.service";
 import { IReport } from "../../types";
 import VecinoSidebar from "../../components/VecinoSidebar";
+import MapaSeleccionUbicacion from "../../components/MapaSeleccionUbicacion";
+import {
+  buscarDireccion,
+  obtenerDireccionDesdeCoordenadas,
+} from "../../services/geocodificacion.service";
+
 
 
 const VecinoHomePage: React.FC = () => {
@@ -97,6 +103,19 @@ const VecinoHomePage: React.FC = () => {
   const [categoria, setCategoria] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [ubicacion, setUbicacion] = useState("");
+
+  // Referencias para evitar que las respuestas tardías de Nominatim
+  // sobrescriban la dirección ingresada o una nueva ubicación seleccionada.
+  const versionDireccionRef = useRef(0);
+  const ultimaSeleccionMapaRef = useRef(0);
+
+
+  // Coordenadas seleccionadas en el mapa
+  const [latitud, setLatitud] = useState<number | null>(null);
+  const [longitud, setLongitud] = useState<number | null>(null);
+  const [buscandoDireccion, setBuscandoDireccion] = useState(false);
+
+
   const [foto, setFoto] = useState<File | null>(null);
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
 
@@ -180,6 +199,8 @@ const VecinoHomePage: React.FC = () => {
     setCategoria("");
     setDescripcion("");
     setUbicacion("");
+    setLatitud(null);
+    setLongitud(null);
     setFoto(null);
     setReclamoCreadoExito(null);
 
@@ -192,6 +213,98 @@ const VecinoHomePage: React.FC = () => {
     } else if (destino === "salir") {
       logout();
       history.push("/login");
+    }
+  };
+
+  const handleUsarUbicacionActual = () => {
+    if (!navigator.geolocation) {
+      alert("Tu navegador no permite obtener la ubicación actual.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (posicion) => {
+        const nuevaLatitud = posicion.coords.latitude;
+        const nuevaLongitud = posicion.coords.longitude;
+
+        // Actualiza el mapa y obtiene una dirección aproximada.
+        void handleSeleccionarUbicacionMapa(
+          nuevaLatitud,
+          nuevaLongitud
+        );
+      },
+      (error) => {
+        console.warn("Error al obtener la ubicación:", error);
+
+        alert(
+          "No fue posible obtener tu ubicación. Verifica los permisos del navegador o selecciona un punto manualmente en el mapa."
+        );
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  };
+
+  const handleSeleccionarUbicacionMapa = async (
+    nuevaLatitud: number,
+    nuevaLongitud: number
+  ) => {
+    setLatitud(nuevaLatitud);
+    setLongitud(nuevaLongitud);
+
+    const versionDireccion = versionDireccionRef.current;
+    const seleccionActual = ++ultimaSeleccionMapaRef.current;
+
+    try {
+      const resultado = await obtenerDireccionDesdeCoordenadas(
+        nuevaLatitud,
+        nuevaLongitud
+      );
+
+      // Solo actualiza si el vecino no editó la dirección
+      // y no seleccionó otro punto mientras esperábamos.
+      if (
+        resultado.direccion &&
+        versionDireccion === versionDireccionRef.current &&
+        seleccionActual === ultimaSeleccionMapaRef.current
+      ) {
+        setUbicacion(resultado.direccion);
+      }
+    } catch (error) {
+      console.warn(
+        "No fue posible obtener la dirección del punto seleccionado:",
+        error
+      );
+    }
+  };
+
+  const handleBuscarDireccion = async () => {
+    if (!ubicacion.trim()) {
+      alert("Primero debes escribir una dirección.");
+      return;
+    }
+
+    setBuscandoDireccion(true);
+
+    try {
+      const resultado = await buscarDireccion(ubicacion.trim());
+
+      setLatitud(resultado.latitud);
+      setLongitud(resultado.longitud);
+
+      alert("Dirección encontrada. Se ha marcado en el mapa.");
+    } catch (error) {
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No fue posible buscar la dirección.";
+
+      alert(mensaje);
+    } finally {
+      setBuscandoDireccion(false);
     }
   };
 
@@ -213,6 +326,8 @@ const VecinoHomePage: React.FC = () => {
           categoria,
           descripcion,
           ubicacion,
+          latitud: latitud ?? undefined,
+          longitud: longitud ?? undefined,
           foto: foto ?? undefined,
           origen: "usuario",
           creadorId: idUsuario,
@@ -227,6 +342,8 @@ const VecinoHomePage: React.FC = () => {
       setCategoria("");
       setDescripcion("");
       setUbicacion("");
+      setLatitud(null);
+      setLongitud(null);
       setFoto(null);
     } catch (error: any) {
       setToastMsg(
@@ -784,9 +901,73 @@ const VecinoHomePage: React.FC = () => {
                             <IonInput
                               value={ubicacion}
                               placeholder="Ej: Av. Arturo Phillips 245, Santo Domingo"
-                              onIonInput={(e) => setUbicacion(e.detail.value!)}
+                              onIonInput={(e) => {
+                                versionDireccionRef.current += 1;
+                                setUbicacion(e.detail.value ?? "");
+                              }}
                             />
                           </IonItem>
+                        </div>
+
+                        <div style={{ marginTop: "10px", marginBottom: "12px" }}>
+                          <button
+                            type="button"
+                            onClick={handleBuscarDireccion}
+                            disabled={buscandoDireccion}
+                            style={{
+                              backgroundColor: buscandoDireccion ? "#94A3B8" : "#2563EB",
+                              color: "#FFFFFF",
+                              border: "none",
+                              borderRadius: "8px",
+                              padding: "10px 16px",
+                              fontWeight: 600,
+                              cursor: buscandoDireccion ? "wait" : "pointer",
+                            }}
+                          >
+                            {buscandoDireccion ? "Buscando dirección..." : "🔍 Buscar dirección"}
+                          </button>
+                        </div>
+
+                        {/* Mapa para seleccionar la ubicación del reclamo */}
+                        <div style={{ marginTop: "16px", marginBottom: "20px" }}>
+                          <p style={{ fontWeight: 600, marginBottom: "8px" }}>
+                            Selecciona la ubicación del reclamo en el mapa
+                          </p>
+
+                          <p style={{ fontSize: "13px", color: "#64748b" }}>
+                            Haz clic sobre el mapa para marcar el lugar donde
+                            ocurre el problema.
+                          </p>
+
+                          <button
+                            type="button"
+                            onClick={handleUsarUbicacionActual}
+                            style={{
+                              padding: "10px 16px",
+                              marginBottom: "12px",
+                              backgroundColor: "#2563EB",
+                              color: "#FFFFFF",
+                              border: "none",
+                              borderRadius: "8px",
+                              cursor: "pointer",
+                              fontWeight: 600,
+                            }}
+                          >
+                            📍 Usar mi ubicación actual
+                          </button>
+
+                          <MapaSeleccionUbicacion
+                            latitud={latitud}
+                            longitud={longitud}
+                            onSeleccionarUbicacion={handleSeleccionarUbicacionMapa}
+                          />
+
+                          {latitud !== null && longitud !== null && (
+                            <p style={{ fontSize: "13px", marginTop: "8px" }}>
+                              📍 Ubicación seleccionada: {latitud.toFixed(6)},{" "}
+                              {longitud.toFixed(6)}
+                            </p>
+                          )}
                         </div>
 
                         {/* Adjunto de foto opcional (Queda para EF) */}
@@ -1175,6 +1356,19 @@ const VecinoHomePage: React.FC = () => {
                             {reporteConsulta.ubicacion}
                           </span>
                         </div>
+
+                        {/* Mapa de ubicación del reclamo consultado por folio */}
+                        {reporteConsulta.latitud != null &&
+                          reporteConsulta.longitud != null && (
+                            <div style={{ marginTop: "12px", marginBottom: "12px" }}>
+                              <MapaSeleccionUbicacion
+                                latitud={reporteConsulta.latitud}
+                                longitud={reporteConsulta.longitud}
+                                soloLectura={true}
+                              />
+                            </div>
+                          )}
+
                         <div
                           style={{
                             display: "flex",
@@ -1571,6 +1765,19 @@ const VecinoHomePage: React.FC = () => {
                           <strong>Ubicacion:</strong> {reclamoDetalle.ubicacion}
                         </span>
                       </div>
+
+                      {/* Mapa de ubicación del reclamo en modo solo lectura */}
+                      {reclamoDetalle.latitud != null &&
+                        reclamoDetalle.longitud != null && (
+                          <div style={{ marginTop: "12px", marginBottom: "12px" }}>
+                            <MapaSeleccionUbicacion
+                              latitud={reclamoDetalle.latitud}
+                              longitud={reclamoDetalle.longitud}
+                              soloLectura={true}
+                            />
+                          </div>
+                        )}
+
                       <div
                         style={{
                           display: "flex",

@@ -60,6 +60,8 @@ const mapearDesdeDB = (r: any): IReport => {
     categoria: r.categoria,
     descripcion: r.descripcion,
     ubicacion: r.ubicacion,
+    latitud: r.latitud == null ? null : Number(r.latitud),
+    longitud: r.longitud == null ? null : Number(r.longitud),
     fotoUrl: r.foto_url
       ? r.foto_url.startsWith("http")
         ? r.foto_url
@@ -177,6 +179,12 @@ class ReportService {
     formData.append("id_categoria", String(id_categoria));
     formData.append("descripcion", input.descripcion);
     formData.append("ubicacion", input.ubicacion);
+
+    // Enviar coordenadas cuando el usuario seleccione una ubicación en el mapa
+    if (input.latitud !== undefined && input.longitud !== undefined) {
+      formData.append("latitud", String(input.latitud));
+      formData.append("longitud", String(input.longitud));
+    }
 
     // Adjuntar fotografía si el usuario seleccionó una
     if (input.foto) {
