@@ -13,7 +13,7 @@ import {
 const contieneHtmlOXss = (texto) => /<[a-z/][\s\S]*>/i.test(texto);
 
 export const crearReclamo = async (req, res, next) => {
-  const { id_categoria, descripcion, ubicacion } = req.body;
+  const { id_categoria, descripcion, ubicacion, latitud, longitud } = req.body;
   const id_usuario = req.usuario.id_usuario;
 
   if (!id_categoria || !descripcion || !ubicacion) {
@@ -54,6 +54,34 @@ export const crearReclamo = async (req, res, next) => {
     });
   }
 
+  // Validar que las coordenadas se envíen juntas y sean correctas.
+  const tieneLatitud = latitud !== undefined && latitud !== null && latitud !== "";
+  const tieneLongitud = longitud !== undefined && longitud !== null && longitud !== "";
+
+  if (tieneLatitud !== tieneLongitud) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "Debe enviar ambas coordenadas: latitud y longitud",
+    });
+  }
+
+  if (
+    tieneLatitud &&
+    (
+      !Number.isFinite(Number(latitud)) ||
+      !Number.isFinite(Number(longitud)) ||
+      Number(latitud) < -90 ||
+      Number(latitud) > 90 ||
+      Number(longitud) < -180 ||
+      Number(longitud) > 180
+    )
+  ) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "Las coordenadas ingresadas no son válidas",
+    });
+  }
+
   const foto_url = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
@@ -63,6 +91,8 @@ export const crearReclamo = async (req, res, next) => {
       descripcion: descripcion.trim(),
       ubicacion: ubicacion.trim(),
       foto_url,
+      latitud: tieneLatitud ? Number(latitud) : null,
+      longitud: tieneLongitud ? Number(longitud) : null,
     });
     return res.status(201).json({
       ok: true,

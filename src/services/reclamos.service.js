@@ -18,6 +18,8 @@ export const crearReclamoEnDB = async ({
   descripcion,
   ubicacion,
   foto_url,
+  latitud = null,
+  longitud = null,
 }) => {
   const cliente = await pool.connect();
   try {
@@ -31,11 +33,11 @@ export const crearReclamoEnDB = async ({
 
     const insertReclamoQuery = `
       INSERT INTO reclamos (
-        folio, id_usuario, id_categoria, id_unidad_asignada, 
-        descripcion, ubicacion, foto_url, estado
+        folio, id_usuario, id_categoria, id_unidad_asignada,
+        descripcion, ubicacion, foto_url, latitud, longitud, estado
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, 'Pendiente')
-      RETURNING id_reclamo, folio, estado, fecha_ingreso
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'Pendiente')
+      RETURNING id_reclamo, folio, estado, fecha_ingreso, latitud, longitud
     `;
     const resReclamo = await cliente.query(insertReclamoQuery, [
       folio,
@@ -45,6 +47,8 @@ export const crearReclamoEnDB = async ({
       descripcion.trim(),
       ubicacion.trim(),
       foto_url,
+      latitud,
+      longitud,
     ]);
     const nuevoReclamo = resReclamo.rows[0];
 
@@ -84,6 +88,7 @@ export const listarReclamosDeDB = async ({
     SELECT 
       COUNT(*) OVER() AS total_registros,
       r.id_reclamo, r.id_usuario, r.folio, r.descripcion, r.ubicacion, r.foto_url,
+      r.latitud, r.longitud,
       r.estado, r.fecha_ingreso, r.respuesta_formal,
       c.nombre AS categoria,
       u.nombre AS unidad_asignada,
@@ -176,6 +181,7 @@ export const consultarReclamoPorFolioEnDB = async (folio) => {
   const reclamoRes = await pool.query(
     `SELECT 
       r.id_reclamo, r.folio, r.descripcion, r.ubicacion, r.foto_url, r.estado, r.fecha_ingreso, r.respuesta_formal,
+      r.latitud, r.longitud,
       c.nombre AS categoria,
       u.nombre AS unidad_asignada,
       GREATEST(0, 20 - FLOOR(EXTRACT(EPOCH FROM (NOW() - r.fecha_ingreso)) / 86400)::INTEGER) AS dias_restantes,
@@ -217,6 +223,7 @@ export const obtenerDetalleReclamoEnDB = async (id, rol, id_usuario) => {
     `SELECT 
       r.id_reclamo, r.folio, r.id_usuario, r.id_categoria, r.id_unidad_asignada,
       r.descripcion, r.ubicacion, r.foto_url, r.estado, r.fecha_ingreso, r.respuesta_formal,
+      r.latitud, r.longitud,
       c.nombre AS categoria, 
       u.nombre AS unidad_asignada,
       usr.nombre AS nombre_vecino,

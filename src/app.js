@@ -10,6 +10,7 @@ import pool from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import catalogosRoutes from "./routes/catalogos.routes.js";
 import reclamosRoutes from "./routes/reclamos.routes.js";
+import geocodificacionRoutes from "./routes/geocodificacion.routes.js";
 
 import compression from "compression";
 
@@ -41,6 +42,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/api/auth", authRoutes);
 app.use("/api", catalogosRoutes);
 app.use("/api/reclamos", reclamosRoutes);
+app.use("/api", geocodificacionRoutes);
 
 // Health check real que comprueba el estado de la base de datos
 app.get("/api/health", async (req, res) => {
