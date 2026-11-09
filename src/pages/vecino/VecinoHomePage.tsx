@@ -29,6 +29,7 @@ import {
   IonAlert,
   IonSearchbar,
   IonSpinner,
+  IonBadge,
 } from "@ionic/react";
 import {
   addCircleOutline,
@@ -46,6 +47,7 @@ import {
   businessOutline,
   checkmarkCircleOutline,
   alertCircleOutline,
+  notificationsOutline,
 } from "ionicons/icons";
 import { useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -53,6 +55,8 @@ import { reportService } from "../../services/report.service";
 import { catalogosService, type ICategoria } from "../../services/catalogos.service";
 import { IReport } from "../../types";
 import VecinoSidebar from "../../components/VecinoSidebar";
+import NotificacionesModal from "../../components/NotificacionesModal";
+import { useNotificaciones } from "../../hooks/useNotificaciones";
 import MapaSeleccionUbicacion from "../../components/MapaSeleccionUbicacion";
 import {
   buscarDireccion,
@@ -64,6 +68,13 @@ import {
 const VecinoHomePage: React.FC = () => {
   const { user, logout } = useAuth();
   const history = useHistory();
+  // Notificaciones: el hook se llama UNA sola vez aqui y se reparte a la campana y al modal
+  const notif = useNotificaciones(user?.rol === "vecino");
+  const [notifAbierto, setNotifAbierto] = useState(false);
+  const abrirNotificaciones = () => {
+    setNotifAbierto(true);
+    notif.recargar(); // al abrir se pide la lista fresca, sin esperar los 30 s
+  };
   const location = useLocation();
 
   // Manejamos 3 vistas con este estado ('mis_reclamos', 'nuevo' y 'consulta') para no perder la barra lateral en PC
@@ -511,6 +522,43 @@ const VecinoHomePage: React.FC = () => {
                 ? "Consultar Folio"
                 : "Mis Reclamos"}
           </IonTitle>
+          <IonButtons slot="end">
+          {/* Contenedor propio: el numero va FUERA del boton para que no lo tape */}
+          <div
+            style={{ position: "relative", display: "flex", alignItems: "center" }}
+          >
+            <IonButton
+              onClick={abrirNotificaciones}
+              color="light"
+              aria-label={`Notificaciones, ${notif.noLeidas} sin leer`}
+            >
+              <IonIcon slot="icon-only" icon={notificationsOutline} />
+            </IonButton>
+            {notif.noLeidas > 0 && (
+              <IonBadge
+                color="danger"
+                style={{
+                  position: "absolute",
+                  top: "4px",
+                  right: "2px",
+                  minWidth: "16px",
+                  height: "16px",
+                  padding: "0 4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "10px",
+                  borderRadius: "8px",
+                  pointerEvents: "none",
+                }}
+              >
+                {notif.noLeidas > 9 ? "9+" : notif.noLeidas}
+              </IonBadge>
+            )}
+          </div>
+        </IonButtons>
+          
+          
         </IonToolbar>
         <div
           style={{
@@ -1642,7 +1690,19 @@ const VecinoHomePage: React.FC = () => {
             )}
           </main>
         </div>
+        {/* MODAL: NOTIFICACIONES DEL VECINO */}
+        <NotificacionesModal
+          abierto={notifAbierto}
+          onCerrar={() => setNotifAbierto(false)}
+          notificaciones={notif.notificaciones}
+          noLeidas={notif.noLeidas}
+          error={notif.error}
+          onMarcarLeida={notif.marcarLeida}
+          onMarcarTodas={notif.marcarTodasLeidas}
+          onReintentar={notif.recargar}
+        />
 
+           
         {/* MODAL: DETALLE COMPLETO AL TOCAR UNA TARJETA EN MIS RECLAMOS */}
         <IonModal
           isOpen={!!reclamoDetalle}
