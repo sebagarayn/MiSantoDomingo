@@ -1,5 +1,5 @@
 import pool from "../config/db.js";
-
+import { crearNotificacionCambioEstado } from "./notificaciones.service.js";
 // Genera un folio alfanumérico único estilo: SD-2026-A1B2C3
 const generarFolioUnico = () => {
   const anio = new Date().getFullYear();
@@ -283,7 +283,7 @@ export const actualizarEstadoReclamoEnDB = async ({
     await cliente.query("BEGIN");
 
     const actualRes = await cliente.query(
-      "SELECT id_reclamo, estado, id_unidad_asignada, respuesta_formal FROM reclamos WHERE id_reclamo = $1 FOR UPDATE",
+      "SELECT id_usuario, folio, estado, id_unidad_asignada, respuesta_formal FROM reclamos WHERE id_reclamo = $1 FOR UPDATE",
       [id],
     );
     if (actualRes.rows.length === 0) {
@@ -332,6 +332,14 @@ export const actualizarEstadoReclamoEnDB = async ({
             : null,
       ],
     );
+    if(reclamoActual.id_usuario !== id_funcionario){
+      await crearNotificacionCambioEstado(cliente, {
+        id_usuario: reclamoActual.id_usuario,
+        id_reclamo: id,
+        folio: reclamoActual.folio,
+        estado: nuevo_estado,
+      });
+    }
 
     await cliente.query("COMMIT");
     return { ok: true };
