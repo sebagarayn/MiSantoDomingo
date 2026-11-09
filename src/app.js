@@ -11,6 +11,7 @@ import authRoutes from "./routes/auth.routes.js";
 import catalogosRoutes from "./routes/catalogos.routes.js";
 import reclamosRoutes from "./routes/reclamos.routes.js";
 import geocodificacionRoutes from "./routes/geocodificacion.routes.js";
+import notificacionesRoutes from "./routes/notificaciones.routes.js";
 
 import compression from "compression";
 
@@ -43,6 +44,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api", catalogosRoutes);
 app.use("/api/reclamos", reclamosRoutes);
 app.use("/api", geocodificacionRoutes);
+app.use("/api/notificaciones", notificacionesRoutes);
 
 // Health check real que comprueba el estado de la base de datos
 app.get("/api/health", async (req, res) => {
