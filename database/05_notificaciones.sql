@@ -1,5 +1,5 @@
 -- ============================================================
--- 04_notificaciones.sql  (EF1: notificaciones al vecino)
+-- 05_notificaciones.sql  (EF1: notificaciones al vecino)
 -- Ejecutar sobre misantodomingo_db, DESPUES de schema.sql.
 -- ============================================================
 
