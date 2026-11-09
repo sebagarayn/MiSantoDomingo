@@ -92,3 +92,25 @@ export interface IAuthSession {
   user: IUser;
   expiresAt?: string;
 }
+
+
+
+// ---- Notificaciones (EF1) ----
+// Aviso que el backend crea cuando un funcionario cambia el estado de un reclamo
+export interface INotificacion {
+  id_notificacion: number;
+  id_reclamo: number;
+  folio: string;
+  tipo: "cambio_estado";
+  mensaje: string;
+  leida: boolean;
+  creado_en: string; // fecha ISO que viene de PostgreSQL
+}
+
+// Respuesta de GET /api/notificaciones
+export interface INotificacionesResponse {
+  ok: boolean;
+  no_leidas: number; // total real de no leidas (para el numero de la campana)
+  total: number; // cuantas vienen en esta lista
+  notificaciones: INotificacion[];
+}
