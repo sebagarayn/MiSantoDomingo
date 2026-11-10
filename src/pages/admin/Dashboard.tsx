@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import {
   IonPage,
   IonHeader,
@@ -35,6 +37,7 @@ import {
   clipboardOutline,
   statsChartOutline,
   logOutOutline,
+  downloadOutline,
 } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -53,6 +56,8 @@ const Dashboard: React.FC = () => {
   const [toastMsg, setToastMsg] = useState("");
   const [cargando, setCargando] = useState<boolean>(true);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
+  const [exportandoPDF, setExportandoPDF] = useState(false);
+  const dashboardRef = useRef<HTMLElement | null>(null);
 
   // Función separada para cargar al inicio y reutilizar en el botón "Reintentar"
   const cargarMetricas = async () => {
@@ -76,6 +81,101 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     cargarMetricas();
   }, []);
+
+  // RF-11: Exportar los reclamos del periodo seleccionado a CSV (Excel)
+  const exportarCSV = () => {
+    if (reclamosFiltrados.length === 0) {
+      setToastMsg("No hay datos en este periodo para exportar.");
+      return;
+    }
+
+    const encabezados = [
+      "Folio",
+      "Categoría",
+      "Unidad Asignada",
+      "Estado",
+      "Fecha Ingreso",
+      "Ubicación",
+      "Descripción",
+    ];
+
+    const filas = reclamosFiltrados.map((r) => [
+      `"${r.folio || ""}"`,
+      `"${(r.categoria || "").replace(/"/g, '""')}"`,
+      `"${(r.unidadAsignada || "OIRS Central").replace(/"/g, '""')}"`,
+      `"${r.estado || ""}"`,
+      `"${new Date(r.fechaIngreso).toLocaleDateString("es-CL")}"`,
+      `"${(r.ubicacion || "").replace(/"/g, '""')}"`,
+      `"${(r.descripcion || "").replace(/"/g, '""')}"`,
+    ]);
+
+    // \uFEFF asegura que Excel reconozca tildes y la letra ñ correctamente
+    const contenidoCSV =
+      "\uFEFF" +
+      [encabezados.join(";"), ...filas.map((f) => f.join(";"))].join("\n");
+
+    const blob = new Blob([contenidoCSV], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `reporte_oirs_${periodo}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // RF-11: Genera un PDF descargable con las métricas y el gráfico visibles.
+  const exportarPDF = async () => {
+    const elemento = dashboardRef.current;
+
+    if (!elemento) {
+      setToastMsg("No se encontró el contenido del dashboard para exportar.");
+      return;
+    }
+
+    try {
+      setExportandoPDF(true);
+
+      const canvas = await html2canvas(elemento, {
+        scale: 2,
+        backgroundColor: "#F8FAFC",
+        useCORS: true,
+        logging: false,
+        windowWidth: elemento.scrollWidth,
+      });
+
+      const imagen = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const margen = 10;
+      const anchoPagina = pdf.internal.pageSize.getWidth();
+      const altoPagina = pdf.internal.pageSize.getHeight();
+      const anchoImagen = anchoPagina - margen * 2;
+      const altoImagen = (canvas.height * anchoImagen) / canvas.width;
+      const altoUtil = altoPagina - margen * 2;
+
+      let altoRestante = altoImagen;
+      let posicionY = margen;
+
+      pdf.addImage(imagen, "PNG", margen, posicionY, anchoImagen, altoImagen);
+      altoRestante -= altoUtil;
+
+      while (altoRestante > 0) {
+        pdf.addPage();
+        posicionY = margen - (altoImagen - altoRestante);
+        pdf.addImage(imagen, "PNG", margen, posicionY, anchoImagen, altoImagen);
+        altoRestante -= altoUtil;
+      }
+
+      pdf.save(`metricas_oirs_${periodo}.pdf`);
+      setToastMsg("El reporte PDF se descargó correctamente.");
+    } catch (error) {
+      console.error("Error al generar el PDF:", error);
+      setToastMsg("No se pudo generar el PDF. Inténtalo nuevamente.");
+    } finally {
+      setExportandoPDF(false);
+    }
+  };
 
   // Filtramos los reclamos segun el rango de tiempo seleccionado en el selector (7 dias, 30 dias o año)
   const reclamosFiltrados = reclamos.filter((r) => {
@@ -163,6 +263,7 @@ const Dashboard: React.FC = () => {
           <AdminSidebar />
 
           <main
+            ref={dashboardRef}
             style={{
               flex: 1,
               padding: "24px 28px",
@@ -171,7 +272,7 @@ const Dashboard: React.FC = () => {
               boxSizing: "border-box",
             }}
           >
-            {/* Cabecera y selector de periodo temporal (RF-10) */}
+            {/* Cabecera y selector de periodo temporal (RF-10) junto a exportación (RF-11) */}
             <div
               style={{
                 display: "flex",
@@ -198,43 +299,87 @@ const Dashboard: React.FC = () => {
                 </p>
               </div>
 
-              {/* Filtro de rango temporal para simular periodos en el dashboard */}
+              {/* Contenedor con selector de periodo + botones RF-11 (CSV / PDF) */}
               <div
+                data-html2canvas-ignore="true"
                 style={{
-                  background: "#FFFFFF",
-                  border: "1px solid #CBD5E1",
-                  borderRadius: "8px",
-                  padding: "2px 8px",
                   display: "flex",
                   alignItems: "center",
+                  gap: "8px",
+                  flexWrap: "wrap",
                 }}
               >
-                <IonIcon
-                  icon={calendarOutline}
-                  color="medium"
-                  style={{ marginRight: "6px" }}
-                />
-                <IonSelect
-                  value={periodo}
-                  aria-label="Seleccionar periodo de tiempo de las métricas"
-                  interface="popover"
-                  onIonChange={(e) => setPeriodo(e.detail.value)}
+                <div
                   style={{
-                    fontSize: "13px",
-                    color: "#0D3B66",
-                    fontWeight: 600,
+                    background: "#FFFFFF",
+                    border: "1px solid #CBD5E1",
+                    borderRadius: "8px",
+                    padding: "2px 8px",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 >
-                  <IonSelectOption value="7dias">
-                    Ultimos 7 dias
-                  </IonSelectOption>
-                  <IonSelectOption value="30dias">
-                    Ultimos 30 dias
-                  </IonSelectOption>
-                  <IonSelectOption value="Año">
-                    Año en curso (2026)
-                  </IonSelectOption>
-                </IonSelect>
+                  <IonIcon
+                    icon={calendarOutline}
+                    color="medium"
+                    style={{ marginRight: "6px" }}
+                  />
+                  <IonSelect
+                    value={periodo}
+                    aria-label="Seleccionar periodo de tiempo de las métricas"
+                    interface="popover"
+                    onIonChange={(e) => setPeriodo(e.detail.value)}
+                    style={{
+                      fontSize: "13px",
+                      color: "#0D3B66",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <IonSelectOption value="7dias">
+                      Ultimos 7 dias
+                    </IonSelectOption>
+                    <IonSelectOption value="30dias">
+                      Ultimos 30 dias
+                    </IonSelectOption>
+                    <IonSelectOption value="anio">
+                      Año en curso (2026)
+                    </IonSelectOption>
+                  </IonSelect>
+                </div>
+
+                <IonButton
+                  size="small"
+                  fill="outline"
+                  onClick={exportarCSV}
+                  disabled={cargando || reclamosFiltrados.length === 0}
+                  aria-label="Descargar reporte de métricas en formato CSV"
+                  style={{
+                    "--border-color": "#0D3B66",
+                    "--color": "#0D3B66",
+                    "--border-radius": "8px",
+                    fontWeight: 700,
+                    height: "36px",
+                  }}
+                >
+                  <IonIcon icon={downloadOutline} slot="start" />
+                  CSV
+                </IonButton>
+
+                <IonButton
+                  size="small"
+                  onClick={exportarPDF}
+                  disabled={cargando || exportandoPDF || reclamosFiltrados.length === 0}
+                  aria-label="Exportar reporte de métricas en formato PDF"
+                  style={{
+                    "--background": "#0D3B66",
+                    "--border-radius": "8px",
+                    fontWeight: 700,
+                    height: "36px",
+                  }}
+                >
+                  <IonIcon icon={downloadOutline} slot="start" />
+                  {exportandoPDF ? "Generando..." : "PDF"}
+                </IonButton>
               </div>
             </div>
 
@@ -590,7 +735,11 @@ const Dashboard: React.FC = () => {
                           borderRadius: "6px",
                         }}
                       >
-                        {periodo === "30dias" ? "Ultimos 30 dias" : periodo}
+                        {periodo === "30dias"
+                          ? "Últimos 30 días"
+                          : periodo === "7dias"
+                            ? "Últimos 7 días"
+                            : "Año en curso (2026)"}
                       </span>
                     </div>
                   </IonCardHeader>
