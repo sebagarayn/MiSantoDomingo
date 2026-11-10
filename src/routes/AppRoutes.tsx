@@ -1,4 +1,4 @@
-import React from "react";
+import React , { lazy, Suspense } from "react";
 import { Route, Switch, Redirect } from "react-router-dom";
 import {
   IonRouterOutlet,
@@ -12,6 +12,7 @@ import {
   IonIcon,
   IonLabel,
   IonMenuToggle,
+  IonSpinner,
 } from "@ionic/react";
 import {
   homeOutline,
@@ -22,14 +23,34 @@ import {
   clipboardOutline,
 } from "ionicons/icons";
 
-// Importamos todas las pantallas de nuestra carpeta pages
-import LoginPage from "../pages/auth/LoginPage";
-import RegistroPage from "../pages/auth/RegistroPage";
-import ConsultaPublicaPage from "../pages/public/ConsultaPublicaPage";
-import VecinoHomePage from "../pages/vecino/VecinoHomePage";
-import AdminHomePage from "../pages/admin/AdminHomePage";
-import Dashboard from "../pages/admin/Dashboard";
-import NotFoundPage from "../pages/NotFoundPage";
+// Carga diferida (EF2): cada pantalla se descarga solo cuando el usuario entra a su ruta.
+// Asi, quien abre el login no baja el codigo del panel de administracion.
+const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
+const RegistroPage = lazy(() => import("../pages/auth/RegistroPage"));
+const ConsultaPublicaPage = lazy(
+  () => import("../pages/public/ConsultaPublicaPage"),
+);
+const VecinoHomePage = lazy(() => import("../pages/vecino/VecinoHomePage"));
+const AdminHomePage = lazy(() => import("../pages/admin/AdminHomePage"));
+const Dashboard = lazy(() => import("../pages/admin/Dashboard"));
+const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
+
+// Lo que se ve mientras se descarga una pantalla
+const PantallaCargando: React.FC = () => (
+  <div
+    role="status"
+    aria-label="Cargando"
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100%",
+      minHeight: "100vh",
+    }}
+  >
+    <IonSpinner name="crescent" color="primary" />
+  </div>
+);
 
 // Traemos el componente que protege rutas y el hook de sesion
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -176,7 +197,8 @@ const AppRoutes: React.FC = () => {
         </IonContent>
       </IonMenu>
 
-      {/* IonRouterOutlet es obligatorio en Ionic para que maneje bien las animaciones y el historial de vistas */}
+    {/* IonRouterOutlet es obligatorio en Ionic para que maneje bien las animaciones y el historial de vistas */}
+    <Suspense fallback={<PantallaCargando />}>
       <IonRouterOutlet id="main-content">
         <Switch>
           {/* 1. Rutas Publicas: cualquiera puede entrar */}
@@ -215,6 +237,7 @@ const AppRoutes: React.FC = () => {
           <Route component={NotFoundPage} />
         </Switch>
       </IonRouterOutlet>
+    </Suspense>
     </>
   );
 };
