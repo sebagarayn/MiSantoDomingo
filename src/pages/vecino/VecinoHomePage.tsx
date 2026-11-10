@@ -576,6 +576,8 @@ const VecinoHomePage: React.FC = () => {
           <VecinoSidebar
             vistaActiva={vistaActiva}
             onNavegar={navegarConGuardia}
+            noLeidas={notif.noLeidas}
+            onAbrirNotificaciones={abrirNotificaciones}
           />
 
           <main

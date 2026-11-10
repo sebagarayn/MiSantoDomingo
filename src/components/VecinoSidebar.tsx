@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { IonIcon } from "@ionic/react";
+import { IonIcon, IonBadge } from "@ionic/react";
 import {
   homeOutline,
   addCircleOutline,
   searchOutline,
+  notificationsOutline,
   logOutOutline,
   personCircleOutline,
   chevronBackOutline,
@@ -15,11 +16,15 @@ import { useAuth } from "../hooks/useAuth";
 interface VecinoSidebarProps {
   vistaActiva: "mis_reclamos" | "nuevo" | "consulta";
   onNavegar: (destino: "mis_reclamos" | "nuevo" | "consulta" | "salir") => void;
+  noLeidas: number;
+  onAbrirNotificaciones: () => void;
 }
 
 const VecinoSidebar: React.FC<VecinoSidebarProps> = ({
   vistaActiva,
   onNavegar,
+  noLeidas,
+  onAbrirNotificaciones,
 }) => {
   const { user } = useAuth();
 
@@ -221,6 +226,59 @@ const VecinoSidebar: React.FC<VecinoSidebarProps> = ({
             />
             {!colapsado && (
               <span style={{ whiteSpace: "nowrap" }}>Consultar Folio</span>
+            )}
+          </button>
+          {/* Opcion 4: Notificaciones. Abre el modal, no cambia de vista */}
+          <button
+            type="button"
+            onClick={onAbrirNotificaciones}
+            title="Notificaciones"
+            aria-label={`Notificaciones, ${noLeidas} sin leer`}
+            style={{
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: colapsado ? "center" : "flex-start",
+              gap: colapsado ? "0" : "12px",
+              width: "100%",
+              padding: "12px 14px",
+              borderRadius: "8px",
+              border: "none",
+              background: "transparent",
+              color: "#475569",
+              fontWeight: 700,
+              fontSize: "13px",
+              cursor: "pointer",
+            }}
+          >
+            <IonIcon
+              icon={notificationsOutline}
+              style={{ fontSize: "20px", minWidth: "20px" }}
+            />
+            {!colapsado && (
+              <span style={{ whiteSpace: "nowrap" }}>Notificaciones</span>
+            )}
+            {noLeidas > 0 && (
+              <IonBadge
+                color="danger"
+                style={{
+                  position: colapsado ? "absolute" : "static",
+                  top: colapsado ? "4px" : undefined,
+                  right: colapsado ? "6px" : undefined,
+                  marginLeft: colapsado ? 0 : "auto",
+                  minWidth: "16px",
+                  height: "16px",
+                  padding: "0 4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "10px",
+                  borderRadius: "8px",
+                  pointerEvents: "none",
+                }}
+              >
+                {noLeidas > 9 ? "9+" : noLeidas}
+              </IonBadge>
             )}
           </button>
         </nav>
