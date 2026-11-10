@@ -16,6 +16,7 @@ import {
   IonTextarea,
   IonSearchbar,
   IonToast,
+  IonSpinner,
   IonFooter,
   IonTabBar,
   IonTabButton,
@@ -95,15 +96,26 @@ const AdminHomePage: React.FC = () => {
   const [toastMsg, setToastMsg] = useState("");
 
   // Leemos todos los reclamos del servicio asincrono apenas arranca la pantalla
+  // Estados de la carga inicial: la tabla muestra "cargando", luego los datos o un error con reintento
+  const [cargandoInicial, setCargandoInicial] = useState(true);
+  const [errorCarga, setErrorCarga] = useState("");
+
+  // Leemos todos los reclamos del servicio asincrono apenas arranca la pantalla
   const cargarDatos = async () => {
     try {
       const data = await reportService.obtenerReclamos();
       setReclamos(data);
+      setErrorCarga("");
     } catch (error) {
       console.error("Error al cargar la bandeja de reclamos:", error);
+      setErrorCarga(
+        "No se pudo conectar con el servidor para cargar la bandeja.",
+      );
       setToastMsg(
         "No se pudo conectar con el servidor para cargar la bandeja.",
       );
+    } finally {
+      setCargandoInicial(false);
     }
   };
 
@@ -426,7 +438,50 @@ const AdminHomePage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {reclamosFiltrados.length === 0 ? (
+                    {cargandoInicial ? (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          role="status"
+                          style={{
+                            padding: "32px",
+                            textAlign: "center",
+                            color: "#64748B",
+                          }}
+                        >
+                          <IonSpinner name="crescent" color="primary" />
+                          <div style={{ marginTop: "8px" }}>
+                            Cargando reclamos...
+                          </div>
+                        </td>
+                      </tr>
+                    ) : errorCarga ? (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          role="alert"
+                          style={{
+                            padding: "24px",
+                            textAlign: "center",
+                            color: "#B91C1C",
+                          }}
+                        >
+                          {errorCarga}
+                          <div style={{ marginTop: "8px" }}>
+                            <IonButton
+                              size="small"
+                              fill="outline"
+                              onClick={() => {
+                                setCargandoInicial(true);
+                                cargarDatos();
+                              }}
+                            >
+                              Reintentar
+                            </IonButton>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : reclamosFiltrados.length === 0 ? (
                       <tr>
                         <td
                           colSpan={5}

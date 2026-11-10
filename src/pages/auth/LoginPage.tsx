@@ -8,6 +8,7 @@ import {
   IonCardContent,
   IonIcon,
   IonModal,
+  IonSpinner,
 } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { alertCircleOutline } from "ionicons/icons";
@@ -18,6 +19,8 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorModal, setErrorModal] = useState<string | null>(null);
+  // Mientras se espera la respuesta del servidor el boton se bloquea (evita doble envio)
+  const [ingresando, setIngresando] = useState(false);
 
   const history = useHistory();
   const { login } = useAuth();
@@ -32,6 +35,8 @@ const LoginPage: React.FC = () => {
   // y redirige al usuario según su rol.
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (ingresando) return;
+    setIngresando(true);
 
     try {
       // Login real: el rol viene de la base de datos, no del texto del correo
@@ -43,6 +48,8 @@ const LoginPage: React.FC = () => {
           ? error.message
           : "No se pudo iniciar sesión, inténtelo nuevamente.",
       );
+    } finally {
+      setIngresando(false);
     }
   };
 
@@ -213,6 +220,7 @@ const LoginPage: React.FC = () => {
                 <IonButton
                   expand="block"
                   type="submit"
+                  disabled={ingresando}
                   style={{
                     "--background": "#0D3B66",
                     "--border-radius": "8px",
@@ -222,7 +230,15 @@ const LoginPage: React.FC = () => {
                     margin: "0 0 10px 0",
                   }}
                 >
-                  Iniciar Sesion
+                  {ingresando ? (
+                    <>
+                      <IonSpinner name="crescent" />
+                      &nbsp;Ingresando...
+                    </>
+                  ) : (
+                    "Iniciar Sesion"
+                  )}
+                  
                 </IonButton>
 
                 {/* Boton secundario para ir al formulario de registro */}
