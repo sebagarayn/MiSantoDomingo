@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { notificacionesService } from "../services/notificaciones.service";
 import { INotificacion } from "../types";
 
@@ -6,10 +6,23 @@ import { INotificacion } from "../types";
 const INTERVALO_MS = 30_000;
 
 // "activo" evita consultar cuando no corresponde (por ejemplo, si no hay un vecino con sesion)
-export const useNotificaciones = (activo: boolean) => {
+// "alLlegarNuevas" se ejecuta solo cuando aparecen avisos que no se conocian (no en la primera carga)
+export const useNotificaciones = (
+  activo: boolean,
+  alLlegarNuevas?: (nuevas: INotificacion[]) => void,
+) => {
   const [notificaciones, setNotificaciones] = useState<INotificacion[]>([]);
   const [noLeidas, setNoLeidas] = useState(0);
   const [error, setError] = useState("");
+
+  // Mayor id que ya se conocia. null = aun no se hizo la primera carga, y esa no avisa
+  const ultimoIdVisto = useRef<number | null>(null);
+
+  // La funcion se guarda en un ref: si cambia en cada render, el temporizador de 30 s no se reinicia
+  const alLlegarRef = useRef(alLlegarNuevas);
+  useEffect(() => {
+    alLlegarRef.current = alLlegarNuevas;
+  }, [alLlegarNuevas]);
 
   // Pide la lista al servidor y actualiza el estado
   const recargar = useCallback(async () => {
@@ -18,6 +31,20 @@ export const useNotificaciones = (activo: boolean) => {
       setNotificaciones(data.notificaciones);
       setNoLeidas(data.no_leidas);
       setError("");
+
+      // Aviso de llegada: son nuevas las no leidas con un id mayor al ultimo conocido
+      const previo = ultimoIdVisto.current;
+      const mayorId = data.notificaciones.reduce(
+        (m, n) => Math.max(m, n.id_notificacion),
+        0,
+      );
+      if (previo !== null) {
+        const nuevas = data.notificaciones.filter(
+          (n) => n.id_notificacion > previo && !n.leida,
+        );
+        if (nuevas.length > 0) alLlegarRef.current?.(nuevas);
+      }
+      ultimoIdVisto.current = Math.max(previo ?? 0, mayorId);
     } catch (e: any) {
       // Se guarda el error pero no se muestra un aviso cada 30 s: la campana sigue funcionando
       setError(e.message || "No se pudieron cargar las notificaciones");
@@ -26,7 +53,10 @@ export const useNotificaciones = (activo: boolean) => {
 
   // Carga al montar y luego repite cada 30 s (polling). El return limpia el temporizador.
   useEffect(() => {
-    if (!activo) return;
+    if (!activo) {
+      ultimoIdVisto.current = null; // sin sesion de vecino se olvida lo anterior
+      return;
+    }
     recargar();
     const temporizador = setInterval(recargar, INTERVALO_MS);
     return () => clearInterval(temporizador);

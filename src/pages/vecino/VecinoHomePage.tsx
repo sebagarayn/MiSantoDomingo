@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef , useCallback } from "react";
 import {
   IonPage,
   IonHeader,
@@ -30,6 +30,7 @@ import {
   IonSearchbar,
   IonSpinner,
   IonBadge,
+  useIonToast,
 } from "@ionic/react";
 import {
   addCircleOutline,
@@ -53,10 +54,15 @@ import { useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { reportService } from "../../services/report.service";
 import { catalogosService, type ICategoria } from "../../services/catalogos.service";
-import { IReport } from "../../types";
+import { IReport, INotificacion } from "../../types";
 import VecinoSidebar from "../../components/VecinoSidebar";
 import NotificacionesModal from "../../components/NotificacionesModal";
 import { useNotificaciones } from "../../hooks/useNotificaciones";
+import {
+  esAppNativa,
+  mostrarAvisoNativo,
+  pedirPermisoAvisos,
+} from "../../services/avisoLocal.service";
 import MapaSeleccionUbicacion from "../../components/MapaSeleccionUbicacion";
 import {
   buscarDireccion,
@@ -68,8 +74,41 @@ import {
 const VecinoHomePage: React.FC = () => {
   const { user, logout } = useAuth();
   const history = useHistory();
+  const [presentToast] = useIonToast();
+  const cargarReclamosRef = useRef<() => void>(() => {});
+
+  // Llega un aviso nuevo: en el celular sale una notificacion del sistema; en el navegador, un toast
+  const avisarNuevas = useCallback(
+    async (nuevas: INotificacion[]) => {
+      cargarReclamosRef.current();
+      let todasNativas = esAppNativa();
+      if (todasNativas) {
+        for (const n of nuevas) {
+          if (!(await mostrarAvisoNativo(n))) todasNativas = false;
+        }
+      }
+      if (!todasNativas) {
+        presentToast({
+          message:
+            nuevas.length === 1
+              ? nuevas[0].mensaje
+              : `Tienes ${nuevas.length} notificaciones nuevas`,
+          duration: 5000,
+          position: "top",
+          color: "primary",
+        });
+      }
+    },
+    [presentToast],
+  );
   // Notificaciones: el hook se llama UNA sola vez aqui y se reparte a la campana y al modal
-  const notif = useNotificaciones(user?.rol === "vecino");
+  const notif = useNotificaciones(user?.rol === "vecino", avisarNuevas);
+
+  // En el celular se pide permiso para avisar; en la web no hace nada
+  useEffect(() => {
+    if (user?.rol === "vecino") pedirPermisoAvisos();
+  }, [user?.rol]);
+
   const [notifAbierto, setNotifAbierto] = useState(false);
   const abrirNotificaciones = () => {
     setNotifAbierto(true);
@@ -171,6 +210,13 @@ const VecinoHomePage: React.FC = () => {
   useEffect(() => {
     cargarReclamos();
   }, []);
+
+  // Despues de cada render deja en el ref la version mas reciente de cargarReclamos
+  useEffect(() => {
+    cargarReclamosRef.current = cargarReclamos;
+  });
+
+
 
   // Si la persona venia navegando desde otra seccion con ?tab=nuevo, abrimos el formulario de una
   useEffect(() => {
