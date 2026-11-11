@@ -163,7 +163,7 @@ const RegistroPage: React.FC = () => {
               <form onSubmit={handleRegistro}>
                 {/* Campo nombre completo */}
                 <div style={{ marginBottom: "12px" }}>
-                  <label
+                  <span
                     style={{
                       fontSize: "13px",
                       fontWeight: 600,
@@ -173,7 +173,7 @@ const RegistroPage: React.FC = () => {
                     }}
                   >
                     Nombre Completo (*)
-                  </label>
+                  </span>
                   <div
                     style={{
                       border: "1px solid #CBD5E1",
@@ -182,7 +182,7 @@ const RegistroPage: React.FC = () => {
                       background: "#FFFFFF",
                     }}
                   >
-                    <IonInput
+                    <IonInput aria-label="Nombre completo"
                       value={nombre}
                       placeholder="Ej: Maria Gonzalez"
                       onIonInput={(e) => setNombre(e.detail.value!)}
@@ -193,7 +193,7 @@ const RegistroPage: React.FC = () => {
 
                 {/* Campo correo electronico */}
                 <div style={{ marginBottom: "12px" }}>
-                  <label
+                  <span
                     style={{
                       fontSize: "13px",
                       fontWeight: 600,
@@ -203,7 +203,7 @@ const RegistroPage: React.FC = () => {
                     }}
                   >
                     Correo Electrónico (*)
-                  </label>
+                  </span>
                   <div
                     style={{
                       border: "1px solid #CBD5E1",
@@ -212,7 +212,7 @@ const RegistroPage: React.FC = () => {
                       background: "#FFFFFF",
                     }}
                   >
-                    <IonInput
+                    <IonInput aria-label="Correo electrónico"
                       type="email"
                       value={email}
                       placeholder="ejemplo@correo.cl"
@@ -224,7 +224,7 @@ const RegistroPage: React.FC = () => {
 
                 {/* Campo telefono: lo dejamos opcional para cumplir con no pedir datos innecesarios segun la pauta */}
                 <div style={{ marginBottom: "12px" }}>
-                  <label
+                  <span
                     style={{
                       fontSize: "13px",
                       fontWeight: 600,
@@ -234,7 +234,7 @@ const RegistroPage: React.FC = () => {
                     }}
                   >
                     Teléfono de Contacto (Opcional)
-                  </label>
+                  </span>
                   <div
                     style={{
                       border: "1px solid #CBD5E1",
@@ -243,7 +243,7 @@ const RegistroPage: React.FC = () => {
                       background: "#FFFFFF",
                     }}
                   >
-                    <IonInput
+                    <IonInput aria-label="Teléfono"
                       type="tel"
                       value={telefono}
                       placeholder="+56 9 1234 5678"
@@ -255,7 +255,7 @@ const RegistroPage: React.FC = () => {
 
                 {/* Campo contrasena con largo minimo indicado */}
                 <div style={{ marginBottom: "18px" }}>
-                  <label
+                  <span
                     style={{
                       fontSize: "13px",
                       fontWeight: 600,
@@ -265,7 +265,7 @@ const RegistroPage: React.FC = () => {
                     }}
                   >
                     Contraseña (*)
-                  </label>
+                  </span>
                   <div
                     style={{
                       border: "1px solid #CBD5E1",
@@ -274,7 +274,7 @@ const RegistroPage: React.FC = () => {
                       background: "#FFFFFF",
                     }}
                   >
-                    <IonInput
+                    <IonInput aria-label="Contraseña"
                       type="password"
                       value={password}
                       placeholder="Mínimo 6 caracteres"

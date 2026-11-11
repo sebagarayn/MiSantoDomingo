@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import {
   IonPage,
   IonHeader,
@@ -44,6 +42,17 @@ import { useAuth } from "../../hooks/useAuth";
 import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
 import AdminSidebar from "../../components/AdminSidebar";
+
+// Convierte un valor en una celda CSV segura.
+// - Duplica las comillas dobles (regla del formato CSV).
+// - Si empieza con = + - @ (o tab/enter) Excel lo ejecutaria como FORMULA ("inyeccion de formulas"):
+//   un vecino podria escribir en su descripcion =HYPERLINK(...) y ejecutarse al abrir el reporte.
+//   Anteponer un apostrofe fuerza a que Excel lo trate como texto.
+const celdaCSV = (valor: unknown): string => {
+  let texto = String(valor ?? "");
+  if (/^[=+\-@\t\r]/.test(texto)) texto = "'" + texto;
+  return `"${texto.replace(/"/g, '""')}"`;
+};
 
 const Dashboard: React.FC = () => {
   const history = useHistory();
@@ -99,15 +108,17 @@ const Dashboard: React.FC = () => {
       "Descripción",
     ];
 
-    const filas = reclamosFiltrados.map((r) => [
-      `"${r.folio || ""}"`,
-      `"${(r.categoria || "").replace(/"/g, '""')}"`,
-      `"${(r.unidadAsignada || "OIRS Central").replace(/"/g, '""')}"`,
-      `"${r.estado || ""}"`,
-      `"${new Date(r.fechaIngreso).toLocaleDateString("es-CL")}"`,
-      `"${(r.ubicacion || "").replace(/"/g, '""')}"`,
-      `"${(r.descripcion || "").replace(/"/g, '""')}"`,
-    ]);
+    const filas = reclamosFiltrados.map((r) =>
+      [
+        r.folio,
+        r.categoria,
+        r.unidadAsignada || "OIRS Central",
+        r.estado,
+        new Date(r.fechaIngreso).toLocaleDateString("es-CL"),
+        r.ubicacion,
+        r.descripcion,
+      ].map(celdaCSV),
+    );
 
     // \uFEFF asegura que Excel reconozca tildes y la letra ñ correctamente
     const contenidoCSV =
@@ -136,6 +147,12 @@ const Dashboard: React.FC = () => {
 
     try {
       setExportandoPDF(true);
+
+      // Las librerias pesadas (~600 kB) se descargan SOLO al pulsar "PDF", no al abrir el dashboard
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
 
       const canvas = await html2canvas(elemento, {
         scale: 2,

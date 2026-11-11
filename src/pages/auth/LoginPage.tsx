@@ -135,7 +135,7 @@ const LoginPage: React.FC = () => {
               <form onSubmit={handleLogin}>
                 {/* Campo correo */}
                 <div style={{ marginBottom: "14px" }}>
-                  <label
+                  <span
                     style={{
                       fontSize: "13px",
                       fontWeight: 600,
@@ -145,7 +145,7 @@ const LoginPage: React.FC = () => {
                     }}
                   >
                     Correo Electronico
-                  </label>
+                  </span>
                   <div
                     style={{
                       border: "1px solid #CBD5E1",
@@ -154,7 +154,7 @@ const LoginPage: React.FC = () => {
                       background: "#FFFFFF",
                     }}
                   >
-                    <IonInput
+                    <IonInput aria-label="Correo electrónico"
                       type="email"
                       value={email}
                       placeholder="ejemplo@correo.cl"
@@ -167,7 +167,7 @@ const LoginPage: React.FC = () => {
 
                 {/* Campo contrasena */}
                 <div style={{ marginBottom: "12px" }}>
-                  <label
+                  <span
                     style={{
                       fontSize: "13px",
                       fontWeight: 600,
@@ -177,7 +177,7 @@ const LoginPage: React.FC = () => {
                     }}
                   >
                     Contraseña
-                  </label>
+                  </span>
                   <div
                     style={{
                       border: "1px solid #CBD5E1",
@@ -186,7 +186,7 @@ const LoginPage: React.FC = () => {
                       background: "#FFFFFF",
                     }}
                   >
-                    <IonInput
+                    <IonInput aria-label="Contraseña"
                       type="password"
                       value={password}
                       placeholder="••••••••"
@@ -199,8 +199,12 @@ const LoginPage: React.FC = () => {
 
                 {/* Enlace provisorio de recuperacion (la logica real queda para la Entrega final) */}
                 <div style={{ textAlign: "right", marginBottom: "18px" }}>
-                  <span
+                  <button
+                    type="button"
                     style={{
+                      background: "none",
+                      border: "none",
+                      padding: 0,
                       fontSize: "12px",
                       color: "#0D3B66",
                       cursor: "pointer",
@@ -213,7 +217,7 @@ const LoginPage: React.FC = () => {
                     }
                   >
                     ¿Olvidaste tu contraseña?
-                  </span>
+                  </button>
                 </div>
 
                 {/* Boton principal con el azul */}

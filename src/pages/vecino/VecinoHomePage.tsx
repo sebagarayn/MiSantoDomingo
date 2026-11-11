@@ -64,6 +64,7 @@ import {
   pedirPermisoAvisos,
 } from "../../services/avisoLocal.service";
 import MapaSeleccionUbicacion from "../../components/MapaSeleccionUbicacion";
+import { etiquetarBuscador } from "../../utils/accesibilidad";
 import {
   buscarDireccion,
   obtenerDireccionDesdeCoordenadas,
@@ -890,7 +891,7 @@ const VecinoHomePage: React.FC = () => {
                       <form onSubmit={handleEnviarReclamo}>
                         {/* Selector de categorias oficiales */}
                         <div style={{ marginBottom: "14px" }}>
-                          <label
+                          <span
                             style={{
                               fontSize: "13px",
                               fontWeight: 600,
@@ -900,7 +901,7 @@ const VecinoHomePage: React.FC = () => {
                             }}
                           >
                             Seleccionar Categoria (*)
-                          </label>
+                          </span>
                           <IonItem
                             lines="none"
                             style={{
@@ -909,7 +910,7 @@ const VecinoHomePage: React.FC = () => {
                               background: "#FFFFFF",
                             }}
                           >
-                            <IonSelect
+                            <IonSelect aria-label="Categoría del reclamo"
                               value={categoria}
                               placeholder="Seleccionar Categoria..."
                               onIonChange={(e) => setCategoria(e.detail.value)}
@@ -933,7 +934,7 @@ const VecinoHomePage: React.FC = () => {
                               marginBottom: "4px",
                             }}
                           >
-                            <label
+                            <span
                               style={{
                                 fontSize: "13px",
                                 fontWeight: 600,
@@ -941,7 +942,7 @@ const VecinoHomePage: React.FC = () => {
                               }}
                             >
                               Descripcion del problema (*)
-                            </label>
+                            </span>
                             <small
                               style={{
                                 color:
@@ -961,7 +962,7 @@ const VecinoHomePage: React.FC = () => {
                               background: "#FFFFFF",
                             }}
                           >
-                            <IonTextarea
+                            <IonTextarea aria-label="Descripción del reclamo"
                               value={descripcion}
                               rows={5}
                               maxlength={500}
@@ -975,7 +976,7 @@ const VecinoHomePage: React.FC = () => {
 
                         {/* Campo direccion */}
                         <div style={{ marginBottom: "14px" }}>
-                          <label
+                          <span
                             style={{
                               fontSize: "13px",
                               fontWeight: 600,
@@ -985,7 +986,7 @@ const VecinoHomePage: React.FC = () => {
                             }}
                           >
                             Direccion o Referencia (*)
-                          </label>
+                          </span>
                           <IonItem
                             lines="none"
                             style={{
@@ -994,7 +995,7 @@ const VecinoHomePage: React.FC = () => {
                               background: "#FFFFFF",
                             }}
                           >
-                            <IonInput
+                            <IonInput aria-label="Ubicación del reclamo"
                               value={ubicacion}
                               placeholder="Ej: Av. Arturo Phillips 245, Santo Domingo"
                               onIonInput={(e) => {
@@ -1068,7 +1069,7 @@ const VecinoHomePage: React.FC = () => {
 
                         {/* Adjunto de foto opcional (Queda para EF) */}
                         <div style={{ marginBottom: "22px" }}>
-                          <label
+                          <span
                             style={{
                               fontSize: "13px",
                               fontWeight: 600,
@@ -1078,7 +1079,7 @@ const VecinoHomePage: React.FC = () => {
                             }}
                           >
                             ADJUNTAR FOTOGRAFÍA
-                          </label>
+                          </span>
                           <small
                             style={{
                               color: "#64748B",
@@ -1294,7 +1295,7 @@ const VecinoHomePage: React.FC = () => {
                           background: "#FFFFFF",
                         }}
                       >
-                        <IonSearchbar
+                        <IonSearchbar ref={(el) => etiquetarBuscador(el, "Folio del reclamo")}
                           value={folioConsulta}
                           onIonInput={(e) => setFolioConsulta(e.detail.value!)}
                           placeholder="Ej: SD-2026-000042"
@@ -2238,7 +2239,7 @@ const VecinoHomePage: React.FC = () => {
                           borderRadius: "10px",
                         }}
                       >
-                        <label
+                        <span
                           style={{
                             fontSize: "12px",
                             fontWeight: 700,
@@ -2248,7 +2249,7 @@ const VecinoHomePage: React.FC = () => {
                           }}
                         >
                           Modificar Ubicación:
-                        </label>
+                        </span>
                         <IonItem
                           lines="none"
                           style={{
@@ -2258,7 +2259,7 @@ const VecinoHomePage: React.FC = () => {
                             background: "#FFFFFF",
                           }}
                         >
-                          <IonInput
+                          <IonInput aria-label="Ubicación del reclamo"
                             value={editUbicacion}
                             onIonInput={(e) =>
                               setEditUbicacion(e.detail.value!)
@@ -2266,7 +2267,7 @@ const VecinoHomePage: React.FC = () => {
                           />
                         </IonItem>
 
-                        <label
+                        <span
                           style={{
                             fontSize: "12px",
                             fontWeight: 700,
@@ -2276,7 +2277,7 @@ const VecinoHomePage: React.FC = () => {
                           }}
                         >
                           Modificar Descripción:
-                        </label>
+                        </span>
                         <IonItem
                           lines="none"
                           style={{
@@ -2285,7 +2286,7 @@ const VecinoHomePage: React.FC = () => {
                             background: "#FFFFFF",
                           }}
                         >
-                          <IonTextarea
+                          <IonTextarea aria-label="Descripción del reclamo"
                             rows={3}
                             value={editDescripcion}
                             onIonInput={(e) =>

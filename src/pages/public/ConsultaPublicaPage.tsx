@@ -47,6 +47,7 @@ import { reportService } from "../../services/report.service";
 import { IReport } from "../../types";
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { etiquetarBuscador } from "../../utils/accesibilidad";
 
 const ConsultaPublicaPage: React.FC = () => {
   const history = useHistory();
@@ -256,7 +257,7 @@ const ConsultaPublicaPage: React.FC = () => {
                     background: "#FFFFFF",
                   }}
                 >
-                  <IonSearchbar
+                  <IonSearchbar ref={(el) => etiquetarBuscador(el, "Folio del reclamo")}
                     value={folioInput}
                     onIonInput={(e) => setFolioInput(e.detail.value!)}
                     placeholder="SD-2026-XXXXXX"
