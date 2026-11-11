@@ -1,0 +1,96 @@
+# Despliegue local de MiSantoDomingo: PostgreSQL + API (Express) + frontend (React/Nginx)
+#
+# Estructura esperada (carpetas hermanas):
+#   docker-compose.yml  .env  initdb/init.sql
+#   backend/   (repositorio / rama backend)
+#   frontend/  (repositorio / rama frontend)
+#
+# Uso:  cp .env.example .env  (editar claves)  ->  docker compose up --build
+# Abrir: http://localhost:8080
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PGDATABASE:-misantodomingo_db}
+      POSTGRES_USER: ${PGUSER:-postgres}
+      POSTGRES_PASSWORD: ${PGPASSWORD:?Define PGPASSWORD en el archivo .env}
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"   # solo accesible desde tu PC (pgAdmin)
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/database:/sql:ro
+      - ./initdb/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: ${PGDATABASE:-misantodomingo_db}
+      PGUSER: ${PGUSER:-postgres}
+      PGPASSWORD: ${PGPASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET en el archivo .env}
+      # Origen permitido por CORS: debe coincidir con la URL donde abres el frontend
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      NOMINATIM_URL: ${NOMINATIM_URL:-https://nominatim.openstreetmap.org}
+      NOMINATIM_CONTACT: ${NOMINATIM_CONTACT:-contacto@ejemplo.cl}
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:80"
+
+  # Solo imprime un cartel con la direccion correcta cuando todo ya esta arriba y termina.
+  # Aparece como "aviso-1 exited with code 0": es normal.
+  aviso:
+    image: nginx:stable-alpine
+    depends_on:
+      - frontend
+    restart: "no"
+    entrypoint:
+      - sh
+      - -c
+      - |
+        sleep 2
+        echo ""
+        echo "=============================================="
+        echo "   LISTO. Abre la aplicacion en:"
+        echo ""
+        echo "       http://localhost:8080"
+        echo ""
+        echo "   (localhost:3000 es solo la API, no tiene pagina)"
+        echo "=============================================="
+        echo ""
+
+volumes:
+  pgdata:
+  uploads:
