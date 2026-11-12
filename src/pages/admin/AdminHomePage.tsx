@@ -29,40 +29,18 @@ import {
   clipboardOutline,
   statsChartOutline,
   logOutOutline,
+  listOutline,
 } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { reportService } from "../../services/report.service";
+import { catalogosService } from "../../services/catalogos.service";
 import { IReport } from "../../types";
 import AdminSidebar from "../../components/AdminSidebar";
 import MapaSeleccionUbicacion from "../../components/MapaSeleccionUbicacion";
 
-// Las 5 unidades para filtrar la tabla (incluyendo OIRS Central que es donde llegan primero los reclamos)
-const UNIDADES_FILTRO = [
-  "OIRS Central",
-  "Obras municipales",
-  "Salud",
-  "Educación",
-  "Desarrollo comunitario",
-];
-
-// Las 4 unidades tecnicas a las que el funcionario puede derivar un reclamo
-const UNIDADES_DERIVACION = [
-  "Obras municipales",
-  "Salud",
-  "Educación",
-  "Desarrollo comunitario",
-];
-
-// Las 6 categorias oficiales de Santo Domingo que definimos en el Figma
-const CATEGORIAS_OFICIALES = [
-  "Alumbrado público",
-  "Aseo y ornato",
-  "Calles y veredas",
-  "Seguridad",
-  "Transporte",
-  "Otros",
-];
+// Unidad que recibe primero todos los reclamos: no se ofrece como destino de derivacion
+const UNIDAD_DE_INGRESO = "OIRS Central";
 
 const AdminHomePage: React.FC = () => {
   const history = useHistory();
@@ -73,6 +51,10 @@ const AdminHomePage: React.FC = () => {
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("todos");
   const [filtroUnidad, setFiltroUnidad] = useState("todos");
+  
+  // Categorias y unidades vienen de la base de datos (el admin las edita en Catalogos)
+  const [nombresCategorias, setNombresCategorias] = useState<string[]>([]);
+  const [nombresUnidades, setNombresUnidades] = useState<string[]>([]);
 
   // Reclamo seleccionado para abrir la ficha de detalle
   const [reclamoSeleccionado, setReclamoSeleccionado] =
@@ -119,8 +101,26 @@ const AdminHomePage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+   useEffect(() => {
     cargarDatos();
+  }, []);
+
+  // Cargamos los catalogos para los filtros y para elegir la unidad de derivacion
+  useEffect(() => {
+    const cargarCatalogos = async () => {
+      try {
+        const [categorias, unidades] = await Promise.all([
+          catalogosService.obtenerCategorias(),
+          catalogosService.obtenerUnidades(),
+        ]);
+        setNombresCategorias(categorias.map((c) => c.nombre));
+        setNombresUnidades(unidades.map((u) => u.nombre));
+      } catch (error) {
+        console.error("Error al cargar los catálogos:", error);
+        setToastMsg("No se pudieron cargar las categorías y unidades.");
+      }
+    };
+    cargarCatalogos();
   }, []);
 
   // Esta funcion filtra en tiempo real la tabla segun la categoria, unidad o texto que escriba el funcionario (RF-06)
@@ -344,7 +344,7 @@ const AdminHomePage: React.FC = () => {
                     <IonSelectOption value="todos">
                       Categoría: Todas
                     </IonSelectOption>
-                    {CATEGORIAS_OFICIALES.map((cat) => (
+                    {nombresCategorias.map((cat) => (
                       <IonSelectOption key={cat} value={cat}>
                         {cat}
                       </IonSelectOption>
@@ -374,7 +374,7 @@ const AdminHomePage: React.FC = () => {
                     <IonSelectOption value="todos">
                       Unidad: Todas
                     </IonSelectOption>
-                    {UNIDADES_FILTRO.map((u) => (
+                    {nombresUnidades.map((u) => (
                       <IonSelectOption key={u} value={u}>
                         {u}
                       </IonSelectOption>
@@ -1071,8 +1071,10 @@ const AdminHomePage: React.FC = () => {
                       marginBottom: "20px",
                     }}
                   >
-                    {UNIDADES_DERIVACION.map((u) => (
-                      <IonButton
+                    {nombresUnidades
+                      .filter((u) => u !== UNIDAD_DE_INGRESO)
+                      .map((u) => (
+                      <IonButton  
                         key={u}
                         expand="block"
                         fill={unidadElegida === u ? "solid" : "outline"}
@@ -1406,6 +1408,18 @@ const AdminHomePage: React.FC = () => {
             <IonIcon icon={statsChartOutline} style={{ color: "#64748B" }} />
             <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
               Métricas
+            </IonLabel>
+          </IonTabButton>
+
+          {/* Pestana: Catalogos */}
+          <IonTabButton
+            tab="catalogos"
+            aria-label="Administrar catálogos"
+            onClick={() => history.push("/admin/catalogos")}
+          >
+            <IonIcon icon={listOutline} style={{ color: "#64748B" }} />
+            <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
+              Catálogos
             </IonLabel>
           </IonTabButton>
 

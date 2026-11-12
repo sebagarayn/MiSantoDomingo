@@ -36,6 +36,7 @@ import {
   statsChartOutline,
   logOutOutline,
   downloadOutline,
+  listOutline,
 } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -915,6 +916,18 @@ const Dashboard: React.FC = () => {
             <IonIcon icon={statsChartOutline} style={{ color: "#0D3B66" }} />
             <IonLabel style={{ color: "#0D3B66", fontWeight: 800 }}>
               Métricas
+            </IonLabel>
+          </IonTabButton>
+
+          {/* Pestana: Catalogos */}
+          <IonTabButton
+            tab="catalogos"
+            aria-label="Administrar catálogos"
+            onClick={() => history.push("/admin/catalogos")}
+          >
+            <IonIcon icon={listOutline} style={{ color: "#64748B" }} />
+            <IonLabel style={{ color: "#64748B", fontWeight: 500 }}>
+              Catálogos
             </IonLabel>
           </IonTabButton>
 

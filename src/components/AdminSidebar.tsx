@@ -7,6 +7,7 @@ import {
   personCircleOutline,
   chevronBackOutline,
   chevronForwardOutline,
+  listOutline,
 } from "ionicons/icons";
 import { useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -190,6 +191,37 @@ const AdminSidebar: React.FC = () => {
                 <span style={{ whiteSpace: "nowrap" }}>
                   Métricas de Gestión
                 </span>
+              )}
+            </button>
+                        <button
+              type="button"
+              onClick={() => history.push("/admin/catalogos")}
+              title="Catálogos"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: colapsado ? "center" : "flex-start",
+                gap: colapsado ? "0" : "12px",
+                width: "100%",
+                padding: "12px 14px",
+                borderRadius: "8px",
+                border: "none",
+                background: esRutaActiva("/admin/catalogos")
+                  ? "#0D3B66"
+                  : "transparent",
+                color: esRutaActiva("/admin/catalogos") ? "#FFFFFF" : "#475569",
+                fontWeight: 700,
+                fontSize: "13px",
+                cursor: "pointer",
+                transition: "background 0.15s",
+              }}
+            >
+              <IonIcon
+                icon={listOutline}
+                style={{ fontSize: "20px", minWidth: "20px" }}
+              />
+              {!colapsado && (
+                <span style={{ whiteSpace: "nowrap" }}>Catálogos</span>
               )}
             </button>
           </nav>

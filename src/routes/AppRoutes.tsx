@@ -21,6 +21,7 @@ import {
   logOutOutline,
   statsChartOutline,
   clipboardOutline,
+  listOutline,
 } from "ionicons/icons";
 
 // Carga diferida (EF2): cada pantalla se descarga solo cuando el usuario entra a su ruta.
@@ -33,6 +34,7 @@ const ConsultaPublicaPage = lazy(
 const VecinoHomePage = lazy(() => import("../pages/vecino/VecinoHomePage"));
 const AdminHomePage = lazy(() => import("../pages/admin/AdminHomePage"));
 const Dashboard = lazy(() => import("../pages/admin/Dashboard"));
+const CatalogosPage = lazy(() => import("../pages/admin/CatalogosPage"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 
 // Lo que se ve mientras se descarga una pantalla
@@ -155,6 +157,20 @@ const AppRoutes: React.FC = () => {
                     <IonLabel>Métricas de Gestión</IonLabel>
                   </IonItem>
                 </IonMenuToggle>
+                                <IonMenuToggle autoHide={false}>
+                  <IonItem
+                    routerLink="/admin/catalogos"
+                    routerDirection="root"
+                    style={{ "--color": "#0D3B66", fontWeight: 600 }}
+                  >
+                    <IonIcon
+                      slot="start"
+                      icon={listOutline}
+                      style={{ color: "#0D3B66" }}
+                    />
+                    <IonLabel>Catálogos</IonLabel>
+                  </IonItem>
+                </IonMenuToggle>
               </>
             )}
 
@@ -225,6 +241,13 @@ const AppRoutes: React.FC = () => {
             exact
             path="/admin/dashboard"
             component={Dashboard}
+            roles={["admin"]}
+          />
+
+          <ProtectedRoute
+            exact
+            path="/admin/catalogos"
+            component={CatalogosPage}
             roles={["admin"]}
           />
 
