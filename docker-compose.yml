@@ -87,7 +87,6 @@ services:
         echo ""
         echo "       http://localhost:8080"
         echo ""
-        echo "   (localhost:3000 es solo la API, no tiene pagina)"
         echo "=============================================="
         echo ""
 
