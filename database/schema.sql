@@ -3,6 +3,7 @@ BEGIN;
 -- LIMPIEZA INICIAL (Permite que el script sea 100% re-ejecutable)
 DROP TRIGGER IF EXISTS historial_inmutable ON historial_reclamos;
 DROP FUNCTION IF EXISTS proteger_historial();
+DROP TABLE IF EXISTS notificaciones CASCADE;
 DROP TABLE IF EXISTS calificaciones CASCADE;
 DROP TABLE IF EXISTS historial_reclamos CASCADE;
 DROP TABLE IF EXISTS reclamos CASCADE;
