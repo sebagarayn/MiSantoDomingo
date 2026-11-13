@@ -20,7 +20,8 @@
 10. [Instrucciones de instalación y configuración](#10-instrucciones-de-instalación-y-configuración)
 11. [Instrucciones de ejecución y uso](#11-instrucciones-de-ejecución-y-uso)
 12. [Imágenes de la aplicación en ejecución](#12-imagenes-de-la-aplicación-en-ejecución)
-13. [Bibliografía y uso de IA](#13-bibliografía-y-uso-de-ia)
+13. [Progreso entre entregas](#13-progreso-entre-entregas)
+14. [Bibliografía y uso de IA](#14-bibliografía-y-uso-de-ia)
 
 ---
 
@@ -42,7 +43,7 @@
 
 Responsabilidad: Arquitectura frontend, componentes estructurales, enrutamiento y desarrollo en Ionic con React (EP 1.5 y EP 1.6).
 
-Entregables:Configuración modular del proyecto (`pages/`, `components/`, `routes/`, `services/`, `types/`, `contexts/`, `hooks/`); enrutamiento con React Router y rutas protegidas por rol con guardias; desarrollo de los servicios mock asíncronos (`report.service.ts` y `auth.service.ts`) con contratos TypeScript; implementación de las 6 vistas funcionales responsivas; sincronización de layouts (sidebar colapsable en PC y barra de navegación inferior en celular); guardia de cambios no guardados y alertas de sesión.
+Entregables:Configuración modular del proyecto (`pages/`, `components/`, `routes/`, `services/`, `types/`, `contexts/`, `hooks/`); enrutamiento con React Router y rutas protegidas por rol con guardias; desarrollo de los servicios de acceso a la API REST (`report.service.ts`,notificaciones.service.ts. `auth.service.ts`) con contratos TypeScript; implementación de las 6 vistas funcionales responsivas; sincronización de layouts (sidebar colapsable en PC y barra de navegación inferior en celular); guardia de cambios no guardados y alertas de sesión.
 
 ### 2.2. Benjamin Lazcano
 
@@ -197,9 +198,13 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 
 **RF-10 Dashboard de Indicadores KPI**: El sistema deberá desplegar un panel de métricas con el volumen total de solicitudes ingresadas, el recuento de casos vencidos fuera del plazo legal de 20 días y un gráfico de barras comparativo del volumen por categoría de reclamo.
 
-**Para la Entrega 2:**
+**RF-11**: El sistema permite al administrador exportar los reclamos del periodo seleccionado en el Dashboard como archivo CSV (compatible con Excel) o como informe PDF con los indicadores.
 
-**RF-11**: La funcionalidad de exportación y descarga de reportes periódicos en formatos PDF/CSV (RF-11) se integrará formalmente una vez conectado el servidor y la base de datos relacional.
+**RF-12 Notificaciones al Vecino**: El sistema deberá notificar al vecino cada vez que un funcionario cambie el estado de su reclamo (en revisión, derivado, resuelto o rechazado), mostrando un contador de avisos sin leer, una lista donde pueda revisarlos y marcarlos como leídos, y un aviso en pantalla al llegar uno nuevo (como notificación local del dispositivo cuando la aplicación se ejecuta como app móvil).
+
+**RF-13 Ubicación Georreferenciada**: El sistema deberá permitir al vecino indicar la ubicación del reclamo marcando un punto en un mapa, buscando una dirección escrita o usando su ubicación actual, guardando las coordenadas junto al reclamo y mostrándolas en un mapa en el detalle, tanto para el vecino como para el funcionario. Las coordenadas son opcionales: si el servicio de mapas no está disponible, el reclamo se puede enviar igualmente con la dirección escrita.
+
+**RF-14 Administración de Catálogos**: El sistema deberá permitir al funcionario crear, editar y eliminar las categorías de reclamo y las unidades municipales, impidiendo eliminar las que tengan reclamos asociados, de modo que los formularios y filtros reflejen los cambios sin modificar el código.
 
 ### 5.2. Requerimientos no funcionales (RNF)
 
@@ -207,11 +212,11 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 
 **RNF-02 (Accesibilidad Táctil)**: Todas las áreas de interacción táctil principales (botones de acción y pestañas de navegación) deben tener un tamaño objetivo mínimo de 44x44 px.
 
-**RNF-03 (Seguridad)**: El sistema deberá restringir el acceso a las funciones según el rol del usuario, permitiendo que cada tipo de usuario acceda únicamente a las funcionalidades que le correspondan.
+**RNF-03 (Seguridad)**:El 100 % de las rutas privadas de la API rechaza las peticiones sin sesión (HTTP 401) o sin el rol requerido (HTTP 403), y cada tipo de usuario accede únicamente a las funcionalidades de su rol.
 
-**RNF-04 (Integridad y Prevención)**: El formulario de ingreso de reclamos debe contar con una guardia preventiva contra pérdida de datos (Unsaved Changes Guard), alertando al usuario si intenta cambiar de sección con cambios sin guardar.
+**RNF-04 (Fiabilidad e integridad de datos)**: El sistema debe evitar la pérdida involuntaria de información ingresada por el usuario: el 100 % de los intentos de abandonar el formulario con datos sin enviar muestra una advertencia previa.
 
-**RNF-05 (Trazabilidad)**: Toda actualización de estado debe registrar fecha, hora y responsable de la acción de forma inmutable en el historial.
+**RNF-05 (Trazabilidad)**: El 100 % de los cambios de estado queda registrado con fecha, hora y responsable en el historial, y la base de datos impide modificar o borrar esos registros.
 
 **RNF-06 (Adaptabilidad Responsiva)**: La aplicación debe ofrecer una experiencia adaptada según el dispositivo: barra de navegación inferior en dispositivos móviles y menú lateral colapsable en escritorio.
 
@@ -220,7 +225,26 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 ### 5.3. Justificación del formulario de registro
 
 Se solicita nombre y correo para la identificación única del vecino y futura recuperación de clave. El teléfono se incluye como campo opcional anticipando la integración con notificaciones (EP2) para avisos de cuadrillas municipales. Se evita solicitar datos sensibles como RUT o dirección exacta en el registro para respetar la privacidad y minimizar la fricción de ingreso (RNF-01).
+### 5.4. Matriz de trazabilidad
 
+Cada requerimiento funcional se asocia con la pantalla que lo implementa, el endpoint de la API que lo sostiene y la prueba que permite verificarlo. Las pruebas de API están en la colección de Postman (`backend/pruebas/MiSantoDomingo.postman_collection.json`). Las marcadas como «manual» se verifican en la interfaz, porque su lógica se ejecuta en el navegador y no tiene un endpoint propio.
+
+| RF | Pantalla o componente | Endpoint | Prueba |
+| :-- | :-- | :-- | :-- |
+| RF-01 Ingreso de Reclamo | `VecinoHomePage` (vista Nuevo) | `POST /api/reclamos` | Postman: «Crear reclamo» |
+| RF-02 Folio Único | `VecinoHomePage` (pantalla de confirmación) | Lo genera `POST /api/reclamos` | Postman: «Crear reclamo» (la respuesta trae el folio `SD-2026-XXXXXX`) |
+| RF-03 Consulta Pública por Folio | `ConsultaPublicaPage` y vista Consulta del vecino | `GET /api/reclamos/folio/:folio` | Postman: «Folio inexistente» (404) y «Consultar folio existente» (nueva) |
+| RF-04 Cálculo de Plazo Legal | Tarjetas de `VecinoHomePage` y `AdminHomePage` | Se calcula en el frontend con la fecha de ingreso | Manual: la tarjeta muestra los días restantes y se pone en alerta al vencer |
+| RF-05 Trazabilidad Histórica | Modal de detalle de `VecinoHomePage` y `AdminHomePage` | `GET /api/reclamos/:id` (incluye el historial) | Postman: «Detalle de reclamo» (nueva) |
+| RF-06 Bandeja Filtrable de Reclamos | `AdminHomePage` | `GET /api/reclamos` con filtros | Postman: «Listar reclamos con token» y «Listar reclamos con filtros» (nueva) |
+| RF-07 Derivación entre Unidades | `AdminHomePage` | `PATCH /api/reclamos/:id/estado` | Postman: «Derivar reclamo como admin» y «Cambio de estado sin ser admin» (403) |
+| RF-08 Cierre Formal con Respuesta | `AdminHomePage` | `PATCH /api/reclamos/:id/estado` | Postman: «Resolver reclamo como admin» (nueva) |
+| RF-09 Calificación Ciudadana Única | `ConsultaPublicaPage` y `VecinoHomePage` | `POST /api/reclamos/:id/calificacion` | Postman: «Calificar reclamo resuelto» y «Calificar dos veces» (409) (nuevas) |
+| RF-10 Dashboard de Indicadores KPI | `Dashboard` | `GET /api/reclamos` | Manual: las tarjetas y el gráfico coinciden con los reclamos cargados |
+| RF-11 Exportación de Reportes | `Dashboard` | No tiene (se genera en el navegador) | Manual: abrir el CSV en Excel y revisar el PDF generado |
+| RF-12 Notificaciones al Vecino | `NotificacionesModal`, campana del encabezado y `VecinoSidebar` | `GET /api/notificaciones`, `PATCH /api/notificaciones/:id/leida`, `PATCH /api/notificaciones/leer-todas` | Postman: «Listar notificaciones», «Marcar notificación como leída» y «Marcar todas como leídas» (nuevas) |
+| RF-13 Ubicación Georreferenciada | `MapaSeleccionUbicacion` en `VecinoHomePage` y detalles | `GET /api/geocodificar`, `GET /api/geocodificar/inversa` | Postman: «Geocodificar dirección» y «Geocodificar inversa» (nuevas) |
+| RF-14 Administración de Catálogos | Pantalla de catálogos del funcionario | `POST`, `PUT` y `DELETE` en `/api/categorias` y `/api/unidades` | Postman: «Crear categoría», «Editar categoría» y «Eliminar categoría en uso» (409) (nuevas) |
 ---
 
 ## 6. Arquitectura de navegación y experiencia de usuario
@@ -313,11 +337,19 @@ flowchart TD
 ### 6.4. Puntos Críticos de Interacción y Justificación Técnica
 
 - Guardia de Datos no Guardados (Unsaved Changes Guard): Si el vecino está redactando un reclamo y pulsa accidentalmente otra pestaña de la barra inferior, el sistema intercepta el cambio y abre una alerta nativa (IonAlert) consultando si desea descartar o continuar editando, mitigando la pérdida accidental de datos.
+
 - Confirmación Universal de Salida: Toda acción de "Cerrar Sesión" exige confirmación previa mediante modal destructivo, impidiendo salidas involuntarias de la sesión.
 
 - Bloqueo de Votación Única: Tras emitir la calificación de estrellas, los controles se bloquean permanentemente mostrando el puntaje asignado, satisfaciendo la condición de voto único de RF-09.
 
 - Coherencia entre Dispositivos: En pantallas móviles se utiliza una barra de pestañas fija (IonTabBar) al alcance del pulgar, mientras que en pantallas de escritorio se activa una barra lateral colapsable (AdminSidebar y VecinoSidebar) que permite maximizar el área de trabajo de las tablas y gráficos mediante botones de repliegue.
+
+#### Justificación técnica de las decisiones
+
+- **Usabilidad:** cada punto crítico protege al usuario de un error costoso: perder lo escrito, cerrar la sesión sin querer o calificar dos veces. La barra inferior en móvil queda al alcance del pulgar, y la lateral en escritorio aprovecha el ancho de pantalla.
+- **Eficiencia de interacción:** las pantallas se cargan bajo demanda con `React.lazy`, de modo que cada ruta descarga solo su código. El archivo principal de la aplicación bajó de 2.385 kB a 1.309 kB (−45 %), y el Dashboard pesa 13 kB, porque las librerías de exportación a PDF se descargan únicamente al pulsar el botón.
+- **Claridad estructural:** el código se separa en `pages/` (pantallas), `components/` (piezas reutilizables), `services/` (único lugar que habla con la API), `hooks/` y `routes/`. Las rutas públicas y las protegidas por rol están diferenciadas en `ProtectedRoute`.
+- **Escalabilidad:** agregar una pantalla o un rol implica una nueva ruta diferida y una opción en la barra lateral, sin tocar el resto. Como las pantallas no conocen las URLs ni el token de la API, un cambio de backend se absorbe en `services/` y `api.ts`.
 
 ---
 
@@ -340,6 +372,36 @@ flowchart TD
 - Iconografía: Ionicons 7
 - Almacenamiento y Estado: Context API de React con persistencia sincronizada en localStorage
 - Control de Versiones: Git y GitHub
+- Leaflet y react-leaflet (mapa de ubicación).
+- OpenStreetMap Nominatim (geocodificación, servicio externo).
+- @capacitor/local-notifications (avisos locales).
+- jsPDF y html2canvas (exportación a PDF).
+- @capacitor/preferences.
+### 8.1. Servicio externo: geocodificación con OpenStreetMap (Nominatim)
+
+**Por qué.** Un reclamo municipal depende de saber con exactitud dónde ocurre el problema, y una ubicación escrita a mano es ambigua ("frente a la plaza", "cerca del colegio"). La integración permite al vecino marcar el punto en un mapa y obtener la dirección, o escribir una dirección y ver dónde queda. Con las coordenadas, el funcionario ve el punto exacto en el detalle del reclamo.
+
+**Qué hace.**
+
+- **Buscar una dirección:** el vecino escribe una dirección y pulsa buscar; el mapa se centra en el punto encontrado.
+- **Marcar un punto en el mapa:** al tocar el mapa, el sistema obtiene una dirección aproximada y la completa en el formulario, salvo que el vecino ya la haya editado a mano o haya elegido otro punto mientras esperaba.
+- **Usar mi ubicación:** con el permiso del navegador, toma la posición actual y obtiene su dirección aproximada.
+- **Ver el punto después:** las coordenadas se guardan en el reclamo (`latitud` y `longitud`) y se muestran en el mapa del detalle, tanto para el vecino como para el funcionario.
+
+**Cómo.** El frontend no llama directamente a Nominatim: consulta dos endpoints del backend, que a su vez consultan el servicio. Así la configuración queda en el servidor y los errores se controlan en un solo lugar.
+
+| Endpoint | Para qué | Respuesta |
+| :-- | :-- | :-- |
+| `GET /api/geocodificar?q=<dirección>` | De dirección a coordenadas | `{ ok, ubicacion: { latitud, longitud, direccion } }` |
+| `GET /api/geocodificar/inversa?lat=<lat>&lng=<lng>` | De coordenadas a dirección aproximada | `{ ok, ubicacion: { latitud, longitud, direccion } }` |
+
+Ambos requieren sesión iniciada. La llamada del frontend está en `src/services/geocodificacion.service.ts`, y el mapa es el componente `src/components/MapaSeleccionUbicacion.tsx` (Leaflet), que puede usarse para elegir un punto o, en modo solo lectura, para mostrarlo.
+
+**Si el servicio falla.** La geocodificación nunca bloquea el reclamo:
+
+- Las coordenadas son opcionales: el reclamo se envía igual con la dirección escrita, y la ubicación en texto es lo que se exige.
+- Si falla la búsqueda de una dirección, el vecino ve el mensaje de error y puede reintentar o marcar el punto en el mapa.
+- Si falla la obtención de la dirección de un punto del mapa, las coordenadas igual quedan guardadas y el campo de dirección se mantiene como estaba.
 
 ---
 
@@ -354,12 +416,15 @@ MiSantoDomingo/
 ├── src/
 │   ├── components/                 # Componentes reutilizables
 │   │   ├── AdminSidebar.tsx        # Barra lateral colapsable del funcionario (Web)
-│   │   ├── VecinoSidebar.tsx       # Barra lateral colapsable del vecino (Web)
+│   │   ├── VecinoSidebar.tsx       # Barra lateral colapsable del vecino (Web), con acceso a notificaciones
+│   │   ├── NotificacionesModal.tsx # Lista de avisos del vecino (leídos y sin leer)
+│   │   ├── MapaSeleccionUbicacion.tsx  # Mapa para elegir la ubicación del reclamo (edición) o mostrarla (solo lectura)
 │   │   └── ProtectedRoute.tsx      # Guardia de autenticación y control de rol
 │   ├── contexts/
 │   │   └── AuthContext.tsx         # Estado global de sesión con persistencia F5
 │   ├── hooks/
-│   │   └── useAuth.ts              # Hook personalizado para consumo de sesión
+│   │   ├── useAuth.ts              # Hook personalizado para consumo de sesión
+│   │   └── useNotificaciones.ts    # Consulta periódica de avisos (cada 30 s) y marcado como leídos
 │   ├── pages/                      # Pantallas de la aplicación
 │   │   ├── auth/
 │   │   │   ├── LoginPage.tsx       # Inicio de sesión institucional
@@ -370,18 +435,24 @@ MiSantoDomingo/
 │   │   │   └── VecinoHomePage.tsx  # Portal del vecino (Mis Reclamos / Nuevo)
 │   │   ├── admin/
 │   │   │   ├── AdminHomePage.tsx   # Gestión OIRS tabular y derivación
-│   │   │   └── Dashboard.tsx       # Monitor de métricas comunales y KPIs
+│   │   │   └── Dashboard.tsx       # Monitor de métricas comunales, KPIs y exportación a CSV y PDF
 │   │   └── NotFoundPage.tsx        # Página de error 404
 │   ├── routes/
-│   │   └── AppRoutes.tsx           # Mapa central de rutas e IonRouterOutlet
+│   │   └── AppRoutes.tsx           # Mapa central de rutas, IonRouterOutlet y carga diferida (React.lazy)
 │   ├── services/                   # Consumo de API REST y manejo de Tokens
 │   │   ├── api.ts                  # Interceptor central y llamadas con JWT
 │   │   ├── auth.service.ts         # Autenticación real contra el backend
-│   │   └── report.service.ts       # CRUD de reclamos conectados a PostgreSQL
+│   │   ├── report.service.ts       # CRUD de reclamos conectados a PostgreSQL
+│   │   ├── notificaciones.service.ts  # Consulta y marcado de notificaciones (/api/notificaciones)
+│   │   ├── avisoLocal.service.ts   # Aviso local: notificación nativa en el celular (Capacitor) y toast en el navegador
+│   │   ├── catalogos.service.ts    # Categorías y unidades obtenidas desde la API (sin IDs fijos en el código)
+│   │   └── geocodificacion.service.ts  # Búsqueda de direcciones y coordenadas mediante el backend (servicio externo)
 │   ├── theme/
 │   │   └── variables.css           # Paleta Santo Domingo (Azul, Verde, Amarillo)
 │   ├── types/
 │   │   └── index.ts                # Contratos de datos del dominio
+│   ├── utils/
+│   │   └── accesibilidad.ts        # Nombre accesible para los buscadores de Ionic (IonSearchbar)
 │   ├── App.tsx                     # Raíz: IonApp > IonReactRouter > AuthProvider
 │   └── main.tsx                    # Entrada React 18
 ├── index.html                      # Entry point con viewport nativo y favicon
@@ -429,7 +500,6 @@ MiSantoDomingo/
 
 ## 11. Instrucciones de ejecución y uso
 
-> **IMPORTANTE PARA LA EVALUACIÓN (EP2):**
 > Esta aplicación frontend ahora consume la API REST real. Para que funcione correctamente y no arroje errores de red, **el backend debe estar corriendo simultáneamente en el puerto 3000** (desde la rama `backend`).
 
 ### 11.1. Levantar el servidor del desarrollo
@@ -487,8 +557,36 @@ npm run build
 ![Consulta por folio](public/captura-vecino-consulta.png)
 
 ---
+## 13. Progreso entre entregas
 
-## 13. Bibliografía y uso de IA
+Esta sección resume qué cambió en cada entrega. Las cifras de peso de la aplicación se midieron con `npm run build`, y las de accesibilidad con el análisis automático `eslint-plugin-jsx-a11y`.
+
+### 13.1. Evolución por área
+
+| Área | EP1 (diseño y estructura) | EP2 (integración y autenticación) | Entrega final |
+| :-- | :-- | :-- | :-- |
+| Datos | Servicios simulados (mock) | PostgreSQL y API REST con CRUD de reclamos | Índices para los filtros de la bandeja, paginación de la lista, coordenadas del reclamo (`latitud` y `longitud`) y tabla de notificaciones |
+| Autenticación y seguridad | Pantallas de login y registro con validaciones visuales | JWT, roles y contraseñas con bcrypt | Rol revalidado en la base de datos, 401 para token inválido (antes 403), límite de intentos (429), `helmet`, CORS restringido, validación de imágenes por contenido y sanitización de texto |
+| Integración frontend y backend | No aplica | Consumo de la API con `fetch` y token; la foto no se enviaba y las categorías estaban fijas en el código | La foto se sube como `multipart/form-data`; categorías y unidades se obtienen de la API (`catalogos.service.ts`) |
+| Funcionalidades | RF-01 a RF-10 definidos; RF-11 declarado para una entrega posterior | RF-01 a RF-10 | Se suman: exportación a CSV y PDF (RF-11), notificaciones al vecino con aviso local (RF-12) y mapa con geocodificación (RF-13) |
+| Rendimiento | No medido | No medido | Archivo principal de 1.309 kB (291 kB comprimido), contra 2.385 kB (533 kB comprimido) antes de optimizar: **−45 %**. Se logró con carga diferida de pantallas (`React.lazy`) y eliminando una copia duplicada de Ionic (`@ionic/react` y `@ionic/react-router` fijados en la misma versión, 8.8.19) |
+| Carga del Dashboard | No aplica | No aplica | El Dashboard pesa 13 kB: las librerías de exportación a PDF (~600 kB) se descargan solo al pulsar «PDF» |
+| Accesibilidad | Sin revisión formal | Sin revisión formal | Hallazgos automáticos de accesibilidad: de 16 a **0**. Campos de formulario sin nombre accesible: de 19 a **0**. El enlace «¿Olvidaste tu contraseña?» ahora es un botón que se puede usar con teclado |
+| Estados de carga y error | No aplica | Solo en la vista del vecino | Bandeja de administración, Dashboard y login: indicador de carga, mensaje de error con botón «Reintentar» y estado vacío |
+| Exportación de reportes | Declarada como RF-11 para una entrega posterior | No implementada | CSV y PDF desde el Dashboard; el CSV escapa las celdas para evitar la inyección de fórmulas en Excel |
+| Evaluación | No aplica | 88/100 (ayudante) | No aplica |
+
+### 13.2. Retroalimentación incorporada
+
+Estos comentarios del ayudante en la Entrega Parcial 2 se corrigieron:
+
+- **Token inválido o expirado:** ahora responde 401 (antes 403).
+- **Fotografía del reclamo:** se envía al servidor y se guarda (antes solo se simulaba en el formulario).
+- **Categorías y unidades:** se leen de la API y ya no hay identificadores fijos en el código.
+- **Errores de carga:** la interfaz muestra un mensaje y permite reintentar, en vez de dejar una lista vacía que parecía un resultado real.
+
+---
+## 14. Bibliografía y uso de IA
 
 - **BIBLIOGRAFÍA**
 
