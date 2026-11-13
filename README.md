@@ -1,9 +1,8 @@
 # MiSantoDomingo
 
-<div align="center">
-  <img src="public/logo-santodomingo.png" alt="Municipalidad de Santo Domingo" width="220" />
-  <p><b>Plataforma Municipal de Atención y Seguimiento de Reclamos Vecinales</b></p>
-</div>
+![Municipalidad de Santo Domingo](public/logo-santodomingo.png)
+
+**Plataforma Municipal de Atención y Seguimiento de Reclamos Vecinales**
 
 ---
 
