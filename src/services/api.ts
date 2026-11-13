@@ -1,17 +1,33 @@
+import {
+  CLAVES,
+  PREFIJO_CACHE,
+  borrar,
+  borrarPorPrefijo,
+  leer,
+} from "./almacenamiento.service";
 // URL base del backend (se puede cambiar con VITE_API_URL en un .env)
 export const API_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
-// Limpia la sesión y manda al login cuando el token venció o es inválido
-const cerrarSesionExpirada = () => {
-  localStorage.removeItem("msd_token");
-  localStorage.removeItem("msd_session_user");
+// Limpia la sesión y manda al login cuando el token venció o es inválido.
+// Se espera a que termine el borrado antes de recargar la pagina.
+const cerrarSesionExpirada = async () => {
+  await Promise.all([
+    borrar(CLAVES.token),
+    borrar(CLAVES.usuario),
+    borrarPorPrefijo(PREFIJO_CACHE),
+  ]);
   window.location.href = "/login?expirada=1";
 };
 
+// Error de "no hay conexion": las pantallas lo usan para mostrar datos guardados en el dispositivo
+export const esErrorDeRed = (error: unknown): boolean =>
+  error instanceof Error &&
+  (error as Error & { sinConexion?: boolean }).sinConexion === true;
+
 // Helper central: adjunta el JWT y maneja los errores de sesión en un solo lugar
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem("msd_token");
+  const token = leer(CLAVES.token);
 
   const headers = new Headers(options.headers || {});
 
@@ -31,10 +47,11 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
       headers,
     });
   } catch (networkError) {
-    // Si hay un corte de red o el servidor esta apagado, devolvemos este mensaje en español
-    throw new Error(
+    const errorDeRed = new Error(
       "No se pudo conectar con el servidor. Verifique su conexión.",
-    );
+    ) as Error & { sinConexion?: boolean };
+    errorDeRed.sinConexion = true; // marca para que las pantallas sepan que fue falta de red
+    throw errorDeRed;
   }
 
   const data = await response.json().catch(() => ({}));
@@ -49,7 +66,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
         (response.status === 403 && /token/i.test(data.mensaje || "")));
 
     if (sesionInvalida) {
-      cerrarSesionExpirada();
+      await cerrarSesionExpirada();
       throw new Error("Tu sesión expiró. Inicia sesión nuevamente.");
     }
 

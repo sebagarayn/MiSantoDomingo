@@ -53,6 +53,12 @@ import {
 import { useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { reportService } from "../../services/report.service";
+import {
+  CLAVES,
+  borrar,
+  guardarJSON,
+  leerJSON,
+} from "../../services/almacenamiento.service";
 import { catalogosService, type ICategoria } from "../../services/catalogos.service";
 import { IReport, INotificacion } from "../../types";
 import VecinoSidebar from "../../components/VecinoSidebar";
@@ -70,7 +76,14 @@ import {
   obtenerDireccionDesdeCoordenadas,
 } from "../../services/geocodificacion.service";
 
-
+// Lo que se guarda del formulario de reclamo (la foto no se guarda: pesa demasiado)
+interface BorradorReclamo {
+  categoria: string;
+  descripcion: string;
+  ubicacion: string;
+  latitud: number | null;
+  longitud: number | null;
+}
 
 const VecinoHomePage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -170,6 +183,12 @@ const VecinoHomePage: React.FC = () => {
   const [foto, setFoto] = useState<File | null>(null);
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
 
+
+  // Fecha de la copia guardada cuando no hay conexion ("" = la lista viene del servidor)
+  const [avisoSinConexion, setAvisoSinConexion] = useState("");
+  // Pasa a true cuando ya se intento restaurar el borrador (antes de eso no se guarda nada)
+  const [borradorListo, setBorradorListo] = useState(false);
+
   // Carga las categorías desde el backend al abrir la pantalla
   // y las guarda para mostrarlas en el formulario de reclamos.
   useEffect(() => {
@@ -198,8 +217,14 @@ const VecinoHomePage: React.FC = () => {
   // Carga estrictamente los reclamos del vecino conectado para cumplir privacidad (RNF-03)
   const cargarReclamos = async () => {
     try {
-      const data = await reportService.obtenerReclamos();
+      const { reclamos: data, desdeCache, guardadoEn } =
+        await reportService.obtenerReclamosConCache(user?.id ?? "");
       setReclamos(data.filter((r) => r.creadorId === user?.id));
+      setAvisoSinConexion(
+        desdeCache && guardadoEn
+          ? new Date(guardadoEn).toLocaleString("es-CL")
+          : "",
+      );
     } catch (error) {
       console.error("Error al cargar los reclamos:", error);
       setToastMsg(
@@ -218,6 +243,37 @@ const VecinoHomePage: React.FC = () => {
   });
 
 
+  // V3 - Borrador: al abrir la pantalla se restaura lo que el vecino habia escrito
+  useEffect(() => {
+    const idUsuario = user?.id;
+    if (!idUsuario) return;
+    const borrador = leerJSON<BorradorReclamo>(
+      CLAVES.borradorReclamo(idUsuario),
+    );
+    if (borrador) {
+      setCategoria(borrador.categoria);
+      setDescripcion(borrador.descripcion);
+      setUbicacion(borrador.ubicacion);
+      setLatitud(borrador.latitud);
+      setLongitud(borrador.longitud);
+      setVistaActiva("nuevo");
+      setToastMsg("Recuperamos tu borrador del reclamo.");
+    }
+    setBorradorListo(true);
+  }, [user?.id]);
+
+   // V3 - Borrador: se guarda en cada cambio (es un texto chico, no pesa). Asi, si recargan
+  // con F5 justo despues de escribir, no se pierde nada.
+  // Si el formulario queda vacio (porque se envio o se descarto), el borrador se borra.
+  useEffect(() => {
+    if (!user || !borradorListo) return;
+    const clave = CLAVES.borradorReclamo(user.id);
+    if (!categoria && !descripcion.trim() && !ubicacion.trim()) {
+      borrar(clave);
+    } else {
+      guardarJSON(clave, { categoria, descripcion, ubicacion, latitud, longitud });
+    }
+  }, [user, borradorListo, categoria, descripcion, ubicacion, latitud, longitud]);
 
   // Si la persona venia navegando desde otra seccion con ?tab=nuevo, abrimos el formulario de una
   useEffect(() => {
@@ -393,6 +449,7 @@ const VecinoHomePage: React.FC = () => {
         idUsuario,
       );
 
+      if (idUsuario) borrar(CLAVES.borradorReclamo(idUsuario));
 
       setReclamos((prev) => [nuevo, ...prev]);
       setReclamoCreadoExito(nuevo);
@@ -679,6 +736,24 @@ const VecinoHomePage: React.FC = () => {
                     {reclamos.length === 1 ? "reclamo" : "reclamos"}
                   </span>
                 </div>
+
+                {avisoSinConexion && (
+                  <div
+                    role="status"
+                    style={{
+                      background: "#FEF3C7",
+                      border: "1px solid #F59E0B",
+                      color: "#92400E",
+                      borderRadius: "10px",
+                      padding: "10px 14px",
+                      fontSize: "13px",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    Sin conexión: mostrando la última lista guardada (
+                    {avisoSinConexion}).
+                  </div>
+                )}
 
                 {reclamos.length === 0 ? (
                   <IonCard

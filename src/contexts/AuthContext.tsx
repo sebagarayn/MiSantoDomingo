@@ -1,6 +1,15 @@
 import React, { createContext, useState, useEffect } from "react";
 import { IUser } from "../types";
 import { authService } from "../services/auth.service";
+import {
+  CLAVES,
+  PREFIJO_CACHE,
+  borrar,
+  borrarPorPrefijo,
+  guardar,
+  guardarJSON,
+  leerJSON,
+} from "../services/almacenamiento.service";
 
 export interface AuthContextType {
   user: IUser | null;
@@ -16,21 +25,17 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<IUser | null>(() => {
-    try {
-      const sesionGuardada = localStorage.getItem("msd_session_user");
-      return sesionGuardada ? JSON.parse(sesionGuardada) : null;
-    } catch {
-      return null;
-    }
-  });
+  // La sesion guardada ya esta cargada en memoria (main.tsx espera a iniciarAlmacenamiento)
+  const [user, setUser] = useState<IUser | null>(() =>
+    leerJSON<IUser>(CLAVES.usuario),
+  );
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem("msd_session_user", JSON.stringify(user));
+      guardarJSON(CLAVES.usuario, user);
     } else {
-      localStorage.removeItem("msd_session_user");
-      localStorage.removeItem("msd_token");
+      borrar(CLAVES.usuario);
+      borrar(CLAVES.token);
     }
   }, [user]);
 
@@ -38,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = async (email: string, password: string): Promise<IUser> => {
     try {
       const { token, usuario } = await authService.login(email, password);
-      localStorage.setItem("msd_token", token);
+      await guardar(CLAVES.token, token);
       setUser(usuario);
       return usuario;
     } catch (error) {
@@ -53,8 +58,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const logout = () => {
-    localStorage.removeItem("msd_token");
-    localStorage.removeItem("msd_session_user");
+    borrar(CLAVES.token);
+    borrar(CLAVES.usuario);
+    borrarPorPrefijo(PREFIJO_CACHE); // la copia de reclamos no debe quedar en un equipo ajeno
     setUser(null);
   };
 

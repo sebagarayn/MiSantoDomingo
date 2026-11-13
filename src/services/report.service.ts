@@ -5,7 +5,8 @@ import {
   IRatingInput,
   IStatusHistory,
 } from "../types";
-import { apiFetch, API_URL } from "./api";
+import { apiFetch, API_URL, esErrorDeRed } from "./api";
+import { CLAVES, guardarJSON, leerJSON } from "./almacenamiento.service";
 import { catalogosService } from "./catalogos.service";
 
 // Raiz del servidor (sin /api), para armar las URLs de las fotos
@@ -131,6 +132,35 @@ class ReportService {
   public async obtenerReclamos(): Promise<IReport[]> {
     const data = await apiFetch("/reclamos");
     return data.reclamos.map(mapearDesdeDB);
+  }
+
+    // 1b. Igual que obtenerReclamos, pero guarda la ultima lista en el dispositivo y,
+  // si no hay conexion, entrega esa copia guardada (V3: almacenamiento local)
+  public async obtenerReclamosConCache(idUsuario: string): Promise<{
+    reclamos: IReport[];
+    desdeCache: boolean;
+    guardadoEn: string | null;
+  }> {
+    const clave = CLAVES.cacheReclamos(idUsuario);
+    try {
+      const reclamos = await this.obtenerReclamos();
+      guardarJSON(clave, { guardadoEn: new Date().toISOString(), reclamos });
+      return { reclamos, desdeCache: false, guardadoEn: null };
+    } catch (error) {
+      if (esErrorDeRed(error)) {
+        const copia = leerJSON<{ guardadoEn: string; reclamos: IReport[] }>(
+          clave,
+        );
+        if (copia) {
+          return {
+            reclamos: copia.reclamos,
+            desdeCache: true,
+            guardadoEn: copia.guardadoEn,
+          };
+        }
+      }
+      throw error;
+    }
   }
 
   // 2. Consulta publica por folio (propaga error si hay corte de red; retorna null si es 404 no encontrado)

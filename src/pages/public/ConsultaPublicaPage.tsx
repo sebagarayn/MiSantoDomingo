@@ -48,6 +48,7 @@ import { IReport } from "../../types";
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { etiquetarBuscador } from "../../utils/accesibilidad";
+import { CLAVES, leer } from "../../services/almacenamiento.service";
 
 const ConsultaPublicaPage: React.FC = () => {
   const history = useHistory();
@@ -93,7 +94,7 @@ const ConsultaPublicaPage: React.FC = () => {
     if (!report) return;
 
     // 1. Verificamos si la persona tiene sesion iniciada en el navegador
-    const token = localStorage.getItem("msd_token");
+    const token = leer(CLAVES.token);
     if (!token) {
       setToastMsg(
         "Solo el vecino autor del reclamo puede calificar. Inicia sesión con tu cuenta para evaluar.",
