@@ -13,6 +13,7 @@ const router = Router();
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // Ventana de 15 minutos
   max: 5, // Máximo 5 intentos por IP
+  skipSuccessfulRequests: true, // Solo cuentan los intentos fallidos
   statusCode: 429,
   standardHeaders: true,
   legacyHeaders: false,
