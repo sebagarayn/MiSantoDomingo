@@ -472,24 +472,19 @@ npm run build
 
 ## 12. Imagenes de la aplicación en ejecución
 
-### 12.1. Versión Web (Admin)
+### 12.1. Vista del administrador (escritorio)
 
-<p align="center">
-  <img src="public/captura-admin-tabla.png" alt="Bandeja OIRS Escritorio" width="85%" />
-</p>
-<p align="center">
-  <img src="public/captura-admin-dashboard.png" alt="Dashboard de Métricas" width="85%" />
-</p>
+![Bandeja de reclamos de la OIRS en escritorio](public/captura-admin-tabla.png)
+
+![Dashboard de métricas](public/captura-admin-dashboard.png)
 
 ### 12.2. Versión Móvil (Vecino)
 
-<p align="center">
-  <img src="public/captura-vecino-home.png" alt="Mis Reclamos Móvil" width="280" />
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="public/captura-vecino-formulario.png" alt="Formulario de Ingreso" width="280" />
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="public/captura-vecino-consulta.png" alt="Consulta por Folio" width="280" />
-</p>
+![Mis reclamos en móvil](public/captura-vecino-home.png)
+
+![Formulario de ingreso de reclamo](public/captura-vecino-formulario.png)
+
+![Consulta por folio](public/captura-vecino-consulta.png)
 
 ---
 
