@@ -81,7 +81,7 @@ Si este problema no se aborda, las consecuencias esperables son: abandono del pr
 
 Dado que el grupo etario predominante y de mayor crecimiento en la comuna corresponde a adultos medios y adultos mayores, la solución debe diseñarse pensando prioritariamente en este perfil de usuario —y no en un usuario joven "digital nativo"— sin dejar de lado al funcionario municipal que gestiona la contraparte del proceso.
 
-Fuentes: https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606
+Fuentes: [BCN – Reporte comunal Santo Domingo 2026](https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606)
 
 ### 3.3. Objetivos del proyecto
 
@@ -165,7 +165,7 @@ Nota: los perfiles a continuación son proto-personas construidas mediante inves
 
 - Se asume que ambos roles priorizan la claridad del estado del reclamo por sobre funciones avanzadas o de personalización.
 
-Fuentes: https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606
+Fuentes: [BCN – Reporte comunal Santo Domingo 2026](https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606)
 
 ---
 
@@ -324,10 +324,10 @@ flowchart TD
 ## 7. Prototipos UI/UX en Figma
 
 1. Prototipo Versión Web / Escritorio (Vicente Olguín):
-   https://www.figma.com/design/g226BWBCK7VZ2fzl9aj8at/Sin-título?node-id=0-1&t=OWk7vIgmDlFjNYgl-1
+   [Ver prototipo web en Figma](https://www.figma.com/design/g226BWBCK7VZ2fzl9aj8at/Sin-título?node-id=0-1&t=OWk7vIgmDlFjNYgl-1)
 
 2. Prototipo Versión Móvil (Ignacio Maureira):
-   https://www.figma.com/design/APracKRLzJMMzqzsLFHSXx/Sin-t%C3%ADtulo?node-id=0-1&t=x8JV6gNCCvaOFn40-1
+   [Ver prototipo móvil en Figma](https://www.figma.com/design/APracKRLzJMMzqzsLFHSXx/Sin-t%C3%ADtulo?node-id=0-1&t=x8JV6gNCCvaOFn40-1)
 
 ---
 
@@ -492,7 +492,7 @@ npm run build
 
 - **BIBLIOGRAFÍA**
 
-https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606
+[BCN – Reporte comunal Santo Domingo 2026](https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606)
 
 - **USO DE IA**
 
