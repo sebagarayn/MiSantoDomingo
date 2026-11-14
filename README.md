@@ -43,25 +43,29 @@
 
 Responsabilidad: Arquitectura frontend, componentes estructurales, enrutamiento y desarrollo en Ionic con React (EP 1.5 y EP 1.6).
 
-Entregables:Configuración modular del proyecto (`pages/`, `components/`, `routes/`, `services/`, `types/`, `contexts/`, `hooks/`); enrutamiento con React Router y rutas protegidas por rol con guardias; desarrollo de los servicios de acceso a la API REST (`report.service.ts`,notificaciones.service.ts. `auth.service.ts`) con contratos TypeScript; implementación de las 6 vistas funcionales responsivas; sincronización de layouts (sidebar colapsable en PC y barra de navegación inferior en celular); guardia de cambios no guardados y alertas de sesión.
+Entregables: Configuración modular del proyecto (`pages/`, `components/`, `routes/`, `services/`, `types/`, `contexts/`, `hooks/`); enrutamiento con React Router y rutas protegidas por rol con guardias; desarrollo de los servicios de acceso a la API REST (`report.service.ts` y `auth.service.ts`) con contratos TypeScript; implementación de las 6 vistas funcionales responsivas; sincronización de layouts (sidebar colapsable en PC y barra de navegación inferior en celular); guardia de cambios no guardados y alertas de sesión.
+Entrega final (EP2 y EF): Seguridad avanzada de la API (`helmet`, CORS restringido, límite de intentos, validación de imágenes por contenido, rol leído desde la base de datos, sanitización contra XSS y 401 para token inválido); scripts de base de datos re-ejecutables; optimización de consultas con índices (`03_optimizacion_indices.sql`) y paginación; README del backend.
 
 ### 2.2. Benjamin Lazcano
 
 Responsabilidad: Requerimientos (EP 1.1), investigación de usuarios (EP 1.2), arquitectura de información (EP 1.4) y README.md (3.1).
 
 Entregables: Matriz de 11 Requerimientos Funcionales (sin login/registro) y 6 No Funcionales; justificación demográfica del problema basada en datos del Censo INE 2017 y 2024 de Santo Domingo; caracterización de 2 proto-personas con supuestos razonados; redacción de los 4 Task Flows y justificación técnica de arquitectura.
+Entrega final (EP2 y EF): Notificaciones al vecino (tabla, API, hook `useNotificaciones`, `NotificacionesModal`, campana y aviso local, RF-12); rendimiento (carga diferida de pantallas y eliminación de la copia duplicada de Ionic); estados de carga y error; accesibilidad; exportación del Dashboard a CSV y PDF (RF-11); README con matriz de trazabilidad y progreso entre entregas.
 
 ### 2.3. Vicente Olguin
 
 Responsabilidad: Prototipado manual en Figma del flujo de gestión del funcionario, versión web (EP 1.3).
 
 Entregables: Diseño manual en Figma de las vistas de escritorio: pantalla de acceso/login; bandeja general tabular de reclamos con filtros combinables por unidad y categoría (RF-06); modal de detalle con flujo de derivación a unidades técnicas (RF-07) y cierre formal con respuesta oficial (RF-08); estados de éxito (SUCCESS) y error; dashboard de indicadores KPI con gráfico de barras comparativo (RF-10).
+Entrega final (EP2 y EF): Despliegue con Docker (`Dockerfile`, `nginx.conf` y `docker-compose.yml`); administración de catálogos (CRUD de categorías y unidades y `CatalogosPage`, RF-14); almacenamiento local con `@capacitor/preferences` (sesión, borrador y caché sin conexión).
 
 ### 2.4. Ignacio Maureira
 
 Responsabilidad: Prototipado manual en Figma del flujo completo del vecino, versión móvil (EP 1.3).
 
 Entregables: Diseño manual en Figma de la experiencia móvil ciudadana: pantallas de bienvenida, login y registro con validaciones visuales; portal de inicio del vecino con listado "Mis Reclamos"; flujo de ingreso de reclamo con categorías, descripción con contador de caracteres, dirección y adjunto de fotografía (RF-01) con confirmación de folio único (RF-02); flujo de consulta de estado por número de folio sin sesión (RF-03); cálculo visual de plazo legal de 20 días (RF-04); módulo de calificación ciudadana con escala de 5 estrellas (RF-09); barra de navegación inferior móvil.
+Entrega final (EP2 y EF): Ubicación georreferenciada (columnas `latitud` y `longitud`, endpoints `/geocodificar` con Nominatim y componente `MapaSeleccionUbicacion`, RF-13); colección de Postman con 33 peticiones; pruebas automáticas del backend y del frontend.
 
 ---
 
@@ -630,6 +634,8 @@ Estos comentarios del ayudante en la Entrega Parcial 2 se corrigieron:
 - **Fotografía del reclamo:** se envía al servidor y se guarda (antes solo se simulaba en el formulario).
 - **Categorías y unidades:** se leen de la API y ya no hay identificadores fijos en el código.
 - **Errores de carga:** la interfaz muestra un mensaje y permite reintentar, en vez de dejar una lista vacía que parecía un resultado real.
+- **Pruebas de la API:** la colección de Postman pasó de 16 a 33 peticiones con aserciones, e incluye casos de límite de intentos, imagen falsa, XSS, notificaciones, geocodificación y catálogos.
+- **Documentación:** se corrigieron la sintaxis Markdown, los requerimientos no funcionales (ahora medibles) y las referencias normativas.
 
 ---
 ## 14. Bibliografía y uso de IA
