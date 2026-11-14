@@ -886,29 +886,43 @@ Implementadas en `tests/app.test.js` con el ejecutor nativo de Node.js (`node --
 
 ### 17.2. Colección Postman (`pruebas/MiSantoDomingo.postman_collection.json`)
 
-Colección v2.1 actualizada con **19 solicitudes** y **81 aserciones `pm.test()`**. Incorpora scripts `After response` para guardar automáticamente `{{token_vecino}}`, `{{token_admin}}` e `{{id_reclamo_prueba}}`, además de un script `Before request` en la cancelación para crear y eliminar un reclamo temporal sin depender de IDs fijos:
+Colección v2.1 actualizada con **33 solicitudes** y aserciones automáticas `pm.test()` sobre códigos HTTP y estructura JSON. Incorpora scripts `After response` para guardar automáticamente `{{token_vecino}}`, `{{token_admin}}` e `{{id_reclamo_prueba}}`, además de un script `Before request` en la cancelación para crear y eliminar un reclamo temporal sin depender de IDs fijos:
 
-| N°  | Método   | Endpoint                                     | Caso probado                               | Código esperado |
-| :-- | :------- | :------------------------------------------- | :----------------------------------------- | :-------------- |
-| 1   | `GET`    | `/api/health`                                | Verificación de API y BD                   | `200`           |
-| 2   | `POST`   | `/api/auth/login`                            | Login vecino (guarda `token_vecino`)       | `200`           |
-| 3   | `POST`   | `/api/auth/login`                            | Login admin (guarda `token_admin`)         | `200`           |
-| 4   | `GET`    | `/api/categorias`                            | Listado de categorías                      | `200`           |
-| 5   | `GET`    | `/api/reclamos`                              | Listado paginado con token                 | `200`           |
-| 6   | `POST`   | `/api/auth/login`                            | Clave errónea                              | `401`           |
-| 7   | `POST`   | `/api/auth/login`                            | Sin contraseña                             | `400`           |
-| 8   | `GET`    | `/api/reclamos/folio/SD-2026-999999`         | Folio inexistente                          | `404`           |
-| 9   | `PATCH`  | `/api/reclamos/{{id_reclamo_prueba}}/estado` | Cambio de estado sin rol admin             | `403`           |
-| 10  | `POST`   | `/api/auth/registro`                         | Registro de usuario nuevo                  | `201`           |
-| 11  | `POST`   | `/api/auth/registro`                         | Registro con correo duplicado              | `409`           |
-| 12  | `POST`   | `/api/reclamos`                              | Crear reclamo (guarda `id_reclamo_prueba`) | `201`           |
-| 13  | `PATCH`  | `/api/reclamos/{{id_reclamo_prueba}}/estado` | Cambio a `En Revisión` como admin          | `200`           |
-| 14  | `DELETE` | `/api/reclamos/{{id_reclamo_cancelar}}`      | Cancelar reclamo temporal propio           | `200`           |
-| 15  | `DELETE` | `/api/reclamos/9999`                         | Cancelar reclamo inexistente               | `404`           |
-| 16  | `PUT`    | `/api/reclamos/{{id_reclamo_prueba}}`        | Editar reclamo pendiente                   | `200`           |
-| 17  | `POST`   | `/api/auth/login`                            | Rate Limit por intentos fallidos           | `429`           |
-| 18  | `POST`   | `/api/reclamos`                              | Rechazo de imagen falsa (Magic Bytes)      | `400`           |
-| 19  | `POST`   | `/api/auth/registro`                         | Rechazo de `<script>` (XSS)                | `400`           |
+| N°  | Método   | Endpoint                                     | Caso probado                                      | Código esperado |
+| :-- | :------- | :------------------------------------------- | :------------------------------------------------ | :-------------- |
+| 1   | `GET`    | `/api/health`                                | Verificación de API y BD                          | `200`           |
+| 2   | `POST`   | `/api/auth/login`                            | Login vecino (guarda `token_vecino`)              | `200`           |
+| 3   | `POST`   | `/api/auth/login`                            | Login admin (guarda `token_admin`)                | `200`           |
+| 4   | `GET`    | `/api/categorias`                            | Listado de categorías                             | `200`           |
+| 5   | `GET`    | `/api/reclamos`                              | Listado paginado con token                        | `200`           |
+| 6   | `POST`   | `/api/auth/login`                            | Clave errónea                                     | `401`           |
+| 7   | `POST`   | `/api/auth/login`                            | Sin contraseña                                    | `400`           |
+| 8   | `GET`    | `/api/reclamos/folio/SD-2026-999999`         | Folio inexistente                                 | `404`           |
+| 9   | `PATCH`  | `/api/reclamos/{{id_reclamo_prueba}}/estado` | Cambio de estado sin rol admin                    | `403`           |
+| 10  | `POST`   | `/api/auth/registro`                         | Registro de usuario nuevo                         | `201`           |
+| 11  | `POST`   | `/api/auth/registro`                         | Registro con correo duplicado                     | `409`           |
+| 12  | `POST`   | `/api/reclamos`                              | Crear reclamo (guarda `id_reclamo_prueba`)        | `201`           |
+| 13  | `PATCH`  | `/api/reclamos/{{id_reclamo_prueba}}/estado` | Cambio a `En Revisión` como admin                 | `200`           |
+| 14  | `DELETE` | `/api/reclamos/{{id_reclamo_cancelar}}`      | Cancelar reclamo temporal propio                  | `200`           |
+| 15  | `DELETE` | `/api/reclamos/9999`                         | Cancelar reclamo inexistente                      | `404`           |
+| 16  | `PUT`    | `/api/reclamos/{{id_reclamo_prueba}}`        | Editar reclamo pendiente                          | `200`           |
+| 17  | `POST`   | `/api/auth/login`                            | Rate Limit por intentos fallidos                  | `429`           |
+| 18  | `POST`   | `/api/reclamos`                              | Rechazo de imagen falsa (Magic Bytes)             | `400`           |
+| 19  | `POST`   | `/api/auth/registro`                         | Rechazo de `<script>` (XSS)                       | `400`           |
+| 20  | `GET`    | `/api/reclamos/folio/:folio`                 | Consultar folio existente                         | `200`           |
+| 21  | `GET`    | `/api/reclamos/:id`                          | Detalle de reclamo con historial                  | `200`           |
+| 22  | `GET`    | `/api/reclamos?estado=...`                   | Listar reclamos con filtros                       | `200`           |
+| 23  | `PATCH`  | `/api/reclamos/:id/estado`                   | Resolver reclamo como admin                       | `200`           |
+| 24  | `POST`   | `/api/reclamos/:id/calificacion`             | Calificar reclamo resuelto (1–5)                  | `201`           |
+| 25  | `POST`   | `/api/reclamos/:id/calificacion`             | Calificar dos veces (voto único)                  | `409`           |
+| 26  | `GET`    | `/api/notificaciones`                        | Listar notificaciones del vecino                  | `200`           |
+| 27  | `PATCH`  | `/api/notificaciones/:id/leida`              | Marcar notificación como leída                    | `200`           |
+| 28  | `PATCH`  | `/api/notificaciones/leer-todas`             | Marcar todas las notificaciones como leídas       | `200`           |
+| 29  | `GET`    | `/api/geocodificar?q=...`                    | Geocodificar dirección en Santo Domingo           | `200`           |
+| 30  | `GET`    | `/api/geocodificar/inversa?lat=&lng=`        | Geocodificación inversa desde coordenadas         | `200`           |
+| 31  | `POST`   | `/api/categorias`                            | Crear categoría como admin                        | `201`           |
+| 32  | `PUT`    | `/api/categorias/:id`                        | Editar categoría como admin                       | `200`           |
+| 33  | `DELETE` | `/api/categorias/:id`                        | Eliminar categoría en uso (bloqueo de integridad) | `409`           |
 
 ### 17.3. Evidencia de pruebas (`pruebas/capturas/`)
 
@@ -987,6 +1001,62 @@ Colección v2.1 actualizada con **19 solicitudes** y **81 aserciones `pm.test()`
 **19. Rechazo de XSS (`<script>`) — 400 Bad Request**
 
 ![XSS 400](pruebas/capturas/19%20XSS%20400.png)
+
+**20. Consultar folio existente — 200 OK**
+
+![Consultar folio existente](pruebas/capturas/20%20Consultar%20folio%20existente.png)
+
+**21. Detalle de reclamo — 200 OK**
+
+![Detalle de reclamo](pruebas/capturas/21%20Detalle%20de%20reclamo.png)
+
+**22. Listar reclamos con filtros — 200 OK**
+
+![Listar reclamo con filtros](pruebas/capturas/22%20Listar%20reclamo%20con%20filtros.png)
+
+**23. Resolver reclamo como admin — 200 OK**
+
+![Resolver reclamo como admin](pruebas/capturas/23%20Resolver%20reclamo%20como%20admin.png)
+
+**24. Calificar reclamo resuelto — 201 Created**
+
+![Calificar reclamo resuelto](pruebas/capturas/24%20Calificar%20reclamo%20resuelto.png)
+
+**25. Calificar dos veces (voto único) — 409 Conflict**
+
+![Calificar dos veces](pruebas/capturas/25%20Calificar%20dos%20veces.png)
+
+**26. Listar notificaciones — 200 OK**
+
+![Listar notificaciones](pruebas/capturas/26%20Listar%20notificaciones.png)
+
+**27. Marcar notificación como leída — 200 OK**
+
+![Marcar notificación como leída](pruebas/capturas/27%20Marcar%20notificaci%C3%B3n%20como%20le%C3%ADda.png)
+
+**28. Marcar todas como leídas — 200 OK**
+
+![Marcar todas como leídas](pruebas/capturas/28%20Marcar%20todas%20como%20le%C3%ADdas.png)
+
+**29. Geocodificar dirección — 200 OK**
+
+![Geocodificar dirección](pruebas/capturas/29%20Geocodificar%20direcci%C3%B3n.png)
+
+**30. Geocodificar inversa — 200 OK**
+
+![Geocodificar inversa](pruebas/capturas/30%20Geocodificar%20inversa.png)
+
+**31. Crear categoría — 201 Created**
+
+![Crear categoría](pruebas/capturas/31%20Crear%20categor%C3%ADa.png)
+
+**32. Editar categoría — 200 OK**
+
+![Editar categoría](pruebas/capturas/32%20Editar%20categor%C3%ADa.png)
+
+**33. Eliminar categoría en uso — 409 Conflict**
+
+![Eliminar categoría en uso](pruebas/capturas/33%20Eliminar%20categor%C3%ADa%20en%20uso.png)
 
 ---
 
