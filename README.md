@@ -611,12 +611,15 @@ Esta sección resume qué cambió en cada entrega. Las cifras de peso de la apli
 | Datos | Servicios simulados (mock) | PostgreSQL y API REST con CRUD de reclamos | Índices para los filtros de la bandeja, paginación de la lista, coordenadas del reclamo (`latitud` y `longitud`) y tabla de notificaciones |
 | Autenticación y seguridad | Pantallas de login y registro con validaciones visuales | JWT, roles y contraseñas con bcrypt | Rol revalidado en la base de datos, 401 para token inválido (antes 403), límite de intentos (429), `helmet`, CORS restringido, validación de imágenes por contenido y sanitización de texto |
 | Integración frontend y backend | No aplica | Consumo de la API con `fetch` y token; la foto no se enviaba y las categorías estaban fijas en el código | La foto se sube como `multipart/form-data`; categorías y unidades se obtienen de la API (`catalogos.service.ts`) |
-| Funcionalidades | RF-01 a RF-10 definidos; RF-11 declarado para una entrega posterior | RF-01 a RF-10 | Se suman: exportación a CSV y PDF (RF-11), notificaciones al vecino con aviso local (RF-12) y mapa con geocodificación (RF-13) |
+| Funcionalidades | RF-01 a RF-10 definidos; RF-11 declarado para una entrega posterior | RF-01 a RF-10 | Se suman: exportación a CSV y PDF (RF-11), notificaciones al vecino con aviso local (RF-12), mapa con geocodificación (RF-13) y administración de catálogos (RF-14) |
 | Rendimiento | No medido | No medido | Archivo principal de 1.309 kB (291 kB comprimido), contra 2.385 kB (533 kB comprimido) antes de optimizar: **−45 %**. Se logró con carga diferida de pantallas (`React.lazy`) y eliminando una copia duplicada de Ionic (`@ionic/react` y `@ionic/react-router` fijados en la misma versión, 8.8.19) |
 | Carga del Dashboard | No aplica | No aplica | El Dashboard pesa 13 kB: las librerías de exportación a PDF (~600 kB) se descargan solo al pulsar «PDF» |
 | Accesibilidad | Sin revisión formal | Sin revisión formal | Hallazgos automáticos de accesibilidad: de 16 a **0**. Campos de formulario sin nombre accesible: de 19 a **0**. El enlace «¿Olvidaste tu contraseña?» ahora es un botón que se puede usar con teclado |
 | Estados de carga y error | No aplica | Solo en la vista del vecino | Bandeja de administración, Dashboard y login: indicador de carga, mensaje de error con botón «Reintentar» y estado vacío |
 | Exportación de reportes | Declarada como RF-11 para una entrega posterior | No implementada | CSV y PDF desde el Dashboard; el CSV escapa las celdas para evitar la inyección de fórmulas en Excel |
+| Almacenamiento local | No aplica | Token de sesión en `localStorage` | Sesión, borrador automático del formulario y caché de la última lista de reclamos con `@capacitor/preferences`, con aviso cuando no hay conexión |
+| Pruebas | Sin pruebas | Colección de Postman manual (16 peticiones) | Colección de Postman con 33 peticiones y aserciones, pruebas automáticas del backend (`tests/app.test.js`) y del frontend (Vitest) |
+| Despliegue | Servidor de desarrollo local | Manual: Node.js y PostgreSQL instalados en cada equipo | `docker compose up --build` levanta base de datos, API y frontend |
 | Evaluación | No aplica | 88/100 (ayudante) | No aplica |
 
 ### 13.2. Retroalimentación incorporada
