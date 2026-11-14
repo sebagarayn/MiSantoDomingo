@@ -274,6 +274,7 @@ flowchart TD
     ADMININICIO -->|"Sidebar/Switch"| DASHBOARD["/admin/dashboard"]
     DASHBOARD --> KPIS["Ver KPIs"]
     DASHBOARD --> BARRAS["Gráfico Barras"]
+    ADMININICIO -->|"Sidebar/Switch"| CATALOGOS["/admin/catalogos"]
 ```
 
 ### 6.2. Jerarquía de Vistas y Diferenciación por Rol
@@ -292,6 +293,7 @@ flowchart TD
 
 - /admin/inicio: Bandeja central tabular de solicitudes con filtros y acciones de derivación y cierre formal.
 - /admin/dashboard: Monitor de indicadores de gestión comunal y métricas de rendimiento.
+-  /admin/catalogos: Administración de categorías y unidades municipales (RF-14).
 
 #### Matriz de Acceso por Rol
 
@@ -303,6 +305,7 @@ flowchart TD
 | Bandeja de gestión y filtros (`/admin/inicio`) |          —           |   —    |      ✓       |
 | Derivar y cerrar reclamos (`/admin/inicio`)    |          —           |   —    |      ✓       |
 | Dashboard de métricas KPI (`/admin/dashboard`) |          —           |   —    |      ✓       |
+| Administrar catálogos (`/admin/catalogos`)     |          —           |   —    |      ✓       |
 
 ### 6.3. Principales Flujos de Tareas (Task Flows)
 
