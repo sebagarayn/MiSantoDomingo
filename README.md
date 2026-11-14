@@ -228,7 +228,7 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 
 ### 5.3. Justificación del formulario de registro
 
-Se solicita nombre y correo para la identificación única del vecino y futura recuperación de clave. El teléfono se incluye como campo opcional anticipando la integración con notificaciones (EP2) para avisos de cuadrillas municipales. Se evita solicitar datos sensibles como RUT o dirección exacta en el registro para respetar la privacidad y minimizar la fricción de ingreso (RNF-01).
+Se solicita nombre y correo para la identificación única del vecino y futura recuperación de clave.El teléfono se incluye como campo opcional para facilitar el contacto de las cuadrillas municipales en terreno. Las notificaciones de cambio de estado se entregan dentro de la aplicación, por lo que no dependen de este dato. Se evita solicitar datos sensibles como RUT o dirección exacta en el registro para respetar la privacidad y minimizar la fricción de ingreso (RNF-01).
 ### 5.4. Matriz de trazabilidad
 
 Cada requerimiento funcional se asocia con la pantalla que lo implementa, el endpoint de la API que lo sostiene y la prueba que permite verificarlo. Las pruebas de API están en la colección de Postman (`backend/pruebas/MiSantoDomingo.postman_collection.json`, 33 peticiones con aserciones sobre el código HTTP y el cuerpo de la respuesta); se indica el número de cada petición dentro de la colección. Las marcadas como «manual» se verifican en la interfaz, porque su lógica se ejecuta en el navegador y no tiene un endpoint propio.
@@ -643,6 +643,7 @@ Estos comentarios del ayudante en la Entrega Parcial 2 se corrigieron:
 - **BIBLIOGRAFÍA**
 
 [BCN – Reporte comunal Santo Domingo 2026](https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606)
+[Ley N° 19.880, que establece bases de los procedimientos administrativos que rigen los actos de los órganos de la Administración del Estado (BCN)](https://www.bcn.cl/leychile/navegar?idNorma=210676)
 
 - **USO DE IA**
 
