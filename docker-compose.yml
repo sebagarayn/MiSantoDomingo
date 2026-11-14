@@ -1,0 +1,99 @@
+# Despliegue local de MiSantoDomingo: PostgreSQL + API (Express) + frontend (React/Nginx).
+# Este archivo va en la RAIZ del repositorio backend. El frontend debe estar clonado en la carpeta
+# hermana ../MiSantoDomingo (o define FRONTEND_PATH). Uso: docker compose up --build -> http://localhost:8080
+# Los valores por defecto (clave de la base, JWT_SECRET) son SOLO para desarrollo local:
+# para otro entorno defínelos en un archivo .env.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PGDATABASE:-misantodomingo_db}
+      POSTGRES_USER: ${PGUSER:-postgres}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-postgres123}
+    ports:
+      - "127.0.0.1:${PGPORT_HOST:-5433}:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/00_schema.sql:ro
+      - ./database/01_usuarios_prueba.sql:/docker-entrypoint-initdb.d/01_usuarios_prueba.sql:ro
+      - ./database/02_datos_prueba.sql:/docker-entrypoint-initdb.d/02_datos_prueba.sql:ro
+      - ./database/03_optimizacion_indices.sql:/docker-entrypoint-initdb.d/03_optimizacion_indices.sql:ro
+      - ./database/04_agregar_coordenadas_reclamos.sql:/docker-entrypoint-initdb.d/04_agregar_coordenadas_reclamos.sql:ro
+      - ./database/05_notificaciones.sql:/docker-entrypoint-initdb.d/05_notificaciones.sql:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${PGUSER:-postgres} -d ${PGDATABASE:-misantodomingo_db}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${PORT:-3000}:3000"
+    environment:
+      PORT: 3000
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: ${PGDATABASE:-misantodomingo_db}
+      PGUSER: ${PGUSER:-postgres}
+      PGPASSWORD: ${PGPASSWORD:-postgres123}
+      JWT_SECRET: ${JWT_SECRET:-secreto_docker_misantodomingo_2026_desarrollo}
+      FRONTEND_URL: ${DOCKER_FRONTEND_URL:-http://localhost:8080}
+      NOMINATIM_URL: ${NOMINATIM_URL:-https://nominatim.openstreetmap.org}
+      NOMINATIM_CONTACT: ${NOMINATIM_CONTACT:-contacto@misantodomingo.cl}
+    volumes:
+      - uploads_data:/app/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ${FRONTEND_PATH:-../MiSantoDomingo}
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:80"
+
+  # Solo imprime un cartel con la direccion correcta cuando todo esta arriba y termina.
+  aviso:
+    image: nginx:stable-alpine
+    depends_on:
+      - frontend
+    restart: "no"
+    entrypoint:
+      - sh
+      - -c
+      - |
+        sleep 2
+        echo ""
+        echo "=============================================="
+        echo "   LISTO. Abre la aplicacion en:"
+        echo ""
+        echo "       http://localhost:8080"
+        echo ""
+        echo "=============================================="
+        echo ""
+
+volumes:
+  pg_data:
+  uploads_data:
