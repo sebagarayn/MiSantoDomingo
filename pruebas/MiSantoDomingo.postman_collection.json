@@ -1,14 +1,25 @@
 {
   "info": {
-    "_postman_id": "212952a8-fdd3-4eb3-b33a-9fc6bc284f3a",
+    "_postman_id": "bb810801-b02b-4833-ac00-1120b6529020",
     "name": "MiSantoDomingo API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "59027277",
-    "_collection_link": "https://go.postman.co/collection/59027277-212952a8-fdd3-4eb3-b33a-9fc6bc284f3a?source=collection_link"
+    "_exporter_id": "60181786",
+    "_collection_link": "https://go.postman.co/collection/60181786-bb810801-b02b-4833-ac00-1120b6529020?source=collection_link"
   },
   "item": [
     {
       "name": "Health check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Health check responde con HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"La API confirma que funciona correctamente\", function () {\r\n    const respuesta = pm.response.json();\r\n    pm.expect(respuesta.ok).to.eql(true);\r\n});\r\n\r\npm.test(\"La respuesta contiene un mensaje y una fecha\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.be.a(\"string\");\r\n    pm.expect(respuesta.fecha).to.be.a(\"string\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -29,6 +40,17 @@
     },
     {
       "name": "Login vecino",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Login vecino responde con HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"El inicio de sesión es exitoso\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(true);\r\n    pm.expect(respuesta.token).to.be.a(\"string\").and.not.empty;\r\n});\r\n\r\npm.test(\"El usuario autenticado tiene rol vecino\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.usuario).to.be.an(\"object\");\r\n    pm.expect(respuesta.usuario.rol).to.eql(\"vecino\");\r\n});\r\n\r\n// Guardar el token solamente si la respuesta es válida\r\nif (pm.response.code === 200) {\r\n    const respuesta = pm.response.json();\r\n\r\n    if (\r\n        respuesta.ok === true &&\r\n        typeof respuesta.token === \"string\" &&\r\n        respuesta.token.length > 0 &&\r\n        respuesta.usuario?.rol === \"vecino\"\r\n    ) {\r\n        pm.collectionVariables.set(\"token_vecino\", respuesta.token);\r\n    }\r\n}\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
@@ -59,6 +81,17 @@
     },
     {
       "name": "Login admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Login admin responde con HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"El inicio de sesión del administrador es exitoso\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(true);\r\n    pm.expect(respuesta.token).to.be.a(\"string\").and.not.empty;\r\n});\r\n\r\npm.test(\"El usuario autenticado tiene rol admin\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.usuario).to.be.an(\"object\");\r\n    pm.expect(respuesta.usuario.rol).to.eql(\"admin\");\r\n});\r\n\r\n// Guardar el token solamente si la respuesta es válida\r\nif (pm.response.code === 200) {\r\n    const respuesta = pm.response.json();\r\n\r\n    if (\r\n        respuesta.ok === true &&\r\n        typeof respuesta.token === \"string\" &&\r\n        respuesta.token.length > 0 &&\r\n        respuesta.usuario?.rol === \"admin\"\r\n    ) {\r\n        pm.collectionVariables.set(\"token_admin\", respuesta.token);\r\n    }\r\n}\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
@@ -89,6 +122,17 @@
     },
     {
       "name": "Listar categorias",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Listar categorías responde con HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"La consulta de categorías es exitosa\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(true);\r\n});\r\n\r\npm.test(\"La respuesta contiene una lista de categorías\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.categorias).to.be.an(\"array\");\r\n    pm.expect(respuesta.categorias.length).to.be.greaterThan(0);\r\n});\r\n\r\npm.test(\"Las categorías tienen ID y nombre válidos\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    respuesta.categorias.forEach(function (categoria) {\r\n        pm.expect(categoria.id_categoria).to.be.a(\"number\");\r\n        pm.expect(categoria.nombre).to.be.a(\"string\").and.not.empty;\r\n    });\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -109,12 +153,34 @@
     },
     {
       "name": "Listar reclamos con token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Listar reclamos responde con HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"La consulta de reclamos es exitosa\", function () {\r\n    const respuesta = pm.response.json();\r\n    pm.expect(respuesta.ok).to.eql(true);\r\n});\r\n\r\npm.test(\"La respuesta contiene un arreglo de reclamos\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.reclamos).to.be.an(\"array\");\r\n});\r\n\r\npm.test(\"La paginación contiene valores válidos\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.total).to.be.a(\"number\").and.at.least(0);\r\n    pm.expect(respuesta.pagina).to.be.a(\"number\").and.at.least(1);\r\n    pm.expect(respuesta.limite).to.be.a(\"number\").and.greaterThan(0);\r\n    pm.expect(respuesta.total_paginas).to.be.a(\"number\").and.at.least(0);\r\n});\r\n\r\npm.test(\"Los reclamos contienen ID, folio y estado\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    respuesta.reclamos.forEach(function (reclamo) {\r\n        pm.expect(reclamo.id_reclamo).to.be.a(\"number\");\r\n        pm.expect(reclamo.folio).to.be.a(\"string\").and.not.empty;\r\n        pm.expect(reclamo.estado).to.be.a(\"string\").and.not.empty;\r\n    });\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_vecino}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "GET",
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_token>"
+            "value": "Bearer <pega_aqui_el_token>",
+            "disabled": true
           }
         ],
         "url": {
@@ -134,6 +200,17 @@
     },
     {
       "name": "Login clave erronea",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Login con clave errónea responde HTTP 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\npm.test(\"El backend rechaza las credenciales incorrectas\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(false);\r\n});\r\n\r\npm.test(\"La respuesta informa que las credenciales son inválidas\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.be.a(\"string\");\r\n    pm.expect(respuesta.mensaje).to.include(\"Credenciales invalidas\");\r\n});\r\n\r\npm.test(\"El backend no entrega un token JWT\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta).to.not.have.property(\"token\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
@@ -164,6 +241,17 @@
     },
     {
       "name": "Login sin contraseña",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Login sin contraseña responde HTTP 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\npm.test(\"El backend rechaza la solicitud incompleta\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(false);\r\n});\r\n\r\npm.test(\"La respuesta informa que faltan credenciales válidas\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.be.a(\"string\");\r\n    pm.expect(respuesta.mensaje).to.include(\"correo y contraseña\");\r\n});\r\n\r\npm.test(\"No se genera un token JWT sin contraseña\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta).to.not.have.property(\"token\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
@@ -194,6 +282,17 @@
     },
     {
       "name": "Folio inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Folio inexistente responde HTTP 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"La consulta de un folio inexistente falla\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(false);\r\n});\r\n\r\npm.test(\"El backend informa que no encontró el reclamo\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.be.a(\"string\");\r\n    pm.expect(respuesta.mensaje).to.include(\"No se encontro ningun reclamo\");\r\n});\r\n\r\npm.test(\"No se entrega información de un reclamo inexistente\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta).to.not.have.property(\"reclamo\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -216,12 +315,34 @@
     },
     {
       "name": "Cambio de estado sin ser admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Un vecino no puede cambiar el estado: HTTP 403\", function () {\r\n    pm.response.to.have.status(403);\r\n});\r\n\r\npm.test(\"El backend rechaza la operación no autorizada\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(false);\r\n});\r\n\r\npm.test(\"La respuesta informa que se requiere rol administrador\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.be.a(\"string\");\r\n    pm.expect(respuesta.mensaje).to.include(\"Se requiere rol de administrador\");\r\n});\r\n\r\npm.test(\"No se devuelve un reclamo actualizado\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta).to.not.have.property(\"reclamo\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_vecino}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "PATCH",
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_tokenvecino>"
+            "value": "Bearer <pega_aqui_el_tokenvecino>",
+            "disabled": true
           }
         ],
         "body": {
@@ -234,7 +355,7 @@
           }
         },
         "url": {
-          "raw": "http://localhost:3000/api/reclamos/1/estado",
+          "raw": "http://localhost:3000/api/reclamos/{{id_reclamo_prueba}}/estado",
           "protocol": "http",
           "host": [
             "localhost"
@@ -243,7 +364,7 @@
           "path": [
             "api",
             "reclamos",
-            "1",
+            "{{id_reclamo_prueba}}",
             "estado"
           ]
         }
@@ -252,12 +373,23 @@
     },
     {
       "name": "Registro usuario nuevo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Registro de usuario responde HTTP 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"La respuesta del registro es JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"El registro se realiza exitosamente\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(true);\r\n});\r\n\r\npm.test(\"El backend devuelve una respuesta válida\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta).to.be.an(\"object\");\r\n    pm.expect(respuesta).to.have.property(\"ok\");\r\n});\r\n\r\npm.test(\"El registro devuelve un mensaje de confirmación\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.be.a(\"string\").and.not.empty;\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{ \"nombre\": \"Usuario Prueba\", \"correo\": \"prueba@correo.cl\", \"password\": \"123456\" }",
+          "raw": "{ \"nombre\": \"Usuario Prueba\", \"correo\": \"prueba_pmtesst_2026@correo.cl\", \"password\": \"123456\" }",
           "options": {
             "raw": {
               "language": "json"
@@ -282,6 +414,17 @@
     },
     {
       "name": "Registro correo duplicado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Registro duplicado responde HTTP 409\", function () {\r\n    pm.response.to.have.status(409);\r\n});\r\n\r\npm.test(\"El backend rechaza el correo duplicado\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(false);\r\n});\r\n\r\npm.test(\"La respuesta informa que el correo ya existe\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.be.a(\"string\");\r\n    pm.expect(respuesta.mensaje).to.include(\"Ya existe una cuenta\");\r\n});\r\n\r\npm.test(\"No se devuelve un nuevo usuario registrado\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta).to.not.have.property(\"usuario\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
@@ -312,12 +455,34 @@
     },
     {
       "name": "Crear reclamo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Crear reclamo responde HTTP 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"El reclamo se crea exitosamente\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(true);\r\n    pm.expect(respuesta.mensaje).to.eql(\r\n        \"Reclamo ingresado exitosamente\"\r\n    );\r\n});\r\n\r\npm.test(\"El reclamo tiene ID y folio\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.reclamo.id_reclamo)\r\n        .to.be.a(\"number\");\r\n\r\n    pm.expect(respuesta.reclamo.folio)\r\n        .to.be.a(\"string\").and.not.empty;\r\n});\r\n\r\npm.test(\"El reclamo comienza en estado Pendiente\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.reclamo.estado)\r\n        .to.eql(\"Pendiente\");\r\n});\r\n\r\npm.test(\"Se guarda el ID del reclamo para otras pruebas\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.collectionVariables.set(\r\n        \"id_reclamo_prueba\",\r\n        respuesta.reclamo.id_reclamo\r\n    );\r\n\r\n    pm.expect(\r\n        pm.collectionVariables.get(\"id_reclamo_prueba\")\r\n    ).to.eql(respuesta.reclamo.id_reclamo);\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_vecino}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "POST",
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <token_vecino>"
+            "value": "Bearer <token_vecino>",
+            "disabled": true
           }
         ],
         "body": {
@@ -357,17 +522,39 @@
     },
     {
       "name": "Derivar reclamo como admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\npm.test(\"Derivar reclamo responde HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"El backend confirma la operación exitosa\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(true);\r\n});\r\n\r\npm.test(\"El reclamo cambia al estado Derivado\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.include(\r\n    \"Reclamo actualizado exitosamente al estado: En Revisión\"\r\n    );\r\n});\r\n\r\npm.test(\"La respuesta contiene un mensaje de confirmación\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.be.a(\"string\");\r\n    pm.expect(respuesta.mensaje).to.not.be.empty;\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_admin}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "PATCH",
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_token>"
+            "value": "Bearer <pega_aqui_el_token>",
+            "disabled": true
           }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{ \"nuevo_estado\": \"Derivado\", \"id_unidad_destino\": 2, \"observacion\": \"Corresponde a Obras municipales\" }",
+          "raw": "{\r\n  \"nuevo_estado\": \"En Revisión\",\r\n  \"observacion\": \"Revisión administrativa para pruebas de API\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -375,7 +562,7 @@
           }
         },
         "url": {
-          "raw": "http://localhost:3000/api/reclamos/1/estado",
+          "raw": "http://localhost:3000/api/reclamos/{{id_reclamo_prueba}}/estado",
           "protocol": "http",
           "host": [
             "localhost"
@@ -384,7 +571,7 @@
           "path": [
             "api",
             "reclamos",
-            "1",
+            "{{id_reclamo_prueba}}",
             "estado"
           ]
         }
@@ -393,16 +580,51 @@
     },
     {
       "name": "Cancelar reclamo propio",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Cancelar reclamo propio responde HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"El backend confirma la cancelación exitosa\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(true);\r\n});\r\n\r\npm.test(\"La respuesta informa que el reclamo fue cancelado\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.be.a(\"string\");\r\n    pm.expect(respuesta.mensaje).to.eql(\"Reclamo cancelado exitosamente\");\r\n});\r\n\r\npm.test(\"La respuesta no contiene errores\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta).to.not.have.property(\"error\");\r\n});"
+            ]
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\nconst tokenVecino = pm.collectionVariables.get(\"token_vecino\");\r\n\r\nif (!tokenVecino) {\r\n    throw new Error(\"Falta token_vecino. Ejecuta primero Login vecino.\");\r\n}\r\n\r\npm.collectionVariables.unset(\"id_reclamo_cancelar\");\r\n\r\npm.sendRequest({\r\n    url: \"http://localhost:3000/api/reclamos\",\r\n    method: \"POST\",\r\n    header: {\r\n        Authorization: `Bearer ${tokenVecino}`\r\n    },\r\n    body: {\r\n        mode: \"formdata\",\r\n        formdata: [\r\n            {\r\n                key: \"id_categoria\",\r\n                value: \"1\",\r\n                type: \"text\"\r\n            },\r\n            {\r\n                key: \"descripcion\",\r\n                value: \"Reclamo temporal para prueba automatizada de cancelación\",\r\n                type: \"text\"\r\n            },\r\n            {\r\n                key: \"ubicacion\",\r\n                value: \"Calle Los Aromos 100\",\r\n                type: \"text\"\r\n            }\r\n        ]\r\n    }\r\n}, function (error, response) {\r\n    if (error) {\r\n        throw new Error(\"Error al crear reclamo: \" + error.message);\r\n    }\r\n\r\n    if (response.code !== 201) {\r\n        throw new Error(\r\n            \"No se pudo crear el reclamo. HTTP \" + response.code\r\n        );\r\n    }\r\n\r\n    const datos = response.json();\r\n\r\n    if (!datos.ok || !datos.reclamo?.id_reclamo) {\r\n        throw new Error(\"La respuesta no contiene un ID de reclamo válido.\");\r\n    }\r\n\r\n    pm.collectionVariables.set(\r\n        \"id_reclamo_cancelar\",\r\n        datos.reclamo.id_reclamo\r\n    );\r\n});\r\n"
+            ]
+          }
+        }
+      ],
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_vecino}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "DELETE",
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_token>"
+            "value": "Bearer <pega_aqui_el_token>",
+            "disabled": true
           }
         ],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
         "url": {
-          "raw": "http://localhost:3000/api/reclamos/4",
+          "raw": "http://localhost:3000/api/reclamos/{{id_reclamo_cancelar}}",
           "protocol": "http",
           "host": [
             "localhost"
@@ -411,7 +633,7 @@
           "path": [
             "api",
             "reclamos",
-            "4"
+            "{{id_reclamo_cancelar}}"
           ]
         }
       },
@@ -419,12 +641,34 @@
     },
     {
       "name": "Cancelar reclamo inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Cancelar reclamo inexistente responde HTTP 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"El backend indica que la operación falló\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(false);\r\n});\r\n\r\npm.test(\"El mensaje indica que el reclamo no existe\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.eql(\"Reclamo no encontrado\");\r\n});\r\n\r\npm.test(\"La respuesta tiene formato JSON\", function () {\r\n    pm.response.to.be.json;\r\n});"
+            ]
+          }
+        }
+      ],
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_vecino}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "DELETE",
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_token>"
+            "value": "Bearer <pega_aqui_el_token>",
+            "disabled": true
           }
         ],
         "url": {
@@ -445,17 +689,39 @@
     },
     {
       "name": "Actualizar reclamo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Actualizar reclamo responde HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"El backend confirma la actualización exitosa\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(true);\r\n    pm.expect(respuesta.mensaje).to.eql(\"Reclamo actualizado exitosamente\");\r\n});\r\n\r\npm.test(\"Se actualizó el reclamo correcto\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    const idEsperado = Number(\r\n        pm.collectionVariables.get(\"id_reclamo_prueba\")\r\n    );\r\n\r\n    pm.expect(respuesta.reclamo.id_reclamo).to.eql(idEsperado);\r\n});\r\n\r\npm.test(\"La categoría fue actualizada correctamente\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.reclamo.id_categoria).to.eql(2);\r\n});\r\n\r\npm.test(\"La descripción y ubicación coinciden con los datos enviados\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.reclamo.descripcion).to.eql(\r\n        \"Reclamo actualizado mediante Postman para verificar el funcionamiento de la API\"\r\n    );\r\n\r\n    pm.expect(respuesta.reclamo.ubicacion).to.eql(\r\n        \"Avenida Libertad 456, Valparaiso\"\r\n    );\r\n});\r\n\r\npm.test(\"El reclamo mantiene su estado Pendiente\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.reclamo.estado).to.eql(\"Pendiente\");\r\n});"
+            ]
+          }
+        }
+      ],
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_vecino}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "PUT",
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer <pega_aqui_el_token vecino>"
+            "value": "Bearer <pega_aqui_el_token vecino>",
+            "disabled": true
           }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"id_categoria\": 2,\r\n  \"descripcion\": \"Basura acumulada hace una semana en la esquina\",\r\n  \"ubicacion\": \"Av. Libertad 123\"\r\n}",
+          "raw": "{\r\n  \"id_categoria\": 2,\r\n  \"descripcion\": \"Reclamo actualizado mediante Postman para verificar el funcionamiento de la API\",\r\n  \"ubicacion\": \"Avenida Libertad 456, Valparaiso\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -463,7 +729,7 @@
           }
         },
         "url": {
-          "raw": "http://localhost:3000/api/reclamos/5",
+          "raw": "http://localhost:3000/api/reclamos/{{id_reclamo_prueba}}",
           "protocol": "http",
           "host": [
             "localhost"
@@ -472,12 +738,179 @@
           "path": [
             "api",
             "reclamos",
-            "5"
+            "{{id_reclamo_prueba}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Rate Limit 429",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "\r\nconst codigo = pm.response.code;\r\n\r\npm.test(\"El servidor responde 401 o 429\", function () {\r\n    pm.expect([401, 429]).to.include(codigo);\r\n});\r\n\r\npm.test(\"La respuesta es JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"El backend rechaza el intento\", function () {\r\n    const respuesta = pm.response.json();\r\n    pm.expect(respuesta.ok).to.eql(false);\r\n});\r\n\r\nif (codigo === 429) {\r\n    pm.test(\"Rate Limit devuelve HTTP 429\", function () {\r\n        pm.response.to.have.status(429);\r\n    });\r\n\r\n    pm.test(\"El mensaje informa el bloqueo temporal\", function () {\r\n        const respuesta = pm.response.json();\r\n\r\n        pm.expect(respuesta.mensaje).to.eql(\r\n            \"Demasiados intentos fallidos. Por seguridad, inténtelo de nuevo en 15 minutos.\"\r\n        );\r\n    });\r\n}\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "\r\n{\r\n  \"correo\": \"vecino@correo.cl\",\r\n  \"password\": \"contraseña_incorrecta_rate_limit\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Magic Bytes 400",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Magic Bytes responde HTTP 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\npm.test(\"La respuesta es JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"El backend rechaza el archivo falso\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(false);\r\n});\r\n\r\npm.test(\"El mensaje indica que la imagen no es válida\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.eql(\r\n        \"El archivo enviado no corresponde a una imagen real o está dañado\"\r\n    );\r\n});\r\n\r\npm.test(\"El archivo falso no genera un reclamo\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta).to.not.have.property(\"reclamo\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_vecino}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "id_categoria",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "descripcion",
+              "value": "Prueba de seguridad Magic Bytes",
+              "type": "text"
+            },
+            {
+              "key": "ubicacion",
+              "value": "Calle Los Aromos 100",
+              "type": "text"
+            },
+            {
+              "key": "foto",
+              "type": "file",
+              "src": [
+                "/C:/Users/novoy/OneDrive/Desktop/imagen_falsa.jpg"
+              ]
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/reclamos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "reclamos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "XSS 400",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"XSS responde HTTP 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\npm.test(\"La respuesta es JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"El backend rechaza el intento de XSS\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.ok).to.eql(false);\r\n});\r\n\r\npm.test(\"El mensaje indica que no se permiten scripts\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta.mensaje).to.eql(\r\n        \"El nombre no puede contener etiquetas HTML o scripts\"\r\n    );\r\n});\r\n\r\npm.test(\"El intento de XSS no registra un usuario\", function () {\r\n    const respuesta = pm.response.json();\r\n\r\n    pm.expect(respuesta).to.not.have.property(\"usuario\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombre\": \"<script>alert('XSS')</script>\",\r\n  \"correo\": \"prueba.xss@correo.cl\",\r\n  \"password\": \"Prueba123456\",\r\n  \"telefono\": \"912345678\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/registro",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "auth",
+            "registro"
           ]
         }
       },
       "response": []
     }
   ],
-  "variable": []
+  "variable": [
+    {
+      "key": "token_vecino",
+      "secret": true
+    },
+    {
+      "key": "token_admin",
+      "secret": true
+    },
+    {
+      "key": "id_reclamo_prueba",
+      "value": ""
+    },
+    {
+      "key": "id_reclamo_cancelar",
+      "value": ""
+    }
+  ]
 }
