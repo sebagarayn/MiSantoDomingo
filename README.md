@@ -439,6 +439,7 @@ MiSantoDomingo/
 │   │   │   └── VecinoHomePage.tsx  # Portal del vecino (Mis Reclamos / Nuevo)
 │   │   ├── admin/
 │   │   │   ├── AdminHomePage.tsx   # Gestión OIRS tabular y derivación
+│   │   │   ├── CatalogosPage.tsx   # Administración de categorías y unidades (RF-14)
 │   │   │   └── Dashboard.tsx       # Monitor de métricas comunales, KPIs y exportación a CSV y PDF
 │   │   └── NotFoundPage.tsx        # Página de error 404
 │   ├── routes/
@@ -449,6 +450,7 @@ MiSantoDomingo/
 │   │   ├── report.service.ts       # CRUD de reclamos conectados a PostgreSQL
 │   │   ├── notificaciones.service.ts  # Consulta y marcado de notificaciones (/api/notificaciones)
 │   │   ├── avisoLocal.service.ts   # Aviso local: notificación nativa en el celular (Capacitor) y toast en el navegador
+│   │   ├── almacenamiento.service.ts   # Sesión, borrador del formulario y caché sin conexión (@capacitor/preferences)
 │   │   ├── catalogos.service.ts    # Categorías y unidades obtenidas desde la API (sin IDs fijos en el código)
 │   │   └── geocodificacion.service.ts  # Búsqueda de direcciones y coordenadas mediante el backend (servicio externo)
 │   ├── theme/
@@ -460,6 +462,9 @@ MiSantoDomingo/
 │   ├── App.tsx                     # Raíz: IonApp > IonReactRouter > AuthProvider
 │   └── main.tsx                    # Entrada React 18
 ├── index.html                      # Entry point con viewport nativo y favicon
+├── Dockerfile                      # Imagen del frontend (compilación y servidor)
+├── .dockerignore                   # Archivos excluidos de la imagen
+├── nginx.conf                      # Servidor web del contenedor, con rutas de la SPA
 ├── package.json
 └── README.md
 ```
