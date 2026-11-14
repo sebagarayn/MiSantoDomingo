@@ -12,7 +12,6 @@ import { catalogosService } from "./catalogos.service";
 // Raiz del servidor (sin /api), para armar las URLs de las fotos
 const SERVER_URL = API_URL.replace(/\/api\/?$/, "");
 
-
 const normalizarNombre = (nombre: string): string =>
   nombre
     .normalize("NFD")
@@ -49,7 +48,6 @@ const obtenerIdUnidad = async (nombre: string): Promise<number> => {
 
   return unidad.id_unidad;
 };
-
 
 // Convierte el registro de PostgreSQL al formato IReport que espera tu interfaz
 const mapearDesdeDB = (r: any): IReport => {
@@ -128,13 +126,13 @@ class ReportService {
     };
   }
 
-  // 1. Obtener listado de reclamos desde la API
-  public async obtenerReclamos(): Promise<IReport[]> {
-    const data = await apiFetch("/reclamos");
+  // 1. Obtener listado de reclamos desde la API (hasta 100 para bandeja y métricas)
+  public async obtenerReclamos(limite = 100): Promise<IReport[]> {
+    const data = await apiFetch(`/reclamos?limite=${limite}`);
     return data.reclamos.map(mapearDesdeDB);
   }
 
-    // 1b. Igual que obtenerReclamos, pero guarda la ultima lista en el dispositivo y,
+  // 1b. Igual que obtenerReclamos, pero guarda la ultima lista en el dispositivo y,
   // si no hay conexion, entrega esa copia guardada (V3: almacenamiento local)
   public async obtenerReclamosConCache(idUsuario: string): Promise<{
     reclamos: IReport[];
@@ -200,7 +198,6 @@ class ReportService {
     input: ICreateReportInput,
     _creadorId?: string,
   ): Promise<IReport> {
-
     const id_categoria = await obtenerIdCategoria(input.categoria);
 
     // Crear FormData para enviar los datos del reclamo
@@ -230,8 +227,6 @@ class ReportService {
     return mapearDesdeDB(data.reclamo);
   }
 
-
-
   // 4. Derivar o cerrar reclamo (RF-07 y RF-08)
   public async actualizarEstado(
     folio: string,
@@ -241,13 +236,11 @@ class ReportService {
     // 1. Buscamos el id del reclamo por su folio
     const id_reclamo = await this.obtenerIdPorFolio(folio);
 
-    
     let id_unidad_destino: number | undefined;
 
     if (input.unidadAsignada) {
       id_unidad_destino = await obtenerIdUnidad(input.unidadAsignada);
     }
-
 
     // 3. Enviamos el cambio de estado (solo admin)
     await apiFetch(`/reclamos/${id_reclamo}/estado`, {
@@ -305,7 +298,6 @@ class ReportService {
   ): Promise<IReport> {
     const id_reclamo = await this.obtenerIdPorFolio(folio);
     const id_categoria = await obtenerIdCategoria(datos.categoria);
-
 
     await apiFetch(`/reclamos/${id_reclamo}`, {
       method: "PUT",

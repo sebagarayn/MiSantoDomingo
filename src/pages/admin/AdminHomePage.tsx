@@ -51,7 +51,7 @@ const AdminHomePage: React.FC = () => {
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("todos");
   const [filtroUnidad, setFiltroUnidad] = useState("todos");
-  
+
   // Categorias y unidades vienen de la base de datos (el admin las edita en Catalogos)
   const [nombresCategorias, setNombresCategorias] = useState<string[]>([]);
   const [nombresUnidades, setNombresUnidades] = useState<string[]>([]);
@@ -77,7 +77,6 @@ const AdminHomePage: React.FC = () => {
   const [alertaSalirAbierta, setAlertaSalirAbierta] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
 
-  // Leemos todos los reclamos del servicio asincrono apenas arranca la pantalla
   // Estados de la carga inicial: la tabla muestra "cargando", luego los datos o un error con reintento
   const [cargandoInicial, setCargandoInicial] = useState(true);
   const [errorCarga, setErrorCarga] = useState("");
@@ -101,7 +100,7 @@ const AdminHomePage: React.FC = () => {
     }
   };
 
-   useEffect(() => {
+  useEffect(() => {
     cargarDatos();
   }, []);
 
@@ -822,6 +821,42 @@ const AdminHomePage: React.FC = () => {
                           >
                             {reclamoSeleccionado.descripcion}
                           </p>
+
+                          {/* Fotografía adjunta del vecino si existe */}
+                          {reclamoSeleccionado.fotoUrl && (
+                            <div
+                              style={{
+                                marginTop: "12px",
+                                marginBottom: "12px",
+                              }}
+                            >
+                              <small
+                                style={{
+                                  color: "#64748B",
+                                  textTransform: "uppercase",
+                                  fontSize: "11px",
+                                  fontWeight: 700,
+                                  display: "block",
+                                  marginBottom: "6px",
+                                }}
+                              >
+                                Fotografía adjunta
+                              </small>
+                              <img
+                                src={reclamoSeleccionado.fotoUrl}
+                                alt={`Fotografía del reclamo ${reclamoSeleccionado.folio}`}
+                                style={{
+                                  width: "100%",
+                                  maxHeight: "360px",
+                                  objectFit: "contain",
+                                  backgroundColor: "#F1F5F9",
+                                  borderRadius: "10px",
+                                  border: "1px solid #E2E8F0",
+                                  display: "block",
+                                }}
+                              />
+                            </div>
+                          )}
                         </div>
 
                         <div
@@ -1074,25 +1109,25 @@ const AdminHomePage: React.FC = () => {
                     {nombresUnidades
                       .filter((u) => u !== UNIDAD_DE_INGRESO)
                       .map((u) => (
-                      <IonButton  
-                        key={u}
-                        expand="block"
-                        fill={unidadElegida === u ? "solid" : "outline"}
-                        style={{
-                          height: "46px",
-                          fontWeight: 600,
-                          "--background":
-                            unidadElegida === u ? "#0D3B66" : "transparent",
-                          "--color":
-                            unidadElegida === u ? "#FFFFFF" : "#0D3B66",
-                          "--border-color": "#0D3B66",
-                          "--border-radius": "8px",
-                        }}
-                        onClick={() => setUnidadElegida(u)}
-                      >
-                        {u}
-                      </IonButton>
-                    ))}
+                        <IonButton
+                          key={u}
+                          expand="block"
+                          fill={unidadElegida === u ? "solid" : "outline"}
+                          style={{
+                            height: "46px",
+                            fontWeight: 600,
+                            "--background":
+                              unidadElegida === u ? "#0D3B66" : "transparent",
+                            "--color":
+                              unidadElegida === u ? "#FFFFFF" : "#0D3B66",
+                            "--border-color": "#0D3B66",
+                            "--border-radius": "8px",
+                          }}
+                          onClick={() => setUnidadElegida(u)}
+                        >
+                          {u}
+                        </IonButton>
+                      ))}
                   </div>
 
                   <div style={{ display: "flex", gap: "12px" }}>

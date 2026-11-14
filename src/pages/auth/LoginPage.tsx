@@ -154,7 +154,8 @@ const LoginPage: React.FC = () => {
                       background: "#FFFFFF",
                     }}
                   >
-                    <IonInput aria-label="Correo electrónico"
+                    <IonInput
+                      aria-label="Correo electrónico"
                       type="email"
                       value={email}
                       placeholder="ejemplo@correo.cl"
@@ -186,7 +187,8 @@ const LoginPage: React.FC = () => {
                       background: "#FFFFFF",
                     }}
                   >
-                    <IonInput aria-label="Contraseña"
+                    <IonInput
+                      aria-label="Contraseña"
                       type="password"
                       value={password}
                       placeholder="••••••••"
@@ -197,7 +199,7 @@ const LoginPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Enlace provisorio de recuperacion (la logica real queda para la Entrega final) */}
+                {/* Enlace informativo de recuperacion de contraseña */}
                 <div style={{ textAlign: "right", marginBottom: "18px" }}>
                   <button
                     type="button"
@@ -211,8 +213,8 @@ const LoginPage: React.FC = () => {
                       fontWeight: 600,
                     }}
                     onClick={() =>
-                      alert(
-                        "La funcionalidad de recuperación de contraseña mediante correo electrónico estará disponible en la Entrega Final.",
+                      setErrorModal(
+                        "Para restablecer su contraseña, acuda presencialmente a la oficina OIRS Central o escriba a soporte@santodomingo.cl.",
                       )
                     }
                   >
@@ -242,7 +244,6 @@ const LoginPage: React.FC = () => {
                   ) : (
                     "Iniciar Sesion"
                   )}
-                  
                 </IonButton>
 
                 {/* Boton secundario para ir al formulario de registro */}

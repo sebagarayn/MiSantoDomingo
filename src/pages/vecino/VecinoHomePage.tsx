@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef , useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   IonPage,
   IonHeader,
@@ -59,7 +59,10 @@ import {
   guardarJSON,
   leerJSON,
 } from "../../services/almacenamiento.service";
-import { catalogosService, type ICategoria } from "../../services/catalogos.service";
+import {
+  catalogosService,
+  type ICategoria,
+} from "../../services/catalogos.service";
 import { IReport, INotificacion } from "../../types";
 import VecinoSidebar from "../../components/VecinoSidebar";
 import NotificacionesModal from "../../components/NotificacionesModal";
@@ -173,16 +176,13 @@ const VecinoHomePage: React.FC = () => {
   const versionDireccionRef = useRef(0);
   const ultimaSeleccionMapaRef = useRef(0);
 
-
   // Coordenadas seleccionadas en el mapa
   const [latitud, setLatitud] = useState<number | null>(null);
   const [longitud, setLongitud] = useState<number | null>(null);
   const [buscandoDireccion, setBuscandoDireccion] = useState(false);
 
-
   const [foto, setFoto] = useState<File | null>(null);
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
-
 
   // Fecha de la copia guardada cuando no hay conexion ("" = la lista viene del servidor)
   const [avisoSinConexion, setAvisoSinConexion] = useState("");
@@ -205,20 +205,20 @@ const VecinoHomePage: React.FC = () => {
     cargarCategorias();
   }, []);
 
-
-
   // Revisa si la vecina ya escribio algo en el formulario para activar la guardia preventiva
 
   const formularioTieneDatos = Boolean(
     categoria || descripcion.trim() || ubicacion.trim() || foto,
   );
 
-
   // Carga estrictamente los reclamos del vecino conectado para cumplir privacidad (RNF-03)
   const cargarReclamos = async () => {
     try {
-      const { reclamos: data, desdeCache, guardadoEn } =
-        await reportService.obtenerReclamosConCache(user?.id ?? "");
+      const {
+        reclamos: data,
+        desdeCache,
+        guardadoEn,
+      } = await reportService.obtenerReclamosConCache(user?.id ?? "");
       setReclamos(data.filter((r) => r.creadorId === user?.id));
       setAvisoSinConexion(
         desdeCache && guardadoEn
@@ -242,7 +242,6 @@ const VecinoHomePage: React.FC = () => {
     cargarReclamosRef.current = cargarReclamos;
   });
 
-
   // V3 - Borrador: al abrir la pantalla se restaura lo que el vecino habia escrito
   useEffect(() => {
     const idUsuario = user?.id;
@@ -262,7 +261,7 @@ const VecinoHomePage: React.FC = () => {
     setBorradorListo(true);
   }, [user?.id]);
 
-   // V3 - Borrador: se guarda en cada cambio (es un texto chico, no pesa). Asi, si recargan
+  // V3 - Borrador: se guarda en cada cambio (es un texto chico, no pesa). Asi, si recargan
   // con F5 justo despues de escribir, no se pierde nada.
   // Si el formulario queda vacio (porque se envio o se descarto), el borrador se borra.
   useEffect(() => {
@@ -271,9 +270,23 @@ const VecinoHomePage: React.FC = () => {
     if (!categoria && !descripcion.trim() && !ubicacion.trim()) {
       borrar(clave);
     } else {
-      guardarJSON(clave, { categoria, descripcion, ubicacion, latitud, longitud });
+      guardarJSON(clave, {
+        categoria,
+        descripcion,
+        ubicacion,
+        latitud,
+        longitud,
+      });
     }
-  }, [user, borradorListo, categoria, descripcion, ubicacion, latitud, longitud]);
+  }, [
+    user,
+    borradorListo,
+    categoria,
+    descripcion,
+    ubicacion,
+    latitud,
+    longitud,
+  ]);
 
   // Si la persona venia navegando desde otra seccion con ?tab=nuevo, abrimos el formulario de una
   useEffect(() => {
@@ -342,29 +355,26 @@ const VecinoHomePage: React.FC = () => {
         const nuevaLongitud = posicion.coords.longitude;
 
         // Actualiza el mapa y obtiene una dirección aproximada.
-        void handleSeleccionarUbicacionMapa(
-          nuevaLatitud,
-          nuevaLongitud
-        );
+        void handleSeleccionarUbicacionMapa(nuevaLatitud, nuevaLongitud);
       },
       (error) => {
         console.warn("Error al obtener la ubicación:", error);
 
         alert(
-          "No fue posible obtener tu ubicación. Verifica los permisos del navegador o selecciona un punto manualmente en el mapa."
+          "No fue posible obtener tu ubicación. Verifica los permisos del navegador o selecciona un punto manualmente en el mapa.",
         );
       },
       {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
-      }
+      },
     );
   };
 
   const handleSeleccionarUbicacionMapa = async (
     nuevaLatitud: number,
-    nuevaLongitud: number
+    nuevaLongitud: number,
   ) => {
     setLatitud(nuevaLatitud);
     setLongitud(nuevaLongitud);
@@ -375,7 +385,7 @@ const VecinoHomePage: React.FC = () => {
     try {
       const resultado = await obtenerDireccionDesdeCoordenadas(
         nuevaLatitud,
-        nuevaLongitud
+        nuevaLongitud,
       );
 
       // Solo actualiza si el vecino no editó la dirección
@@ -390,7 +400,7 @@ const VecinoHomePage: React.FC = () => {
     } catch (error) {
       console.warn(
         "No fue posible obtener la dirección del punto seleccionado:",
-        error
+        error,
       );
     }
   };
@@ -434,7 +444,6 @@ const VecinoHomePage: React.FC = () => {
     const idUsuario = user?.id;
 
     try {
-      
       const nuevo = await reportService.crearReclamo(
         {
           categoria,
@@ -451,7 +460,7 @@ const VecinoHomePage: React.FC = () => {
 
       if (idUsuario) borrar(CLAVES.borradorReclamo(idUsuario));
 
-      setReclamos((prev) => [nuevo, ...prev]);
+      await cargarReclamos();
       setReclamoCreadoExito(nuevo);
 
       setCategoria("");
@@ -627,42 +636,44 @@ const VecinoHomePage: React.FC = () => {
                 : "Mis Reclamos"}
           </IonTitle>
           <IonButtons slot="end">
-          {/* Contenedor propio: el numero va FUERA del boton para que no lo tape */}
-          <div
-            style={{ position: "relative", display: "flex", alignItems: "center" }}
-          >
-            <IonButton
-              onClick={abrirNotificaciones}
-              color="light"
-              aria-label={`Notificaciones, ${notif.noLeidas} sin leer`}
+            {/* Contenedor propio: el numero va FUERA del boton para que no lo tape */}
+            <div
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+              }}
             >
-              <IonIcon slot="icon-only" icon={notificationsOutline} />
-            </IonButton>
-            {notif.noLeidas > 0 && (
-              <IonBadge
-                color="danger"
-                style={{
-                  position: "absolute",
-                  top: "4px",
-                  right: "2px",
-                  minWidth: "16px",
-                  height: "16px",
-                  padding: "0 4px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "10px",
-                  borderRadius: "8px",
-                  pointerEvents: "none",
-                }}
+              <IonButton
+                onClick={abrirNotificaciones}
+                color="light"
+                aria-label={`Notificaciones, ${notif.noLeidas} sin leer`}
               >
-                {notif.noLeidas > 9 ? "9+" : notif.noLeidas}
-              </IonBadge>
-            )}
-          </div>
-        </IonButtons>
-          
-          
+                <IonIcon slot="icon-only" icon={notificationsOutline} />
+              </IonButton>
+              {notif.noLeidas > 0 && (
+                <IonBadge
+                  color="danger"
+                  style={{
+                    position: "absolute",
+                    top: "4px",
+                    right: "2px",
+                    minWidth: "16px",
+                    height: "16px",
+                    padding: "0 4px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "10px",
+                    borderRadius: "8px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {notif.noLeidas > 9 ? "9+" : notif.noLeidas}
+                </IonBadge>
+              )}
+            </div>
+          </IonButtons>
         </IonToolbar>
         <div
           style={{
@@ -985,14 +996,18 @@ const VecinoHomePage: React.FC = () => {
                               background: "#FFFFFF",
                             }}
                           >
-                            <IonSelect aria-label="Categoría del reclamo"
+                            <IonSelect
+                              aria-label="Categoría del reclamo"
                               value={categoria}
                               placeholder="Seleccionar Categoria..."
                               onIonChange={(e) => setCategoria(e.detail.value)}
                               interface="action-sheet"
                             >
                               {categorias.map((cat) => (
-                                <IonSelectOption key={cat.id_categoria} value={cat.nombre}>
+                                <IonSelectOption
+                                  key={cat.id_categoria}
+                                  value={cat.nombre}
+                                >
                                   {cat.nombre}
                                 </IonSelectOption>
                               ))}
@@ -1037,7 +1052,8 @@ const VecinoHomePage: React.FC = () => {
                               background: "#FFFFFF",
                             }}
                           >
-                            <IonTextarea aria-label="Descripción del reclamo"
+                            <IonTextarea
+                              aria-label="Descripción del reclamo"
                               value={descripcion}
                               rows={5}
                               maxlength={500}
@@ -1070,7 +1086,8 @@ const VecinoHomePage: React.FC = () => {
                               background: "#FFFFFF",
                             }}
                           >
-                            <IonInput aria-label="Ubicación del reclamo"
+                            <IonInput
+                              aria-label="Ubicación del reclamo"
                               value={ubicacion}
                               placeholder="Ej: Av. Arturo Phillips 245, Santo Domingo"
                               onIonInput={(e) => {
@@ -1081,13 +1098,17 @@ const VecinoHomePage: React.FC = () => {
                           </IonItem>
                         </div>
 
-                        <div style={{ marginTop: "10px", marginBottom: "12px" }}>
+                        <div
+                          style={{ marginTop: "10px", marginBottom: "12px" }}
+                        >
                           <button
                             type="button"
                             onClick={handleBuscarDireccion}
                             disabled={buscandoDireccion}
                             style={{
-                              backgroundColor: buscandoDireccion ? "#94A3B8" : "#2563EB",
+                              backgroundColor: buscandoDireccion
+                                ? "#94A3B8"
+                                : "#2563EB",
                               color: "#FFFFFF",
                               border: "none",
                               borderRadius: "8px",
@@ -1096,12 +1117,16 @@ const VecinoHomePage: React.FC = () => {
                               cursor: buscandoDireccion ? "wait" : "pointer",
                             }}
                           >
-                            {buscandoDireccion ? "Buscando dirección..." : "🔍 Buscar dirección"}
+                            {buscandoDireccion
+                              ? "Buscando dirección..."
+                              : "🔍 Buscar dirección"}
                           </button>
                         </div>
 
                         {/* Mapa para seleccionar la ubicación del reclamo */}
-                        <div style={{ marginTop: "16px", marginBottom: "20px" }}>
+                        <div
+                          style={{ marginTop: "16px", marginBottom: "20px" }}
+                        >
                           <p style={{ fontWeight: 600, marginBottom: "8px" }}>
                             Selecciona la ubicación del reclamo en el mapa
                           </p>
@@ -1131,7 +1156,9 @@ const VecinoHomePage: React.FC = () => {
                           <MapaSeleccionUbicacion
                             latitud={latitud}
                             longitud={longitud}
-                            onSeleccionarUbicacion={handleSeleccionarUbicacionMapa}
+                            onSeleccionarUbicacion={
+                              handleSeleccionarUbicacionMapa
+                            }
                           />
 
                           {latitud !== null && longitud !== null && (
@@ -1142,7 +1169,7 @@ const VecinoHomePage: React.FC = () => {
                           )}
                         </div>
 
-                        {/* Adjunto de foto opcional (Queda para EF) */}
+                        {/* Adjunto de foto opcional (RF-01) */}
                         <div style={{ marginBottom: "22px" }}>
                           <span
                             style={{
@@ -1163,7 +1190,8 @@ const VecinoHomePage: React.FC = () => {
                               fontSize: "11px",
                             }}
                           >
-                            Formatos permitidos: JPG, PNG o WebP. Máximo 5 MB (Opcional).
+                            Formatos permitidos: JPG, PNG o WebP. Máximo 5 MB
+                            (Opcional).
                           </small>
 
                           {/* Botón modificado para seleccionar fotografía del reclamo */}
@@ -1178,7 +1206,9 @@ const VecinoHomePage: React.FC = () => {
                               if (!archivo) return;
 
                               if (archivo.size > 5 * 1024 * 1024) {
-                                setToastMsg("La fotografía no puede superar los 5 MB.");
+                                setToastMsg(
+                                  "La fotografía no puede superar los 5 MB.",
+                                );
                                 e.target.value = "";
                                 setFoto(null);
                                 return;
@@ -1198,7 +1228,9 @@ const VecinoHomePage: React.FC = () => {
                               "--border-radius": "8px",
                               fontSize: "13px",
                             }}
-                            onClick={() => document.getElementById("foto-reclamo")?.click()}
+                            onClick={() =>
+                              document.getElementById("foto-reclamo")?.click()
+                            }
                           >
                             <IonIcon slot="start" icon={cameraOutline} />
                             Seleccionar fotografía
@@ -1209,7 +1241,6 @@ const VecinoHomePage: React.FC = () => {
                               Fotografía seleccionada: {foto.name}
                             </p>
                           )}
-
                         </div>
 
                         {/* Boton principal para enviar el reclamo */}
@@ -1370,7 +1401,10 @@ const VecinoHomePage: React.FC = () => {
                           background: "#FFFFFF",
                         }}
                       >
-                        <IonSearchbar ref={(el) => etiquetarBuscador(el, "Folio del reclamo")}
+                        <IonSearchbar
+                          ref={(el) =>
+                            etiquetarBuscador(el, "Folio del reclamo")
+                          }
                           value={folioConsulta}
                           onIonInput={(e) => setFolioConsulta(e.detail.value!)}
                           placeholder="Ej: SD-2026-000042"
@@ -1532,7 +1566,12 @@ const VecinoHomePage: React.FC = () => {
                         {/* Mapa de ubicación del reclamo consultado por folio */}
                         {reporteConsulta.latitud != null &&
                           reporteConsulta.longitud != null && (
-                            <div style={{ marginTop: "12px", marginBottom: "12px" }}>
+                            <div
+                              style={{
+                                marginTop: "12px",
+                                marginBottom: "12px",
+                              }}
+                            >
                               <MapaSeleccionUbicacion
                                 latitud={reporteConsulta.latitud}
                                 longitud={reporteConsulta.longitud}
@@ -1602,6 +1641,39 @@ const VecinoHomePage: React.FC = () => {
                           {reporteConsulta.descripcion}
                         </p>
                       </div>
+
+                      {/* Fotografía adjunta del reclamo si existe */}
+                      {reporteConsulta.fotoUrl && (
+                        <div style={{ marginBottom: "16px" }}>
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              color: "#64748B",
+                              textTransform: "uppercase",
+                              display: "block",
+                              marginBottom: "6px",
+                            }}
+                          >
+                            Fotografía adjunta:
+                          </span>
+                          <img
+                            src={reporteConsulta.fotoUrl}
+                            alt={`Fotografía del reclamo ${reporteConsulta.folio}`}
+                            style={{
+                              width: "100%",
+                              maxHeight: "360px",
+                              objectFit: "contain",
+                              backgroundColor: "#F1F5F9",
+                              borderRadius: "10px",
+                              border: "1px solid #E2E8F0",
+                              display: "block",
+                            }}
+                          />
+                        </div>
+                      )}
+
+                      {/* Plazo legal de 20 dias (RF-04) */}
 
                       {/* Plazo legal de 20 dias (RF-04) */}
                       {reporteConsulta.estado !== "Resuelto" && (
@@ -1826,7 +1898,6 @@ const VecinoHomePage: React.FC = () => {
           onReintentar={notif.recargar}
         />
 
-           
         {/* MODAL: DETALLE COMPLETO AL TOCAR UNA TARJETA EN MIS RECLAMOS */}
         <IonModal
           isOpen={!!reclamoDetalle}
@@ -1953,7 +2024,9 @@ const VecinoHomePage: React.FC = () => {
                       {/* Mapa de ubicación del reclamo en modo solo lectura */}
                       {reclamoDetalle.latitud != null &&
                         reclamoDetalle.longitud != null && (
-                          <div style={{ marginTop: "12px", marginBottom: "12px" }}>
+                          <div
+                            style={{ marginTop: "12px", marginBottom: "12px" }}
+                          >
                             <MapaSeleccionUbicacion
                               latitud={reclamoDetalle.latitud}
                               longitud={reclamoDetalle.longitud}
@@ -2022,6 +2095,36 @@ const VecinoHomePage: React.FC = () => {
                         {reclamoDetalle.descripcion}
                       </p>
                     </div>
+
+                    {/* Fotografía adjunta del reclamo si existe */}
+                    {reclamoDetalle.fotoUrl && (
+                      <div style={{ marginBottom: "14px" }}>
+                        <strong
+                          style={{
+                            fontSize: "11px",
+                            color: "#64748B",
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          Fotografía adjunta:
+                        </strong>
+                        <img
+                          src={reclamoDetalle.fotoUrl}
+                          alt={`Fotografía del reclamo ${reclamoDetalle.folio}`}
+                          style={{
+                            width: "100%",
+                            maxHeight: "360px",
+                            objectFit: "contain",
+                            backgroundColor: "#F1F5F9",
+                            borderRadius: "10px",
+                            border: "1px solid #E2E8F0",
+                            display: "block",
+                          }}
+                        />
+                      </div>
+                    )}
 
                     {reclamoDetalle.estado !== "Resuelto" && (
                       <div
@@ -2334,7 +2437,8 @@ const VecinoHomePage: React.FC = () => {
                             background: "#FFFFFF",
                           }}
                         >
-                          <IonInput aria-label="Ubicación del reclamo"
+                          <IonInput
+                            aria-label="Ubicación del reclamo"
                             value={editUbicacion}
                             onIonInput={(e) =>
                               setEditUbicacion(e.detail.value!)
@@ -2361,7 +2465,8 @@ const VecinoHomePage: React.FC = () => {
                             background: "#FFFFFF",
                           }}
                         >
-                          <IonTextarea aria-label="Descripción del reclamo"
+                          <IonTextarea
+                            aria-label="Descripción del reclamo"
                             rows={3}
                             value={editDescripcion}
                             onIonInput={(e) =>

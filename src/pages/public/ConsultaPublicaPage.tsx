@@ -49,6 +49,7 @@ import { useHistory } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { etiquetarBuscador } from "../../utils/accesibilidad";
 import { CLAVES, leer } from "../../services/almacenamiento.service";
+import MapaSeleccionUbicacion from "../../components/MapaSeleccionUbicacion";
 
 const ConsultaPublicaPage: React.FC = () => {
   const history = useHistory();
@@ -78,15 +79,26 @@ const ConsultaPublicaPage: React.FC = () => {
 
     setLoading(true);
     setSearched(true);
-    const resultado = await reportService.obtenerReclamoPorFolio(folioInput);
-    setReport(resultado);
+    try {
+      const resultado = await reportService.obtenerReclamoPorFolio(folioInput);
+      setReport(resultado);
 
-    if (resultado && resultado.calificacion) {
-      setCalificacionTemp(resultado.calificacion);
-    } else {
-      setCalificacionTemp(0);
+      if (resultado && resultado.calificacion) {
+        setCalificacionTemp(resultado.calificacion);
+      } else {
+        setCalificacionTemp(0);
+      }
+    } catch (error: unknown) {
+      setReport(null);
+      setSearched(false);
+      setToastMsg(
+        error instanceof Error
+          ? error.message
+          : "No se pudo conectar con el servidor para consultar el folio.",
+      );
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // Envia la calificacion de 1 a 5 estrellas protegiendo contra usuarios sin sesion
@@ -114,24 +126,29 @@ const ConsultaPublicaPage: React.FC = () => {
         report.folio,
       );
       setReport(actualizado);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setToastMsg(
-        error.message ||
-          "No tienes permiso para calificar este reclamo (debes ser el creador).",
+        error instanceof Error
+          ? error.message
+          : "No tienes permiso para calificar este reclamo (debes ser el creador).",
       );
     }
   };
 
   // Asigna los colores limpios de la paleta segun el estado del reclamo
   const getBadgeStyle = (estado: string) => {
-    switch (estado) {
-      case "Resuelto":
+    const est = (estado || "").toLowerCase().trim();
+    switch (est) {
+      case "resuelto":
         return { background: "#DCFCE7", color: "#15803D" };
-      case "Derivado":
+      case "rechazado":
+        return { background: "#FEE2E2", color: "#DC2626" };
+      case "derivado":
         return { background: "#E0F2FE", color: "#0369A1" };
-      case "En Revisión":
+      case "en revisión":
+      case "en revision":
         return { background: "#F1F5F9", color: "#334155" };
-      case "Pendiente":
+      case "pendiente":
       default:
         return { background: "#FEF3C7", color: "#B45309" };
     }
@@ -258,7 +275,8 @@ const ConsultaPublicaPage: React.FC = () => {
                     background: "#FFFFFF",
                   }}
                 >
-                  <IonSearchbar ref={(el) => etiquetarBuscador(el, "Folio del reclamo")}
+                  <IonSearchbar
+                    ref={(el) => etiquetarBuscador(el, "Folio del reclamo")}
                     value={folioInput}
                     onIonInput={(e) => setFolioInput(e.detail.value!)}
                     placeholder="SD-2026-XXXXXX"
@@ -409,6 +427,18 @@ const ConsultaPublicaPage: React.FC = () => {
                       <strong>Ubicación:</strong> {report.ubicacion}
                     </span>
                   </div>
+
+                  {/* Mapa en solo lectura si tiene coordenadas */}
+                  {report.latitud != null && report.longitud != null && (
+                    <div style={{ marginTop: "8px", marginBottom: "8px" }}>
+                      <MapaSeleccionUbicacion
+                        latitud={report.latitud}
+                        longitud={report.longitud}
+                        soloLectura={true}
+                      />
+                    </div>
+                  )}
+
                   <div
                     style={{
                       display: "flex",
@@ -466,64 +496,97 @@ const ConsultaPublicaPage: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Plazo legal de 20 dias corridos segun el RF-04 */}
-                {report.estado !== "Resuelto" && (
-                  <div
-                    style={{
-                      background: reportService.calcularDiasRestantes(
-                        report.fechaIngreso,
-                      ).vencido
-                        ? "#FEF2F2"
-                        : "#F0F9FF",
-                      borderLeft: `4px solid ${
-                        reportService.calcularDiasRestantes(report.fechaIngreso)
-                          .vencido
-                          ? "#EF4444"
-                          : "#0284C7"
-                      }`,
-                      padding: "12px",
-                      borderRadius: "0 8px 8px 0",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                      marginBottom: "16px",
-                    }}
-                  >
-                    <IonIcon
-                      icon={timeOutline}
+                {/* Fotografia adjunta del reclamo si existe */}
+                {report.fotoUrl && (
+                  <div style={{ marginBottom: "16px" }}>
+                    <span
                       style={{
-                        fontSize: "22px",
-                        color: reportService.calcularDiasRestantes(
-                          report.fechaIngreso,
-                        ).vencido
-                          ? "#EF4444"
-                          : "#0284C7",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        color: "#64748B",
+                        textTransform: "uppercase",
+                        display: "block",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      Fotografía adjunta
+                    </span>
+                    <img
+                      src={report.fotoUrl}
+                      alt={`Fotografía del reclamo ${report.folio}`}
+                      style={{
+                        width: "100%",
+                        maxHeight: "360px",
+                        objectFit: "contain",
+                        backgroundColor: "#F1F5F9",
+                        borderRadius: "10px",
+                        border: "1px solid #E2E8F0",
+                        display: "block",
                       }}
                     />
-                    <div>
-                      <strong style={{ fontSize: "13px", color: "#0F172A" }}>
-                        Plazo de respuesta legal:
-                      </strong>
-                      <p
-                        style={{
-                          margin: "2px 0 0 0",
-                          fontSize: "13px",
-                          color: "#475569",
-                        }}
-                      >
-                        {
-                          reportService.calcularDiasRestantes(
-                            report.fechaIngreso,
-                          ).diasRestantes
-                        }{" "}
-                        días restantes (de 20 días corridos)
-                        {reportService.calcularDiasRestantes(
-                          report.fechaIngreso,
-                        ).vencido && " — Plazo legal vencido"}
-                      </p>
-                    </div>
                   </div>
                 )}
+
+                {/* Plazo legal de 20 dias corridos segun el RF-04 */}
+                {report.estado !== "Resuelto" &&
+                  report.estado !== "Rechazado" && (
+                    <div
+                      style={{
+                        background: reportService.calcularDiasRestantes(
+                          report.fechaIngreso,
+                        ).vencido
+                          ? "#FEF2F2"
+                          : "#F0F9FF",
+                        borderLeft: `4px solid ${
+                          reportService.calcularDiasRestantes(
+                            report.fechaIngreso,
+                          ).vencido
+                            ? "#EF4444"
+                            : "#0284C7"
+                        }`,
+                        padding: "12px",
+                        borderRadius: "0 8px 8px 0",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      <IonIcon
+                        icon={timeOutline}
+                        style={{
+                          fontSize: "22px",
+                          color: reportService.calcularDiasRestantes(
+                            report.fechaIngreso,
+                          ).vencido
+                            ? "#EF4444"
+                            : "#0284C7",
+                        }}
+                      />
+                      <div>
+                        <strong style={{ fontSize: "13px", color: "#0F172A" }}>
+                          Plazo de respuesta legal:
+                        </strong>
+                        <p
+                          style={{
+                            margin: "2px 0 0 0",
+                            fontSize: "13px",
+                            color: "#475569",
+                          }}
+                        >
+                          {
+                            reportService.calcularDiasRestantes(
+                              report.fechaIngreso,
+                            ).diasRestantes
+                          }{" "}
+                          días restantes (de 20 días corridos)
+                          {reportService.calcularDiasRestantes(
+                            report.fechaIngreso,
+                          ).vencido && " — Plazo legal vencido"}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                 {/* Respuesta oficial de la municipalidad si ya fue resuelto */}
                 {report.respuestaFormal && (

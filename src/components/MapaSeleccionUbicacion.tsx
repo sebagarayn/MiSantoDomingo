@@ -24,39 +24,27 @@ const iconoMarcador = L.icon({
   shadowSize: [41, 41],
 });
 
-
 interface MapaSeleccionUbicacionProps {
   latitud: number | null;
   longitud: number | null;
-  onSeleccionarUbicacion?: (
-    latitud: number,
-    longitud: number
-  ) => void;
+  onSeleccionarUbicacion?: (latitud: number, longitud: number) => void;
   soloLectura?: boolean;
 }
-
 
 // Detecta cuando el usuario hace clic en el mapa
 const SelectorUbicacion = ({
   onSeleccionarUbicacion,
 }: {
-  onSeleccionarUbicacion?: (
-    latitud: number,
-    longitud: number
-  ) => void;
+  onSeleccionarUbicacion?: (latitud: number, longitud: number) => void;
 }) => {
   useMapEvents({
     click(evento) {
-      onSeleccionarUbicacion?.(
-        evento.latlng.lat,
-        evento.latlng.lng
-      );
+      onSeleccionarUbicacion?.(evento.latlng.lat, evento.latlng.lng);
     },
   });
 
   return null;
 };
-
 
 const CentrarMapa = ({
   latitud,
@@ -68,9 +56,31 @@ const CentrarMapa = ({
   const mapa = useMap();
 
   useEffect(() => {
-    if (latitud !== null && longitud !== null) {
-      mapa.setView([latitud, longitud], 16);
+    // Recalcula las dimensiones del mapa dentro de Ionic (IonContent / IonModal)
+    const actualizarVista = () => {
+      mapa.invalidateSize();
+      if (latitud !== null && longitud !== null) {
+        mapa.setView([latitud, longitud], 16);
+      }
+    };
+
+    actualizarVista();
+    const t1 = setTimeout(actualizarVista, 150);
+    const t2 = setTimeout(actualizarVista, 450);
+
+    let observer: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(() => {
+        actualizarVista();
+      });
+      observer.observe(mapa.getContainer());
     }
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      observer?.disconnect();
+    };
   }, [latitud, longitud, mapa]);
 
   return null;
@@ -95,6 +105,8 @@ const MapaSeleccionUbicacion = ({
         borderRadius: "10px",
         overflow: "hidden",
         border: "1px solid #CBD5E1",
+        position: "relative",
+        zIndex: 0,
       }}
     >
       <MapContainer
@@ -111,16 +123,11 @@ const MapaSeleccionUbicacion = ({
         <CentrarMapa latitud={latitud} longitud={longitud} />
 
         {!soloLectura && (
-          <SelectorUbicacion
-            onSeleccionarUbicacion={onSeleccionarUbicacion}
-          />
+          <SelectorUbicacion onSeleccionarUbicacion={onSeleccionarUbicacion} />
         )}
 
         {tieneUbicacion && (
-          <Marker
-            position={[latitud, longitud]}
-            icon={iconoMarcador}
-          />
+          <Marker position={[latitud, longitud]} icon={iconoMarcador} />
         )}
       </MapContainer>
     </div>

@@ -227,6 +227,33 @@ const Dashboard: React.FC = () => {
   const tasaResolucion =
     totalIngresados > 0 ? Math.round((resueltos / totalIngresados) * 100) : 0;
 
+  // Calcula el tiempo promedio real en días desde ingreso hasta cierre formal
+  const reclamosResueltosLista = reclamosFiltrados.filter(
+    (r) => r.estado === "Resuelto",
+  );
+
+  const diasDeRespuesta = reclamosResueltosLista
+    .map((r) => {
+      const eventoCierre = [...r.historial]
+        .reverse()
+        .find((h) => h.estado === "Resuelto");
+      if (!eventoCierre) return null;
+      const msInicio = new Date(r.fechaIngreso).getTime();
+      const msFin = new Date(eventoCierre.fecha).getTime();
+      return Math.max(0, (msFin - msInicio) / (1000 * 60 * 60 * 24));
+    })
+    .filter((d): d is number => d !== null);
+
+  const promedioRespuesta =
+    diasDeRespuesta.length > 0
+      ? Number(
+          (
+            diasDeRespuesta.reduce((acc, d) => acc + d, 0) /
+            diasDeRespuesta.length
+          ).toFixed(1),
+        )
+      : null;
+
   // Agrupamos el conteo por categoria para dibujar las barras del grafico segun el periodo
   const categoriasConteo: { [key: string]: number } = {};
   reclamosFiltrados.forEach((r) => {
@@ -386,7 +413,9 @@ const Dashboard: React.FC = () => {
                 <IonButton
                   size="small"
                   onClick={exportarPDF}
-                  disabled={cargando || exportandoPDF || reclamosFiltrados.length === 0}
+                  disabled={
+                    cargando || exportandoPDF || reclamosFiltrados.length === 0
+                  }
                   aria-label="Exportar reporte de métricas en formato PDF"
                   style={{
                     "--background": "#0D3B66",
@@ -574,9 +603,7 @@ const Dashboard: React.FC = () => {
                             {totalIngresados}
                           </IonCardTitle>
                         </IonCardHeader>
-                        <IonCardContent
-                          style={{ padding: "0 16px 16px 16px" }}
-                        >
+                        <IonCardContent style={{ padding: "0 16px 16px 16px" }}>
                           <div
                             style={{
                               display: "flex",
@@ -596,7 +623,7 @@ const Dashboard: React.FC = () => {
                       </IonCard>
                     </IonCol>
 
-                    {/* KPI 2: Tiempo promedio de respuesta municipal */}
+                    {/* KPI 2: Tiempo promedio real de respuesta municipal */}
                     <IonCol size="12" sizeMd="4">
                       <IonCard
                         style={{
@@ -628,24 +655,35 @@ const Dashboard: React.FC = () => {
                               margin: "4px 0 0 0",
                             }}
                           >
-                            7 dias
+                            {promedioRespuesta === null
+                              ? "—"
+                              : `${promedioRespuesta} ${promedioRespuesta === 1 ? "día" : "días"}`}
                           </IonCardTitle>
                         </IonCardHeader>
-                        <IonCardContent
-                          style={{ padding: "0 16px 16px 16px" }}
-                        >
+                        <IonCardContent style={{ padding: "0 16px 16px 16px" }}>
                           <div
                             style={{
                               display: "flex",
                               alignItems: "center",
                               gap: "6px",
-                              color: "#15803D",
+                              color:
+                                promedioRespuesta === null
+                                  ? "#64748B"
+                                  : promedioRespuesta <= 20
+                                    ? "#15803D"
+                                    : "#DC2626",
                               fontSize: "13px",
                               fontWeight: 600,
                             }}
                           >
                             <IonIcon icon={timeOutline} />
-                            <span>Cumple estandar legal de 20 dias</span>
+                            <span>
+                              {promedioRespuesta === null
+                                ? "Sin casos resueltos en el período"
+                                : promedioRespuesta <= 20
+                                  ? "Cumple estándar legal de 20 días"
+                                  : "Supera estándar legal de 20 días"}
+                            </span>
                           </div>
                         </IonCardContent>
                       </IonCard>
@@ -686,9 +724,7 @@ const Dashboard: React.FC = () => {
                             {vencidos}
                           </IonCardTitle>
                         </IonCardHeader>
-                        <IonCardContent
-                          style={{ padding: "0 16px 16px 16px" }}
-                        >
+                        <IonCardContent style={{ padding: "0 16px 16px 16px" }}>
                           <div
                             style={{
                               display: "flex",
@@ -819,8 +855,7 @@ const Dashboard: React.FC = () => {
                                   height: `${alturaPx}px`,
                                   backgroundColor: "#0D3B66",
                                   borderRadius: "4px 4px 0 0",
-                                  boxShadow:
-                                    "0 2px 4px rgba(13, 59, 102, 0.2)",
+                                  boxShadow: "0 2px 4px rgba(13, 59, 102, 0.2)",
                                 }}
                               />
                             </div>
