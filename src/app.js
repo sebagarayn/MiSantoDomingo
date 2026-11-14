@@ -21,7 +21,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Seguridad mediante cabeceras HTTP (visto en clases de Seguridad)
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 
 app.use(compression());
 
