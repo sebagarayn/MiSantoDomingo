@@ -372,13 +372,12 @@ flowchart TD
 - Enrutamiento: React Router v5 (react-router-dom 5.3.4) con Switch, Route y Redirect
 - Herramienta de Compilación: Vite 5 (@vitejs/plugin-react)
 - Iconografía: Ionicons 7
-- Almacenamiento y Estado: Context API de React con persistencia sincronizada en localStorage
+- Almacenamiento y Estado: Context API de React; la sesión, el borrador automático del formulario de reclamo y la caché sin conexión se guardan con `@capacitor/preferences`
 - Control de Versiones: Git y GitHub
 - Leaflet y react-leaflet (mapa de ubicación).
 - OpenStreetMap Nominatim (geocodificación, servicio externo).
 - @capacitor/local-notifications (avisos locales).
 - jsPDF y html2canvas (exportación a PDF).
-- @capacitor/preferences.
 ### 8.1. Servicio externo: geocodificación con OpenStreetMap (Nominatim)
 
 **Por qué.** Un reclamo municipal depende de saber con exactitud dónde ocurre el problema, y una ubicación escrita a mano es ambigua ("frente a la plaza", "cerca del colegio"). La integración permite al vecino marcar el punto en un mapa y obtener la dirección, o escribir una dirección y ver dónde queda. Con las coordenadas, el funcionario ve el punto exacto en el detalle del reclamo.
