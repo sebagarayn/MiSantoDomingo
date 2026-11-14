@@ -86,7 +86,7 @@ Si este problema no se aborda, las consecuencias esperables son: abandono del pr
 
 Dado que el grupo etario predominante y de mayor crecimiento en la comuna corresponde a adultos medios y adultos mayores, la solución debe diseñarse pensando prioritariamente en este perfil de usuario —y no en un usuario joven "digital nativo"— sin dejar de lado al funcionario municipal que gestiona la contraparte del proceso.
 
-Fuentes: [BCN – Reporte comunal Santo Domingo 2026](https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606)
+Fuentes: [BCN – Reporte comunal Santo Domingo 2026](https://www.bcn.cl/siit/reportescomunales/comunas_v.html?anno=2026&idcom=5606) y [BCN – Ley N° 19.880 sobre Bases de los Procedimientos Administrativos (Art. 27: plazo máximo legal de 20 días)](https://www.bcn.cl/leychile/navegar?idNorma=210676).
 
 ### 3.3. Objetivos del proyecto
 
@@ -229,29 +229,29 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 ### 5.3. Justificación del formulario de registro
 
 Se solicita nombre y correo para la identificación única del vecino y futura recuperación de clave.El teléfono se incluye como campo opcional para facilitar el contacto de las cuadrillas municipales en terreno. Las notificaciones de cambio de estado se entregan dentro de la aplicación, por lo que no dependen de este dato. Se evita solicitar datos sensibles como RUT o dirección exacta en el registro para respetar la privacidad y minimizar la fricción de ingreso (RNF-01).
+
 ### 5.4. Matriz de trazabilidad
 
 Cada requerimiento funcional se asocia con la pantalla que lo implementa, el endpoint de la API que lo sostiene y la prueba que permite verificarlo. Las pruebas de API están en la colección de Postman (`backend/pruebas/MiSantoDomingo.postman_collection.json`, 33 peticiones con aserciones sobre el código HTTP y el cuerpo de la respuesta); se indica el número de cada petición dentro de la colección. Las marcadas como «manual» se verifican en la interfaz, porque su lógica se ejecuta en el navegador y no tiene un endpoint propio.
 
-| RF | Pantalla o componente | Endpoint | Prueba |
-| :-- | :-- | :-- | :-- |
-| RF-01 Ingreso de Reclamo | `VecinoHomePage` (vista Nuevo) | `POST /api/reclamos` | Postman #12 «Crear reclamo» y #18 «Magic Bytes 400» (rechaza una imagen falsa) |
-| RF-02 Folio Único | `VecinoHomePage` (pantalla de confirmación) | Lo genera `POST /api/reclamos` | Postman #12 «Crear reclamo» (verifica que la respuesta traiga ID y folio) |
-| RF-03 Consulta Pública por Folio | `ConsultaPublicaPage` y vista Consulta del vecino | `GET /api/reclamos/folio/:folio` | Postman #20 «Consultar folio existente» y #8 «Folio inexistente» (404) |
-| RF-04 Cálculo de Plazo Legal | Tarjetas de `VecinoHomePage` y `AdminHomePage` | Se calcula en el frontend con la fecha de ingreso | Manual: la tarjeta muestra los días restantes y se pone en alerta al vencer |
-| RF-05 Trazabilidad Histórica | Modal de detalle de `VecinoHomePage` y `AdminHomePage` | `GET /api/reclamos/:id` (incluye el historial) | Postman #21 «Detalle de reclamo» |
-| RF-06 Bandeja Filtrable de Reclamos | `AdminHomePage` | `GET /api/reclamos` con filtros | Postman #5 «Listar reclamos con token» y #22 «Listar reclamos con filtros» |
-| RF-07 Derivación entre Unidades | `AdminHomePage` | `PATCH /api/reclamos/:id/estado` | Postman #13 «Derivar reclamo como admin» y #9 «Cambio de estado sin ser admin» (403) |
-| RF-08 Cierre Formal con Respuesta | `AdminHomePage` | `PATCH /api/reclamos/:id/estado` | Postman #23 «Resolver reclamo como admin» |
-| RF-09 Calificación Ciudadana Única | `ConsultaPublicaPage` y `VecinoHomePage` | `POST /api/reclamos/:id/calificacion` | Postman #24 «Calificar reclamo resuelto» y #25 «Calificar dos veces» (409) |
-| RF-10 Dashboard de Indicadores KPI | `Dashboard` | `GET /api/reclamos` | Manual: las tarjetas y el gráfico coinciden con los reclamos cargados |
-| RF-11 Exportación de Reportes | `Dashboard` | No tiene (se genera en el navegador) | Manual: abrir el CSV en Excel y revisar el PDF generado |
-| RF-12 Notificaciones al Vecino | `NotificacionesModal`, campana del encabezado y `VecinoSidebar` | `GET /api/notificaciones`, `PATCH /api/notificaciones/:id/leida`, `PATCH /api/notificaciones/leer-todas` | Postman #26 «Listar notificaciones», #27 «Marcar notificación como leída» y #28 «Marcar todas como leídas» |
-| RF-13 Ubicación Georreferenciada | `MapaSeleccionUbicacion` en `VecinoHomePage` y en los detalles | `GET /api/geocodificar`, `GET /api/geocodificar/inversa` | Postman #29 «Geocodificar dirección» y #30 «Geocodificar inversa»; automática: `geocodificacion.service.test.ts` |
-| RF-14 Administración de Catálogos | `CatalogosPage` (`/admin/catalogos`) | `POST`, `PUT` y `DELETE` en `/api/categorias` y `/api/unidades` | Postman #31 «Crear categoría», #32 «Editar categoría» y #33 «Eliminar categoría en uso» (409) |
+| RF                                            | Pantalla o componente                                           | Endpoint                                                                                                 | Prueba                                                                                                                  |
+| :-------------------------------------------- | :-------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------- |
+| RF-01 Ingreso, Edición y Anulación de Reclamo | `VecinoHomePage` (vista Nuevo y modal Detalle)                  | `POST /api/reclamos`, `PUT /api/reclamos/:id` y `DELETE /api/reclamos/:id`                               | Postman #12 «Crear reclamo», #16 «Actualizar reclamo», #14 «Cancelar reclamo propio», #15 (404) y #18 «Magic Bytes 400» |
+| RF-02 Folio Único                             | `VecinoHomePage` (pantalla de confirmación)                     | Lo genera `POST /api/reclamos`                                                                           | Postman #12 «Crear reclamo» (verifica que la respuesta traiga ID y folio)                                               |
+| RF-03 Consulta Pública por Folio              | `ConsultaPublicaPage` y vista Consulta del vecino               | `GET /api/reclamos/folio/:folio`                                                                         | Postman #20 «Consultar folio existente» y #8 «Folio inexistente» (404)                                                  |
+| RF-04 Cálculo de Plazo Legal                  | Tarjetas de `VecinoHomePage` y `AdminHomePage`                  | Se calcula en el frontend con la fecha de ingreso                                                        | Manual: la tarjeta muestra los días restantes y se pone en alerta al vencer                                             |
+| RF-05 Trazabilidad Histórica                  | Modal de detalle de `VecinoHomePage` y `AdminHomePage`          | `GET /api/reclamos/:id` (incluye el historial)                                                           | Postman #21 «Detalle de reclamo»                                                                                        |
+| RF-06 Bandeja Filtrable de Reclamos           | `AdminHomePage`                                                 | `GET /api/reclamos` con filtros                                                                          | Postman #5 «Listar reclamos con token» y #22 «Listar reclamos con filtros»                                              |
+| RF-07 Derivación entre Unidades               | `AdminHomePage`                                                 | `PATCH /api/reclamos/:id/estado`                                                                         | Postman #13 «Derivar reclamo como admin» y #9 «Cambio de estado sin ser admin» (403)                                    |
+| RF-08 Cierre Formal con Respuesta             | `AdminHomePage`                                                 | `PATCH /api/reclamos/:id/estado`                                                                         | Postman #23 «Resolver reclamo como admin»                                                                               |
+| RF-09 Calificación Ciudadana Única            | `ConsultaPublicaPage` y `VecinoHomePage`                        | `POST /api/reclamos/:id/calificacion`                                                                    | Postman #24 «Calificar reclamo resuelto» y #25 «Calificar dos veces» (409)                                              |
+| RF-10 Dashboard de Indicadores KPI            | `Dashboard`                                                     | `GET /api/reclamos`                                                                                      | Manual: las tarjetas y el gráfico coinciden con los reclamos cargados                                                   |
+| RF-11 Exportación de Reportes                 | `Dashboard`                                                     | No tiene (se genera en el navegador)                                                                     | Manual: abrir el CSV en Excel y revisar el PDF generado                                                                 |
+| RF-12 Notificaciones al Vecino                | `NotificacionesModal`, campana del encabezado y `VecinoSidebar` | `GET /api/notificaciones`, `PATCH /api/notificaciones/:id/leida`, `PATCH /api/notificaciones/leer-todas` | Postman #26 «Listar notificaciones», #27 «Marcar notificación como leída» y #28 «Marcar todas como leídas»              |
+| RF-13 Ubicación Georreferenciada              | `MapaSeleccionUbicacion` en `VecinoHomePage` y en los detalles  | `GET /api/geocodificar`, `GET /api/geocodificar/inversa`                                                 | Postman #29 «Geocodificar dirección» y #30 «Geocodificar inversa»; automática: `geocodificacion.service.test.ts`        |
+| RF-14 Administración de Catálogos             | `CatalogosPage` (`/admin/catalogos`)                            | `POST`, `PUT` y `DELETE` en `/api/categorias` y `/api/unidades`                                          | Postman #31 «Crear categoría», #32 «Editar categoría» y #33 «Eliminar categoría en uso» (409)                           |
 
-**Pruebas automáticas.** Además de Postman, el proyecto incluye pruebas unitarias: `ProtectedRoute.test.tsx` (guardia de rutas por sesión y rol), `geocodificacion.service.test.ts` (servicio de geocodificación) y `tests/app.test.js` en el backend.
----
+## **Pruebas automáticas.** Además de Postman, el proyecto incluye pruebas unitarias: `ProtectedRoute.test.tsx` (guardia de rutas por sesión y rol), `geocodificacion.service.test.ts` (servicio de geocodificación) y `tests/app.test.js` en el backend.
 
 ## 6. Arquitectura de navegación y experiencia de usuario
 
@@ -297,7 +297,7 @@ flowchart TD
 
 - /admin/inicio: Bandeja central tabular de solicitudes con filtros y acciones de derivación y cierre formal.
 - /admin/dashboard: Monitor de indicadores de gestión comunal y métricas de rendimiento.
--  /admin/catalogos: Administración de categorías y unidades municipales (RF-14).
+- /admin/catalogos: Administración de categorías y unidades municipales (RF-14).
 
 #### Matriz de Acceso por Rol
 
@@ -385,6 +385,7 @@ flowchart TD
 - OpenStreetMap Nominatim (geocodificación, servicio externo).
 - @capacitor/local-notifications (avisos locales).
 - jsPDF y html2canvas (exportación a PDF).
+
 ### 8.1. Servicio externo: geocodificación con OpenStreetMap (Nominatim)
 
 **Por qué.** Un reclamo municipal depende de saber con exactitud dónde ocurre el problema, y una ubicación escrita a mano es ambigua ("frente a la plaza", "cerca del colegio"). La integración permite al vecino marcar el punto en un mapa y obtener la dirección, o escribir una dirección y ver dónde queda. Con las coordenadas, el funcionario ve el punto exacto en el detalle del reclamo.
@@ -398,12 +399,12 @@ flowchart TD
 
 **Cómo.** El frontend no llama directamente a Nominatim: consulta dos endpoints del backend, que a su vez consultan el servicio. Así la configuración queda en el servidor y los errores se controlan en un solo lugar.
 
-| Endpoint | Para qué | Respuesta |
-| :-- | :-- | :-- |
-| `GET /api/geocodificar?q=<dirección>` | De dirección a coordenadas | `{ ok, ubicacion: { latitud, longitud, direccion } }` |
+| Endpoint                                            | Para qué                              | Respuesta                                             |
+| :-------------------------------------------------- | :------------------------------------ | :---------------------------------------------------- |
+| `GET /api/geocodificar?q=<dirección>`               | De dirección a coordenadas            | `{ ok, ubicacion: { latitud, longitud, direccion } }` |
 | `GET /api/geocodificar/inversa?lat=<lat>&lng=<lng>` | De coordenadas a dirección aproximada | `{ ok, ubicacion: { latitud, longitud, direccion } }` |
 
-Ambos requieren sesión iniciada. La llamada del frontend está en `src/services/geocodificacion.service.ts`, y el mapa es el componente `src/components/MapaSeleccionUbicacion.tsx` (Leaflet), que puede usarse para elegir un punto o, en modo solo lectura, para mostrarlo.
+La llamada del frontend está en `src/services/geocodificacion.service.ts`, y el mapa es el componente `src/components/MapaSeleccionUbicacion.tsx` (Leaflet), que puede usarse para elegir un punto o, en modo solo lectura, para mostrarlo.
 
 **Si el servicio falla.** La geocodificación nunca bloquea el reclamo:
 
@@ -550,6 +551,7 @@ No usa credenciales, es la opción de consultar sin cuenta, lleva directamente a
 ```bash
 npm run build
 ```
+
 ### 11.4. Pruebas unitarias
 
 ```bash
@@ -584,8 +586,7 @@ carpeta-del-proyecto/
 
 4. Abrir la aplicación en [http://localhost:8080](http://localhost:8080).
 
-Para detener los servicios: `docker compose down`.
----
+## Para detener los servicios: `docker compose down`.
 
 ## 12. Imagenes de la aplicación en ejecución
 
@@ -604,27 +605,28 @@ Para detener los servicios: `docker compose down`.
 ![Consulta por folio](public/captura-vecino-consulta.png)
 
 ---
+
 ## 13. Progreso entre entregas
 
 Esta sección resume qué cambió en cada entrega. Las cifras de peso de la aplicación se midieron con `npm run build`, y las de accesibilidad con el análisis automático `eslint-plugin-jsx-a11y`.
 
 ### 13.1. Evolución por área
 
-| Área | EP1 (diseño y estructura) | EP2 (integración y autenticación) | Entrega final |
-| :-- | :-- | :-- | :-- |
-| Datos | Servicios simulados (mock) | PostgreSQL y API REST con CRUD de reclamos | Índices para los filtros de la bandeja, paginación de la lista, coordenadas del reclamo (`latitud` y `longitud`) y tabla de notificaciones |
-| Autenticación y seguridad | Pantallas de login y registro con validaciones visuales | JWT, roles y contraseñas con bcrypt | Rol revalidado en la base de datos, 401 para token inválido (antes 403), límite de intentos (429), `helmet`, CORS restringido, validación de imágenes por contenido y sanitización de texto |
-| Integración frontend y backend | No aplica | Consumo de la API con `fetch` y token; la foto no se enviaba y las categorías estaban fijas en el código | La foto se sube como `multipart/form-data`; categorías y unidades se obtienen de la API (`catalogos.service.ts`) |
-| Funcionalidades | RF-01 a RF-10 definidos; RF-11 declarado para una entrega posterior | RF-01 a RF-10 | Se suman: exportación a CSV y PDF (RF-11), notificaciones al vecino con aviso local (RF-12), mapa con geocodificación (RF-13) y administración de catálogos (RF-14) |
-| Rendimiento | No medido | No medido | Archivo principal de 1.309 kB (291 kB comprimido), contra 2.385 kB (533 kB comprimido) antes de optimizar: **−45 %**. Se logró con carga diferida de pantallas (`React.lazy`) y eliminando una copia duplicada de Ionic (`@ionic/react` y `@ionic/react-router` fijados en la misma versión, 8.8.19) |
-| Carga del Dashboard | No aplica | No aplica | El Dashboard pesa 13 kB: las librerías de exportación a PDF (~600 kB) se descargan solo al pulsar «PDF» |
-| Accesibilidad | Sin revisión formal | Sin revisión formal | Hallazgos automáticos de accesibilidad: de 16 a **0**. Campos de formulario sin nombre accesible: de 19 a **0**. El enlace «¿Olvidaste tu contraseña?» ahora es un botón que se puede usar con teclado |
-| Estados de carga y error | No aplica | Solo en la vista del vecino | Bandeja de administración, Dashboard y login: indicador de carga, mensaje de error con botón «Reintentar» y estado vacío |
-| Exportación de reportes | Declarada como RF-11 para una entrega posterior | No implementada | CSV y PDF desde el Dashboard; el CSV escapa las celdas para evitar la inyección de fórmulas en Excel |
-| Almacenamiento local | No aplica | Token de sesión en `localStorage` | Sesión, borrador automático del formulario y caché de la última lista de reclamos con `@capacitor/preferences`, con aviso cuando no hay conexión |
-| Pruebas | Sin pruebas | Colección de Postman manual (16 peticiones) | Colección de Postman con 33 peticiones y aserciones, pruebas automáticas del backend (`tests/app.test.js`) y del frontend (Vitest) |
-| Despliegue | Servidor de desarrollo local | Manual: Node.js y PostgreSQL instalados en cada equipo | `docker compose up --build` levanta base de datos, API y frontend |
-| Evaluación | No aplica | 88/100 (ayudante) | No aplica |
+| Área                           | EP1 (diseño y estructura)                                           | EP2 (integración y autenticación)                                                                        | Entrega final                                                                                                                                                                                                                                                                                        |
+| :----------------------------- | :------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Datos                          | Servicios simulados (mock)                                          | PostgreSQL y API REST con CRUD de reclamos                                                               | Índices para los filtros de la bandeja, paginación de la lista, coordenadas del reclamo (`latitud` y `longitud`) y tabla de notificaciones                                                                                                                                                           |
+| Autenticación y seguridad      | Pantallas de login y registro con validaciones visuales             | JWT, roles y contraseñas con bcrypt                                                                      | Rol revalidado en la base de datos, 401 para token inválido (antes 403), límite de intentos (429), `helmet`, CORS restringido, validación de imágenes por contenido y sanitización de texto                                                                                                          |
+| Integración frontend y backend | No aplica                                                           | Consumo de la API con `fetch` y token; la foto no se enviaba y las categorías estaban fijas en el código | La foto se sube como `multipart/form-data`; categorías y unidades se obtienen de la API (`catalogos.service.ts`)                                                                                                                                                                                     |
+| Funcionalidades                | RF-01 a RF-10 definidos; RF-11 declarado para una entrega posterior | RF-01 a RF-10                                                                                            | Se suman: exportación a CSV y PDF (RF-11), notificaciones al vecino con aviso local (RF-12), mapa con geocodificación (RF-13) y administración de catálogos (RF-14)                                                                                                                                  |
+| Rendimiento                    | No medido                                                           | No medido                                                                                                | Archivo principal de 1.309 kB (291 kB comprimido), contra 2.385 kB (533 kB comprimido) antes de optimizar: **−45 %**. Se logró con carga diferida de pantallas (`React.lazy`) y eliminando una copia duplicada de Ionic (`@ionic/react` y `@ionic/react-router` fijados en la misma versión, 8.8.19) |
+| Carga del Dashboard            | No aplica                                                           | No aplica                                                                                                | El Dashboard pesa 13 kB: las librerías de exportación a PDF (~600 kB) se descargan solo al pulsar «PDF»                                                                                                                                                                                              |
+| Accesibilidad                  | Sin revisión formal                                                 | Sin revisión formal                                                                                      | Hallazgos automáticos de accesibilidad: de 16 a **0**. Campos de formulario sin nombre accesible: de 19 a **0**. El enlace «¿Olvidaste tu contraseña?» ahora es un botón que se puede usar con teclado                                                                                               |
+| Estados de carga y error       | No aplica                                                           | Solo en la vista del vecino                                                                              | Bandeja de administración, Dashboard y login: indicador de carga, mensaje de error con botón «Reintentar» y estado vacío                                                                                                                                                                             |
+| Exportación de reportes        | Declarada como RF-11 para una entrega posterior                     | No implementada                                                                                          | CSV y PDF desde el Dashboard; el CSV escapa las celdas para evitar la inyección de fórmulas en Excel                                                                                                                                                                                                 |
+| Almacenamiento local           | No aplica                                                           | Token de sesión en `localStorage`                                                                        | Sesión, borrador automático del formulario y caché de la última lista de reclamos con `@capacitor/preferences`, con aviso cuando no hay conexión                                                                                                                                                     |
+| Pruebas                        | Sin pruebas                                                         | Colección de Postman manual (16 peticiones)                                                              | Colección de Postman con 33 peticiones y aserciones, pruebas automáticas del backend (`tests/app.test.js`) y del frontend (Vitest)                                                                                                                                                                   |
+| Despliegue                     | Servidor de desarrollo local                                        | Manual: Node.js y PostgreSQL instalados en cada equipo                                                   | `docker compose up --build` levanta base de datos, API y frontend                                                                                                                                                                                                                                    |
+| Evaluación                     | No aplica                                                           | 88/100 (ayudante)                                                                                        | No aplica                                                                                                                                                                                                                                                                                            |
 
 ### 13.2. Retroalimentación incorporada
 
@@ -638,6 +640,7 @@ Estos comentarios del ayudante en la Entrega Parcial 2 se corrigieron:
 - **Documentación:** se corrigieron la sintaxis Markdown, los requerimientos no funcionales (ahora medibles) y las referencias normativas.
 
 ---
+
 ## 14. Bibliografía y uso de IA
 
 - **BIBLIOGRAFÍA**
