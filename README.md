@@ -227,24 +227,26 @@ Considerando que un proyecto tiene más requerimientos funcionales, se enfatiza 
 Se solicita nombre y correo para la identificación única del vecino y futura recuperación de clave. El teléfono se incluye como campo opcional anticipando la integración con notificaciones (EP2) para avisos de cuadrillas municipales. Se evita solicitar datos sensibles como RUT o dirección exacta en el registro para respetar la privacidad y minimizar la fricción de ingreso (RNF-01).
 ### 5.4. Matriz de trazabilidad
 
-Cada requerimiento funcional se asocia con la pantalla que lo implementa, el endpoint de la API que lo sostiene y la prueba que permite verificarlo. Las pruebas de API están en la colección de Postman (`backend/pruebas/MiSantoDomingo.postman_collection.json`). Las marcadas como «manual» se verifican en la interfaz, porque su lógica se ejecuta en el navegador y no tiene un endpoint propio.
+Cada requerimiento funcional se asocia con la pantalla que lo implementa, el endpoint de la API que lo sostiene y la prueba que permite verificarlo. Las pruebas de API están en la colección de Postman (`backend/pruebas/MiSantoDomingo.postman_collection.json`, 33 peticiones con aserciones sobre el código HTTP y el cuerpo de la respuesta); se indica el número de cada petición dentro de la colección. Las marcadas como «manual» se verifican en la interfaz, porque su lógica se ejecuta en el navegador y no tiene un endpoint propio.
 
 | RF | Pantalla o componente | Endpoint | Prueba |
 | :-- | :-- | :-- | :-- |
-| RF-01 Ingreso de Reclamo | `VecinoHomePage` (vista Nuevo) | `POST /api/reclamos` | Postman: «Crear reclamo» |
-| RF-02 Folio Único | `VecinoHomePage` (pantalla de confirmación) | Lo genera `POST /api/reclamos` | Postman: «Crear reclamo» (la respuesta trae el folio `SD-2026-XXXXXX`) |
-| RF-03 Consulta Pública por Folio | `ConsultaPublicaPage` y vista Consulta del vecino | `GET /api/reclamos/folio/:folio` | Postman: «Folio inexistente» (404) y «Consultar folio existente» (nueva) |
+| RF-01 Ingreso de Reclamo | `VecinoHomePage` (vista Nuevo) | `POST /api/reclamos` | Postman #12 «Crear reclamo» y #18 «Magic Bytes 400» (rechaza una imagen falsa) |
+| RF-02 Folio Único | `VecinoHomePage` (pantalla de confirmación) | Lo genera `POST /api/reclamos` | Postman #12 «Crear reclamo» (verifica que la respuesta traiga ID y folio) |
+| RF-03 Consulta Pública por Folio | `ConsultaPublicaPage` y vista Consulta del vecino | `GET /api/reclamos/folio/:folio` | Postman #20 «Consultar folio existente» y #8 «Folio inexistente» (404) |
 | RF-04 Cálculo de Plazo Legal | Tarjetas de `VecinoHomePage` y `AdminHomePage` | Se calcula en el frontend con la fecha de ingreso | Manual: la tarjeta muestra los días restantes y se pone en alerta al vencer |
-| RF-05 Trazabilidad Histórica | Modal de detalle de `VecinoHomePage` y `AdminHomePage` | `GET /api/reclamos/:id` (incluye el historial) | Postman: «Detalle de reclamo» (nueva) |
-| RF-06 Bandeja Filtrable de Reclamos | `AdminHomePage` | `GET /api/reclamos` con filtros | Postman: «Listar reclamos con token» y «Listar reclamos con filtros» (nueva) |
-| RF-07 Derivación entre Unidades | `AdminHomePage` | `PATCH /api/reclamos/:id/estado` | Postman: «Derivar reclamo como admin» y «Cambio de estado sin ser admin» (403) |
-| RF-08 Cierre Formal con Respuesta | `AdminHomePage` | `PATCH /api/reclamos/:id/estado` | Postman: «Resolver reclamo como admin» (nueva) |
-| RF-09 Calificación Ciudadana Única | `ConsultaPublicaPage` y `VecinoHomePage` | `POST /api/reclamos/:id/calificacion` | Postman: «Calificar reclamo resuelto» y «Calificar dos veces» (409) (nuevas) |
+| RF-05 Trazabilidad Histórica | Modal de detalle de `VecinoHomePage` y `AdminHomePage` | `GET /api/reclamos/:id` (incluye el historial) | Postman #21 «Detalle de reclamo» |
+| RF-06 Bandeja Filtrable de Reclamos | `AdminHomePage` | `GET /api/reclamos` con filtros | Postman #5 «Listar reclamos con token» y #22 «Listar reclamos con filtros» |
+| RF-07 Derivación entre Unidades | `AdminHomePage` | `PATCH /api/reclamos/:id/estado` | Postman #13 «Derivar reclamo como admin» y #9 «Cambio de estado sin ser admin» (403) |
+| RF-08 Cierre Formal con Respuesta | `AdminHomePage` | `PATCH /api/reclamos/:id/estado` | Postman #23 «Resolver reclamo como admin» |
+| RF-09 Calificación Ciudadana Única | `ConsultaPublicaPage` y `VecinoHomePage` | `POST /api/reclamos/:id/calificacion` | Postman #24 «Calificar reclamo resuelto» y #25 «Calificar dos veces» (409) |
 | RF-10 Dashboard de Indicadores KPI | `Dashboard` | `GET /api/reclamos` | Manual: las tarjetas y el gráfico coinciden con los reclamos cargados |
 | RF-11 Exportación de Reportes | `Dashboard` | No tiene (se genera en el navegador) | Manual: abrir el CSV en Excel y revisar el PDF generado |
-| RF-12 Notificaciones al Vecino | `NotificacionesModal`, campana del encabezado y `VecinoSidebar` | `GET /api/notificaciones`, `PATCH /api/notificaciones/:id/leida`, `PATCH /api/notificaciones/leer-todas` | Postman: «Listar notificaciones», «Marcar notificación como leída» y «Marcar todas como leídas» (nuevas) |
-| RF-13 Ubicación Georreferenciada | `MapaSeleccionUbicacion` en `VecinoHomePage` y detalles | `GET /api/geocodificar`, `GET /api/geocodificar/inversa` | Postman: «Geocodificar dirección» y «Geocodificar inversa» (nuevas) |
-| RF-14 Administración de Catálogos | Pantalla de catálogos del funcionario | `POST`, `PUT` y `DELETE` en `/api/categorias` y `/api/unidades` | Postman: «Crear categoría», «Editar categoría» y «Eliminar categoría en uso» (409) (nuevas) |
+| RF-12 Notificaciones al Vecino | `NotificacionesModal`, campana del encabezado y `VecinoSidebar` | `GET /api/notificaciones`, `PATCH /api/notificaciones/:id/leida`, `PATCH /api/notificaciones/leer-todas` | Postman #26 «Listar notificaciones», #27 «Marcar notificación como leída» y #28 «Marcar todas como leídas» |
+| RF-13 Ubicación Georreferenciada | `MapaSeleccionUbicacion` en `VecinoHomePage` y en los detalles | `GET /api/geocodificar`, `GET /api/geocodificar/inversa` | Postman #29 «Geocodificar dirección» y #30 «Geocodificar inversa»; automática: `geocodificacion.service.test.ts` |
+| RF-14 Administración de Catálogos | `CatalogosPage` (`/admin/catalogos`) | `POST`, `PUT` y `DELETE` en `/api/categorias` y `/api/unidades` | Postman #31 «Crear categoría», #32 «Editar categoría» y #33 «Eliminar categoría en uso» (409) |
+
+**Pruebas automáticas.** Además de Postman, el proyecto incluye pruebas unitarias: `ProtectedRoute.test.tsx` (guardia de rutas por sesión y rol), `geocodificacion.service.test.ts` (servicio de geocodificación) y `tests/app.test.js` en el backend.
 ---
 
 ## 6. Arquitectura de navegación y experiencia de usuario
