@@ -546,7 +546,41 @@ No usa credenciales, es la opción de consultar sin cuenta, lleva directamente a
 ```bash
 npm run build
 ```
+### 11.4. Pruebas unitarias
 
+```bash
+npm run test.unit -- --run
+```
+
+Equivale a `npx vitest run`, y ejecuta todas las pruebas una sola vez, sin quedarse en modo vigilancia.
+
+### 11.5. Ejecución con Docker
+
+El `docker-compose.yml` se levanta desde la carpeta hermana `MiSantoDomingo-backend/`, por lo que ambos proyectos deben estar uno al lado del otro:
+
+```text
+carpeta-del-proyecto/
+├── MiSantoDomingo/            (este frontend)
+└── MiSantoDomingo-backend/    (backend y docker-compose.yml)
+```
+
+1. Entrar a la carpeta del backend:
+
+   ```bash
+   cd MiSantoDomingo-backend
+   ```
+
+2. Preparar las variables de entorno según las instrucciones del README del backend.
+
+3. Construir y levantar los servicios (base de datos, API y frontend):
+
+   ```bash
+   docker compose up --build
+   ```
+
+4. Abrir la aplicación en [http://localhost:8080](http://localhost:8080).
+
+Para detener los servicios: `docker compose down`.
 ---
 
 ## 12. Imagenes de la aplicación en ejecución
